@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DIPY &#8212; dipy 0.14.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/dipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.14.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="DIPY, dMRI, DTI, DSI, diffusion MRI, Tensor,
+  neuroimaging, python, neuroscience, Eleftherios, Garyfallidis, tractography,
+  streamlines, fiber tracking">
+
+  </head>
+  <body role="document">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/dipy-banner.png" alt="DIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.org/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="https://mail.python.org/mailman/listinfo/neuroimaging">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/nipy/license.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Read/Write streamline files</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples_built/streamline_formats.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox-ml" style="display: none">
+  <h3>Search mailing list archive</h3>
+  <script type="text/javascript">
+    function mlsearch(curobj)
+    {
+    curobj.q.value="site:mail.python.org/pipermail/neuroimaging/ "+curobj.userquery.value
+    }
+  </script>
+  <form action="http://www.google.com/search" method="get" onSubmit="mlsearch(this)">
+    <input name="userquery" size="13" type="text" /> <input type="submit" value="Go" />
+    <input name="q" type="hidden" />
+  </form>
+</div>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+<script>
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'nipy/dipy'
+     };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="read-write-streamline-files">
+<span id="example-streamline-formats"></span><h1>Read/Write streamline files<a class="headerlink" href="#read-write-streamline-files" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="http://dipy.org">DIPY</a> can read and write many different file formats. In this example
+we give a short introduction on how to use it for loading or saving streamlines.</p>
+<p>Read <a class="reference internal" href="../faq.html#faq"><span class="std std-ref">Frequently Asked Questions</span></a></p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="n">get_data</span>
+<span class="kn">from</span> <span class="nn">dipy.io.streamline</span> <span class="k">import</span> <span class="n">load_trk</span><span class="p">,</span> <span class="n">save_trk</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking.streamline</span> <span class="k">import</span> <span class="n">Streamlines</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li>Read/write streamline files with DIPY.</li>
+</ol>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fname</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="s1">&#39;fornix&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+<span class="c1"># Read Streamlines</span>
+<span class="n">streams</span><span class="p">,</span> <span class="n">hdr</span> <span class="o">=</span> <span class="n">load_trk</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+<span class="n">streamlines</span> <span class="o">=</span> <span class="n">Streamlines</span><span class="p">(</span><span class="n">streams</span><span class="p">)</span>
+
+<span class="c1"># Save Streamlines</span>
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;my_streamlines.trk&quot;</span><span class="p">,</span> <span class="n">streamlines</span><span class="o">=</span><span class="n">streamlines</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>We also work on our HDF5 based file format which can read/write massive datasets
+(as big as the size of you free disk space). With <cite>Dpy</cite> we can support</li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li>direct indexing from the disk</li>
+<li>memory usage always low</li>
+<li>extensions to include different arrays in the same file</li>
+</ul>
+</div></blockquote>
+<p>Here is a simple example.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.io.dpy</span> <span class="k">import</span> <span class="n">Dpy</span>
+<span class="n">dpw</span> <span class="o">=</span> <span class="n">Dpy</span><span class="p">(</span><span class="s1">&#39;fornix.dpy&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Write many streamlines at once.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dpw</span><span class="o">.</span><span class="n">write_tracks</span><span class="p">(</span><span class="n">streamlines</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Write one track</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">streamlines</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>or one track each time.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">streamlines</span><span class="p">:</span>
+    <span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="n">dpw</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Read streamlines directly from the disk using their indices</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">dpr</span> <span class="o">=</span> <span class="n">Dpy</span><span class="p">(</span><span class="s1">&#39;fornix.dpy&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">some_streamlines</span> <span class="o">=</span> <span class="n">dpr</span><span class="o">.</span><span class="n">read_tracksi</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
+<span class="n">dpr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">streamlines</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">some_streamlines</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" href="../_downloads/streamline_formats.py" download=""><code class="xref download docutils literal"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the dipy source distribution under the
+<code class="file docutils literal"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2008-2018, dipy developers &lt;neuroimaging@python.org&gt;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DIPY &#8212; dipy 0.14.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/dipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.14.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="DIPY, dMRI, DTI, DSI, diffusion MRI, Tensor,
+  neuroimaging, python, neuroscience, Eleftherios, Garyfallidis, tractography,
+  streamlines, fiber tracking">
+
+  </head>
+  <body role="document">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/dipy-banner.png" alt="DIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.org/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="https://mail.python.org/mailman/listinfo/neuroimaging">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/nipy/license.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">User Interfaces</a><ul>
+<li><a class="reference internal" href="#d-elements">3D Elements</a></li>
+<li><a class="reference internal" href="#buttons">Buttons</a></li>
+<li><a class="reference internal" href="#panels">Panels</a></li>
+<li><a class="reference internal" href="#textbox">TextBox</a></li>
+<li><a class="reference internal" href="#d-line-slider">2D Line Slider</a></li>
+<li><a class="reference internal" href="#d-disk-slider">2D Disk Slider</a></li>
+<li><a class="reference internal" href="#d-file-select-menu">2D File Select Menu</a></li>
+<li><a class="reference internal" href="#adding-elements-to-the-showmanager">Adding Elements to the ShowManager</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples_built/viz_ui.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox-ml" style="display: none">
+  <h3>Search mailing list archive</h3>
+  <script type="text/javascript">
+    function mlsearch(curobj)
+    {
+    curobj.q.value="site:mail.python.org/pipermail/neuroimaging/ "+curobj.userquery.value
+    }
+  </script>
+  <form action="http://www.google.com/search" method="get" onSubmit="mlsearch(this)">
+    <input name="userquery" size="13" type="text" /> <input type="submit" value="Go" />
+    <input name="q" type="hidden" />
+  </form>
+</div>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+<script>
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'nipy/dipy'
+     };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="user-interfaces">
+<span id="example-viz-ui"></span><h1>User Interfaces<a class="headerlink" href="#user-interfaces" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how to use the UI API.
+Currently includes button, textbox, panel, and line slider.</p>
+<p>First, a bunch of imports.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="n">read_viz_icons</span><span class="p">,</span> <span class="n">fetch_viz_icons</span>
+
+<span class="kn">from</span> <span class="nn">dipy.viz</span> <span class="k">import</span> <span class="n">ui</span><span class="p">,</span> <span class="n">window</span>
+</pre></div>
+</div>
+<div class="section" id="d-elements">
+<h2>3D Elements<a class="headerlink" href="#d-elements" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s have some cubes in 3D.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">cube_maker</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">),</span> <span class="n">center</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">cube</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">vtk</span><span class="o">.</span><span class="n">vtkCubeSource</span><span class="p">()</span>
+    <span class="n">cube</span><span class="o">.</span><span class="n">SetXLength</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">cube</span><span class="o">.</span><span class="n">SetYLength</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">cube</span><span class="o">.</span><span class="n">SetZLength</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">center</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cube</span><span class="o">.</span><span class="n">SetCenter</span><span class="p">(</span><span class="o">*</span><span class="n">center</span><span class="p">)</span>
+    <span class="n">cube_mapper</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">vtk</span><span class="o">.</span><span class="n">vtkPolyDataMapper</span><span class="p">()</span>
+    <span class="n">cube_mapper</span><span class="o">.</span><span class="n">SetInputConnection</span><span class="p">(</span><span class="n">cube</span><span class="o">.</span><span class="n">GetOutputPort</span><span class="p">())</span>
+    <span class="n">cube_actor</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">vtk</span><span class="o">.</span><span class="n">vtkActor</span><span class="p">()</span>
+    <span class="n">cube_actor</span><span class="o">.</span><span class="n">SetMapper</span><span class="p">(</span><span class="n">cube_mapper</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cube_actor</span><span class="o">.</span><span class="n">GetProperty</span><span class="p">()</span><span class="o">.</span><span class="n">SetColor</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cube_actor</span>
+
+
+<span class="n">cube_actor_1</span> <span class="o">=</span> <span class="n">cube_maker</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">cube_actor_2</span> <span class="o">=</span> <span class="n">cube_maker</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="buttons">
+<h2>Buttons<a class="headerlink" href="#buttons" title="Permalink to this headline">¶</a></h2>
+<p>We first fetch the icons required for making the buttons.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fetch_viz_icons</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Add the icon filenames to a dict.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">icon_files</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="n">icon_files</span><span class="p">[</span><span class="s1">&#39;stop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_viz_icons</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="s1">&#39;stop2.png&#39;</span><span class="p">)</span>
+<span class="n">icon_files</span><span class="p">[</span><span class="s1">&#39;play&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_viz_icons</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="s1">&#39;play3.png&#39;</span><span class="p">)</span>
+<span class="n">icon_files</span><span class="p">[</span><span class="s1">&#39;plus&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_viz_icons</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="s1">&#39;plus.png&#39;</span><span class="p">)</span>
+<span class="n">icon_files</span><span class="p">[</span><span class="s1">&#39;cross&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_viz_icons</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="s1">&#39;cross.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a button through our API.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">button_example</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Button2D</span><span class="p">(</span><span class="n">icon_fnames</span><span class="o">=</span><span class="n">icon_files</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We now add some click listeners.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">left_mouse_button_click</span><span class="p">(</span><span class="n">i_ren</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Left Button Clicked&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">left_mouse_button_drag</span><span class="p">(</span><span class="n">i_ren</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Left Button Dragged&quot;</span><span class="p">)</span>
+
+
+<span class="n">button_example</span><span class="o">.</span><span class="n">on_left_mouse_button_drag</span> <span class="o">=</span> <span class="n">left_mouse_button_drag</span>
+<span class="n">button_example</span><span class="o">.</span><span class="n">on_left_mouse_button_pressed</span> <span class="o">=</span> <span class="n">left_mouse_button_click</span>
+
+
+<span class="k">def</span> <span class="nf">right_mouse_button_drag</span><span class="p">(</span><span class="n">i_ren</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Right Button Dragged&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">right_mouse_button_click</span><span class="p">(</span><span class="n">i_ren</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="s2">&quot;Right Button Clicked&quot;</span><span class="p">)</span>
+
+
+<span class="n">button_example</span><span class="o">.</span><span class="n">on_right_mouse_button_drag</span> <span class="o">=</span> <span class="n">right_mouse_button_drag</span>
+<span class="n">button_example</span><span class="o">.</span><span class="n">on_right_mouse_button_pressed</span> <span class="o">=</span> <span class="n">right_mouse_button_click</span>
+</pre></div>
+</div>
+<p>Let&#8217;s have another button.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">second_button_example</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Button2D</span><span class="p">(</span><span class="n">icon_fnames</span><span class="o">=</span><span class="n">icon_files</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This time, we will call the built in <cite>next_icon</cite> method
+via a callback that is triggered on left click.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">modify_button_callback</span><span class="p">(</span><span class="n">i_ren</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
+    <span class="n">button</span><span class="o">.</span><span class="n">next_icon</span><span class="p">()</span>
+    <span class="n">i_ren</span><span class="o">.</span><span class="n">force_render</span><span class="p">()</span>
+
+
+<span class="n">second_button_example</span><span class="o">.</span><span class="n">on_left_mouse_button_pressed</span> <span class="o">=</span> <span class="n">modify_button_callback</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="panels">
+<h2>Panels<a class="headerlink" href="#panels" title="Permalink to this headline">¶</a></h2>
+<p>Simply create a panel and add elements to it.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">panel</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">Panel2D</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="mi">440</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                   <span class="n">align</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">button_example</span><span class="p">,</span> <span class="s1">&#39;relative&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">))</span>
+<span class="n">panel</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">second_button_example</span><span class="p">,</span> <span class="s1">&#39;absolute&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="textbox">
+<h2>TextBox<a class="headerlink" href="#textbox" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">text</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">TextBox2D</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="d-line-slider">
+<h2>2D Line Slider<a class="headerlink" href="#d-line-slider" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">translate_green_cube</span><span class="p">(</span><span class="n">i_ren</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">slider</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">slider</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">cube_actor_2</span><span class="o">.</span><span class="n">SetPosition</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">line_slider</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">LineSlider2D</span><span class="p">(</span><span class="n">initial_value</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span>
+                              <span class="n">min_value</span><span class="o">=-</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">line_slider</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">line_slider</span><span class="o">.</span><span class="n">slider_disk</span><span class="p">,</span>
+                         <span class="s2">&quot;MouseMoveEvent&quot;</span><span class="p">,</span>
+                         <span class="n">translate_green_cube</span><span class="p">)</span>
+
+<span class="n">line_slider</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">line_slider</span><span class="o">.</span><span class="n">slider_line</span><span class="p">,</span>
+                         <span class="s2">&quot;LeftButtonPressEvent&quot;</span><span class="p">,</span>
+                         <span class="n">translate_green_cube</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="d-disk-slider">
+<h2>2D Disk Slider<a class="headerlink" href="#d-disk-slider" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">rotate_red_cube</span><span class="p">(</span><span class="n">i_ren</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">slider</span><span class="p">):</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="n">slider</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">previous_angle</span> <span class="o">=</span> <span class="n">slider</span><span class="o">.</span><span class="n">previous_value</span>
+    <span class="n">rotation_angle</span> <span class="o">=</span> <span class="n">angle</span> <span class="o">-</span> <span class="n">previous_angle</span>
+    <span class="n">cube_actor_1</span><span class="o">.</span><span class="n">RotateY</span><span class="p">(</span><span class="n">rotation_angle</span><span class="p">)</span>
+
+
+<span class="n">disk_slider</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">DiskSlider2D</span><span class="p">()</span>
+<span class="n">disk_slider</span><span class="o">.</span><span class="n">set_center</span><span class="p">((</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">))</span>
+<span class="n">disk_slider</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">disk_slider</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
+                         <span class="s2">&quot;MouseMoveEvent&quot;</span><span class="p">,</span>
+                         <span class="n">rotate_red_cube</span><span class="p">)</span>
+
+<span class="n">disk_slider</span><span class="o">.</span><span class="n">add_callback</span><span class="p">(</span><span class="n">disk_slider</span><span class="o">.</span><span class="n">base_disk</span><span class="p">,</span>
+                         <span class="s2">&quot;LeftButtonPressEvent&quot;</span><span class="p">,</span>
+                         <span class="n">rotate_red_cube</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="d-file-select-menu">
+<h2>2D File Select Menu<a class="headerlink" href="#d-file-select-menu" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">file_select_menu</span> <span class="o">=</span> <span class="n">ui</span><span class="o">.</span><span class="n">FileSelectMenu2D</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span>
+                                       <span class="n">position</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span>
+                                       <span class="n">font_size</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+                                       <span class="n">extensions</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;py&quot;</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">],</span>
+                                       <span class="n">directory_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span>
+                                       <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-elements-to-the-showmanager">
+<h2>Adding Elements to the ShowManager<a class="headerlink" href="#adding-elements-to-the-showmanager" title="Permalink to this headline">¶</a></h2>
+<p>Once all elements have been initialised, they have
+to be added to the show manager in the following manner.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">current_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+<span class="n">show_manager</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">ShowManager</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">current_size</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;DIPY UI Example&quot;</span><span class="p">)</span>
+
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cube_actor_1</span><span class="p">)</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cube_actor_2</span><span class="p">)</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">panel</span><span class="p">)</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">line_slider</span><span class="p">)</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">disk_slider</span><span class="p">)</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">file_select_menu</span><span class="p">)</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">reset_camera</span><span class="p">()</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">reset_clipping_range</span><span class="p">()</span>
+<span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># Uncomment this to start the visualisation</span>
+<span class="c1"># show_manager.start()</span>
+
+<span class="n">window</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">show_manager</span><span class="o">.</span><span class="n">ren</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">current_size</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="s2">&quot;viz_ui.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id1">
+<img alt="../_images/viz_ui.png" src="../_images/viz_ui.png" />
+<p class="caption"><span class="caption-text"><strong>User interface example</strong>.</span></p>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" href="../_downloads/viz_ui.py" download=""><code class="xref download docutils literal"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the dipy source distribution under the
+<code class="file docutils literal"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2008-2018, dipy developers &lt;neuroimaging@python.org&gt;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

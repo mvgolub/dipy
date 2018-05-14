@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DIPY &#8212; dipy 0.14.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/dipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.14.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="DIPY, dMRI, DTI, DSI, diffusion MRI, Tensor,
+  neuroimaging, python, neuroscience, Eleftherios, Garyfallidis, tractography,
+  streamlines, fiber tracking">
+
+  </head>
+  <body role="document">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/dipy-banner.png" alt="DIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.org/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="https://mail.python.org/mailman/listinfo/neuroimaging">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/nipy/license.html">License</a></li>
+  </ul>
+
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples_built/probabilistic_fiber_tracking.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox-ml" style="display: none">
+  <h3>Search mailing list archive</h3>
+  <script type="text/javascript">
+    function mlsearch(curobj)
+    {
+    curobj.q.value="site:mail.python.org/pipermail/neuroimaging/ "+curobj.userquery.value
+    }
+  </script>
+  <form action="http://www.google.com/search" method="get" onSubmit="mlsearch(this)">
+    <input name="userquery" size="13" type="text" /> <input type="submit" value="Go" />
+    <input name="q" type="hidden" />
+  </form>
+</div>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+<script>
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'nipy/dipy'
+     };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="an-introduction-to-the-probabilistic-direction-getter">
+<span id="example-probabilistic-fiber-tracking"></span><h1>An introduction to the Probabilistic Direction Getter<a class="headerlink" href="#an-introduction-to-the-probabilistic-direction-getter" title="Permalink to this headline">¶</a></h1>
+<p>Probabilistic fiber tracking is a way of reconstructing white matter
+connections using diffusion MR imaging. Like deterministic fiber tracking, the
+probabilistic approach follows the trajectory of a possible pathway step by
+step starting at a seed, however, unlike deterministic tracking, the tracking
+direction at each point along the path is chosen at random from a distribution.
+The distribution at each point is different and depends on the observed
+diffusion data at that point. The distribution of tracking directions at each
+point can be represented as a probability mass function (PMF) if the possible
+tracking directions are restricted to discrete numbers of well distributed
+points on a sphere.</p>
+<p>This example is an extension of the <a class="reference internal" href="introduction_to_basic_tracking.html#intro-basic-tracking"><span class="std std-ref">Introduction to Basic Tracking</span></a> example. We&#8217;ll
+begin by repeating a few steps from that example, loading the data and fitting
+a Constrained Spherical Deconvolution (CSD) model.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="n">read_stanford_labels</span>
+<span class="kn">from</span> <span class="nn">dipy.reconst.csdeconv</span> <span class="k">import</span> <span class="n">ConstrainedSphericalDeconvModel</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking</span> <span class="k">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking.local</span> <span class="k">import</span> <span class="p">(</span><span class="n">ThresholdTissueClassifier</span><span class="p">,</span> <span class="n">LocalTracking</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking.streamline</span> <span class="k">import</span> <span class="n">Streamlines</span>
+
+<span class="n">hardi_img</span><span class="p">,</span> <span class="n">gtab</span><span class="p">,</span> <span class="n">labels_img</span> <span class="o">=</span> <span class="n">read_stanford_labels</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">hardi_img</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">labels_img</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+<span class="n">affine</span> <span class="o">=</span> <span class="n">hardi_img</span><span class="o">.</span><span class="n">affine</span>
+
+<span class="n">seed_mask</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">==</span> <span class="mi">2</span>
+<span class="n">white_matter</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">seeds</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">seeds_from_mask</span><span class="p">(</span><span class="n">seed_mask</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+<span class="n">csd_model</span> <span class="o">=</span> <span class="n">ConstrainedSphericalDeconvModel</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sh_order</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">csd_fit</span> <span class="o">=</span> <span class="n">csd_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">white_matter</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We use the GFA of the CSA model to build a tissue classifier.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.reconst.shm</span> <span class="k">import</span> <span class="n">CsaOdfModel</span>
+
+<span class="n">csa_model</span> <span class="o">=</span> <span class="n">CsaOdfModel</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="n">sh_order</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">gfa</span> <span class="o">=</span> <span class="n">csa_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">white_matter</span><span class="p">)</span><span class="o">.</span><span class="n">gfa</span>
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">ThresholdTissueClassifier</span><span class="p">(</span><span class="n">gfa</span><span class="p">,</span> <span class="o">.</span><span class="mi">25</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Fiber Orientation Distribution (FOD) of the CSD model estimates the
+distribution of small fiber bundles within each voxel. We can use this
+distribution for probabilistic fiber tracking. One way to do this is to
+represent the FOD using a discrete sphere. This discrete FOD can be used by the
+<code class="docutils literal"><span class="pre">ProbabilisticDirectionGetter</span></code> as a PMF for sampling tracking directions. We
+need to clip the FOD to use it as a PMF because the latter cannot have negative
+values. Ideally, the FOD should be strictly positive, but because of noise
+and/or model failures sometimes it can have negative values.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.direction</span> <span class="k">import</span> <span class="n">ProbabilisticDirectionGetter</span>
+<span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="n">small_sphere</span>
+<span class="kn">from</span> <span class="nn">dipy.io.trackvis</span> <span class="k">import</span> <span class="n">save_trk</span>
+
+<span class="n">fod</span> <span class="o">=</span> <span class="n">csd_fit</span><span class="o">.</span><span class="n">odf</span><span class="p">(</span><span class="n">small_sphere</span><span class="p">)</span>
+<span class="n">pmf</span> <span class="o">=</span> <span class="n">fod</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">prob_dg</span> <span class="o">=</span> <span class="n">ProbabilisticDirectionGetter</span><span class="o">.</span><span class="n">from_pmf</span><span class="p">(</span><span class="n">pmf</span><span class="p">,</span> <span class="n">max_angle</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+                                                <span class="n">sphere</span><span class="o">=</span><span class="n">small_sphere</span><span class="p">)</span>
+<span class="n">streamlines_generator</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">prob_dg</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;probabilistic_small_sphere.trk&quot;</span><span class="p">,</span> <span class="n">streamlines_generator</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One disadvantage of using a discrete PMF to represent possible tracking
+directions is that it tends to take up a lot of memory (RAM). The size of the
+PMF, the FOD in this case, must be equal to the number of possible tracking
+directions on the hemisphere, and every voxel has a unique PMF. In this case
+the data is <code class="docutils literal"><span class="pre">(81,</span> <span class="pre">106,</span> <span class="pre">76)</span></code> and <code class="docutils literal"><span class="pre">small_sphere</span></code> has 181 directions so the
+FOD is <code class="docutils literal"><span class="pre">(81,</span> <span class="pre">106,</span> <span class="pre">76,</span> <span class="pre">181)</span></code>. One way to avoid sampling the PMF and holding it
+in memory is to build the direction getter directly from the spherical harmonic
+representation of the FOD. By using this approach, we can also use a larger
+sphere, like <code class="docutils literal"><span class="pre">default_sphere</span></code> which has 362 directions on the hemisphere,
+without having to worry about memory limitations.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="n">default_sphere</span>
+
+<span class="n">prob_dg</span> <span class="o">=</span> <span class="n">ProbabilisticDirectionGetter</span><span class="o">.</span><span class="n">from_shcoeff</span><span class="p">(</span><span class="n">csd_fit</span><span class="o">.</span><span class="n">shm_coeff</span><span class="p">,</span>
+                                                    <span class="n">max_angle</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+                                                    <span class="n">sphere</span><span class="o">=</span><span class="n">default_sphere</span><span class="p">)</span>
+<span class="n">streamlines_generator</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">prob_dg</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;probabilistic_shm_coeff.trk&quot;</span><span class="p">,</span> <span class="n">streamlines_generator</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span> <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Not all model fits have the <code class="docutils literal"><span class="pre">shm_coeff</span></code> attribute because not all models use
+this basis to represent the data internally. However we can fit the ODF of any
+model to the spherical harmonic basis using the <code class="docutils literal"><span class="pre">peaks_from_model</span></code> function.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.direction</span> <span class="k">import</span> <span class="n">peaks_from_model</span>
+
+<span class="n">peaks</span> <span class="o">=</span> <span class="n">peaks_from_model</span><span class="p">(</span><span class="n">csd_model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">default_sphere</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span>
+                         <span class="n">mask</span><span class="o">=</span><span class="n">white_matter</span><span class="p">,</span> <span class="n">return_sh</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fod_coeff</span> <span class="o">=</span> <span class="n">peaks</span><span class="o">.</span><span class="n">shm_coeff</span>
+<span class="n">prob_dg</span> <span class="o">=</span> <span class="n">ProbabilisticDirectionGetter</span><span class="o">.</span><span class="n">from_shcoeff</span><span class="p">(</span><span class="n">fod_coeff</span><span class="p">,</span> <span class="n">max_angle</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+                                                    <span class="n">sphere</span><span class="o">=</span><span class="n">default_sphere</span><span class="p">)</span>
+<span class="n">streamlines_generator</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">prob_dg</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;probabilistic_peaks_from_model.trk&quot;</span><span class="p">,</span> <span class="n">streamlines_generator</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span>
+         <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" href="../_downloads/probabilistic_fiber_tracking.py" download=""><code class="xref download docutils literal"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the dipy source distribution under the
+<code class="file docutils literal"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2008-2018, dipy developers &lt;neuroimaging@python.org&gt;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DIPY &#8212; dipy 0.14.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/dipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.14.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="DIPY, dMRI, DTI, DSI, diffusion MRI, Tensor,
+  neuroimaging, python, neuroscience, Eleftherios, Garyfallidis, tractography,
+  streamlines, fiber tracking">
+
+  </head>
+  <body role="document">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/dipy-banner.png" alt="DIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.org/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="https://mail.python.org/mailman/listinfo/neuroimaging">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/nipy/license.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using Various Tissue Classifiers for Tractography</a><ul>
+<li><a class="reference internal" href="#threshold-tissue-classifier">Threshold Tissue Classifier</a></li>
+<li><a class="reference internal" href="#binary-tissue-classifier">Binary Tissue Classifier</a></li>
+<li><a class="reference internal" href="#act-tissue-classifier">ACT Tissue Classifier</a></li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples_built/tracking_tissue_classifier.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox-ml" style="display: none">
+  <h3>Search mailing list archive</h3>
+  <script type="text/javascript">
+    function mlsearch(curobj)
+    {
+    curobj.q.value="site:mail.python.org/pipermail/neuroimaging/ "+curobj.userquery.value
+    }
+  </script>
+  <form action="http://www.google.com/search" method="get" onSubmit="mlsearch(this)">
+    <input name="userquery" size="13" type="text" /> <input type="submit" value="Go" />
+    <input name="q" type="hidden" />
+  </form>
+</div>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+<script>
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'nipy/dipy'
+     };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="using-various-tissue-classifiers-for-tractography">
+<span id="example-tracking-tissue-classifier"></span><h1>Using Various Tissue Classifiers for Tractography<a class="headerlink" href="#using-various-tissue-classifiers-for-tractography" title="Permalink to this headline">¶</a></h1>
+<p>The tissue classifier determines if the tracking stops or continues at each
+tracking position. The tracking stops when it reaches an ending region
+(e.g. low FA, gray matter or corticospinal fluid regions) or exits the image
+boundaries. The tracking also stops if the direction getter has no direction
+to follow.</p>
+<p>Each tissue classifier determines if the stopping is &#8216;valid&#8217; or
+&#8216;invalid&#8217;. A streamline is &#8216;valid&#8217; when the tissue classifier determines if
+the streamline stops in a position classified as &#8216;ENDPOINT&#8217; or &#8216;OUTSIDEIMAGE&#8217;.
+A streamline is &#8216;invalid&#8217; when it stops in a position classified as
+&#8216;TRACKPOINT&#8217; or &#8216;INVALIDPOINT&#8217;. These conditions are described below. The
+&#8216;LocalTracking&#8217; generator can be set to output all generated streamlines
+or only the &#8216;valid&#8217; ones.</p>
+<p>This example is an extension of the
+<a class="reference internal" href="deterministic_fiber_tracking.html#example-deterministic-fiber-tracking"><span class="std std-ref">An introduction to the Deterministic Maximum Direction Getter</span></a> example. We begin by loading the
+data, creating a seeding mask from white matter voxels of the corpus callosum,
+fitting a Constrained Spherical Deconvolution (CSD) reconstruction
+model and creating the maximum deterministic direction getter.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="p">(</span><span class="n">read_stanford_labels</span><span class="p">,</span>
+                       <span class="n">default_sphere</span><span class="p">,</span>
+                       <span class="n">read_stanford_pve_maps</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">dipy.direction</span> <span class="k">import</span> <span class="n">DeterministicMaximumDirectionGetter</span>
+<span class="kn">from</span> <span class="nn">dipy.io.trackvis</span> <span class="k">import</span> <span class="n">save_trk</span>
+<span class="kn">from</span> <span class="nn">dipy.reconst.csdeconv</span> <span class="k">import</span> <span class="p">(</span><span class="n">ConstrainedSphericalDeconvModel</span><span class="p">,</span>
+                                   <span class="n">auto_response</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking.local</span> <span class="k">import</span> <span class="n">LocalTracking</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking.streamline</span> <span class="k">import</span> <span class="n">Streamlines</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking</span> <span class="k">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">dipy.viz</span> <span class="k">import</span> <span class="n">window</span><span class="p">,</span> <span class="n">actor</span>
+<span class="kn">from</span> <span class="nn">dipy.viz.colormap</span> <span class="k">import</span> <span class="n">line_colors</span>
+
+<span class="c1"># Enables/disables interactive visualization</span>
+<span class="n">interactive</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">ren</span> <span class="o">=</span> <span class="n">window</span><span class="o">.</span><span class="n">Renderer</span><span class="p">()</span>
+
+<span class="n">hardi_img</span><span class="p">,</span> <span class="n">gtab</span><span class="p">,</span> <span class="n">labels_img</span> <span class="o">=</span> <span class="n">read_stanford_labels</span><span class="p">()</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">img_pve_wm</span> <span class="o">=</span> <span class="n">read_stanford_pve_maps</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">hardi_img</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">labels_img</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+<span class="n">affine</span> <span class="o">=</span> <span class="n">hardi_img</span><span class="o">.</span><span class="n">affine</span>
+<span class="n">white_matter</span> <span class="o">=</span> <span class="n">img_pve_wm</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+<span class="n">seed_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="n">white_matter</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">seeds</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">seeds_from_mask</span><span class="p">(</span><span class="n">seed_mask</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+<span class="n">response</span><span class="p">,</span> <span class="n">ratio</span> <span class="o">=</span> <span class="n">auto_response</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">roi_radius</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">fa_thr</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">csd_model</span> <span class="o">=</span> <span class="n">ConstrainedSphericalDeconvModel</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="n">response</span><span class="p">)</span>
+<span class="n">csd_fit</span> <span class="o">=</span> <span class="n">csd_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">white_matter</span><span class="p">)</span>
+
+<span class="n">dg</span> <span class="o">=</span> <span class="n">DeterministicMaximumDirectionGetter</span><span class="o">.</span><span class="n">from_shcoeff</span><span class="p">(</span><span class="n">csd_fit</span><span class="o">.</span><span class="n">shm_coeff</span><span class="p">,</span>
+                                                      <span class="n">max_angle</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+                                                      <span class="n">sphere</span><span class="o">=</span><span class="n">default_sphere</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="threshold-tissue-classifier">
+<h2>Threshold Tissue Classifier<a class="headerlink" href="#threshold-tissue-classifier" title="Permalink to this headline">¶</a></h2>
+<p>A scalar map can be used to define where the tracking stops. The threshold
+tissue classifier uses a scalar map to stop the tracking whenever the
+interpolated scalar value is lower than a fixed threshold. Here, we show
+an example using the fractional anisotropy (FA) map of the DTI model.
+The threshold tissue classifier uses a trilinear interpolation at the
+tracking position.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li>metric_map: numpy array [:, :, :]</li>
+<li>threshold: float</li>
+</ul>
+<p><strong>Stopping criterion</strong></p>
+<ul class="simple">
+<li>&#8216;ENDPOINT&#8217;: metric_map &lt; threshold,</li>
+<li>&#8216;OUTSIDEIMAGE&#8217;: tracking point outside of metric_map,</li>
+<li>&#8216;TRACKPOINT&#8217;: stop because no direction is available,</li>
+<li>&#8216;INVALIDPOINT&#8217;: N/A.</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">dipy.reconst.dti</span> <span class="k">as</span> <span class="nn">dti</span>
+<span class="kn">from</span> <span class="nn">dipy.reconst.dti</span> <span class="k">import</span> <span class="n">fractional_anisotropy</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking.local</span> <span class="k">import</span> <span class="n">ThresholdTissueClassifier</span>
+
+<span class="n">tensor_model</span> <span class="o">=</span> <span class="n">dti</span><span class="o">.</span><span class="n">TensorModel</span><span class="p">(</span><span class="n">gtab</span><span class="p">)</span>
+<span class="n">tenfit</span> <span class="o">=</span> <span class="n">tensor_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">labels</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">FA</span> <span class="o">=</span> <span class="n">fractional_anisotropy</span><span class="p">(</span><span class="n">tenfit</span><span class="o">.</span><span class="n">evals</span><span class="p">)</span>
+
+<span class="n">threshold_classifier</span> <span class="o">=</span> <span class="n">ThresholdTissueClassifier</span><span class="p">(</span><span class="n">FA</span><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">mask_fa</span> <span class="o">=</span> <span class="n">FA</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">mask_fa</span><span class="p">[</span><span class="n">mask_fa</span> <span class="o">&lt;</span> <span class="mf">0.2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">mask_fa</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+           <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;threshold_fa.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id2">
+<img alt="../_images/threshold_fa.png" src="../_images/threshold_fa.png" />
+<p class="caption"><span class="caption-text"><strong>Thresholded fractional anisotropy map.</strong></span></p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">all_streamlines_threshold_classifier</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">dg</span><span class="p">,</span>
+                                                     <span class="n">threshold_classifier</span><span class="p">,</span>
+                                                     <span class="n">seeds</span><span class="p">,</span>
+                                                     <span class="n">affine</span><span class="p">,</span>
+                                                     <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span>
+                                                     <span class="n">return_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;deterministic_threshold_classifier_all.trk&quot;</span><span class="p">,</span>
+         <span class="n">all_streamlines_threshold_classifier</span><span class="p">,</span>
+         <span class="n">affine</span><span class="p">,</span>
+         <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">streamlines</span> <span class="o">=</span> <span class="n">Streamlines</span><span class="p">(</span><span class="n">all_streamlines_threshold_classifier</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">window</span><span class="o">.</span><span class="n">have_vtk</span><span class="p">:</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+    <span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">streamlines</span><span class="p">,</span> <span class="n">line_colors</span><span class="p">(</span><span class="n">streamlines</span><span class="p">)))</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">ren</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="s1">&#39;all_streamlines_threshold_classifier.png&#39;</span><span class="p">,</span>
+                  <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+        <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id3">
+<img alt="../_images/all_streamlines_threshold_classifier.png" src="../_images/all_streamlines_threshold_classifier.png" />
+<p class="caption"><span class="caption-text"><strong>Deterministic tractography using a thresholded fractional anisotropy.</strong></span></p>
+</div>
+</div>
+<div class="section" id="binary-tissue-classifier">
+<h2>Binary Tissue Classifier<a class="headerlink" href="#binary-tissue-classifier" title="Permalink to this headline">¶</a></h2>
+<p>A binary mask can be used to define where the tracking stops. The binary
+tissue classifier stops the tracking whenever the tracking position is outside
+the mask. Here, we show how to obtain the binary tissue classifier from
+the white matter mask defined above. The binary tissue classifier uses a
+nearest-neighborhood interpolation at the tracking position.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li>mask: numpy array [:, :, :]</li>
+</ul>
+<p><strong>Stopping criterion</strong></p>
+<ul class="simple">
+<li>&#8216;ENDPOINT&#8217;: mask = 0</li>
+<li>&#8216;OUTSIDEIMAGE&#8217;: tracking point outside of mask</li>
+<li>&#8216;TRACKPOINT&#8217;: no direction is available</li>
+<li>&#8216;INVALIDPOINT&#8217;: N/A</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.tracking.local</span> <span class="k">import</span> <span class="n">BinaryTissueClassifier</span>
+
+<span class="n">binary_classifier</span> <span class="o">=</span> <span class="n">BinaryTissueClassifier</span><span class="p">(</span><span class="n">white_matter</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">white_matter</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+           <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;white_matter_mask.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id4">
+<img alt="../_images/white_matter_mask.png" src="../_images/white_matter_mask.png" />
+<p class="caption"><span class="caption-text"><strong>White matter binary mask.</strong></span></p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">all_streamlines_binary_classifier</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">dg</span><span class="p">,</span>
+                                                  <span class="n">binary_classifier</span><span class="p">,</span>
+                                                  <span class="n">seeds</span><span class="p">,</span>
+                                                  <span class="n">affine</span><span class="p">,</span>
+                                                  <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span>
+                                                  <span class="n">return_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;deterministic_binary_classifier_all.trk&quot;</span><span class="p">,</span>
+         <span class="n">all_streamlines_binary_classifier</span><span class="p">,</span>
+         <span class="n">affine</span><span class="p">,</span>
+         <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">streamlines</span> <span class="o">=</span> <span class="n">Streamlines</span><span class="p">(</span><span class="n">all_streamlines_binary_classifier</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">window</span><span class="o">.</span><span class="n">have_vtk</span><span class="p">:</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+    <span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">streamlines</span><span class="p">,</span> <span class="n">line_colors</span><span class="p">(</span><span class="n">streamlines</span><span class="p">)))</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">ren</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="s1">&#39;all_streamlines_binary_classifier.png&#39;</span><span class="p">,</span>
+                  <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+        <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id5">
+<img alt="../_images/all_streamlines_binary_classifier.png" src="../_images/all_streamlines_binary_classifier.png" />
+<p class="caption"><span class="caption-text"><strong>Deterministic tractography using a binary white matter mask.</strong></span></p>
+</div>
+</div>
+<div class="section" id="act-tissue-classifier">
+<h2>ACT Tissue Classifier<a class="headerlink" href="#act-tissue-classifier" title="Permalink to this headline">¶</a></h2>
+<p>Anatomically-constrained tractography (ACT) <a class="reference internal" href="#smith2012" id="id1">[Smith2012]</a> uses information from
+anatomical images to determine when the tractography stops. The <code class="docutils literal"><span class="pre">include_map</span></code>
+defines when the streamline reached a &#8216;valid&#8217; stopping region (e.g. gray
+matter partial volume estimation (PVE) map) and the <code class="docutils literal"><span class="pre">exclude_map</span></code> defines when
+the streamline reached an &#8216;invalid&#8217; stopping region (e.g. corticospinal fluid
+PVE map). The background of the anatomical image should be added to the
+<code class="docutils literal"><span class="pre">include_map</span></code> to keep streamlines exiting the brain (e.g. through the
+brain stem). The ACT tissue classifier uses a trilinear interpolation
+at the tracking position.</p>
+<p><strong>Parameters</strong></p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">include_map</span></code>: numpy array <code class="docutils literal"><span class="pre">[:,</span> <span class="pre">:,</span> <span class="pre">:]</span></code>,</li>
+<li><code class="docutils literal"><span class="pre">exclude_map</span></code>: numpy array <code class="docutils literal"><span class="pre">[:,</span> <span class="pre">:,</span> <span class="pre">:]</span></code>,</li>
+</ul>
+<p><strong>Stopping criterion</strong></p>
+<ul class="simple">
+<li>&#8216;ENDPOINT&#8217;: <code class="docutils literal"><span class="pre">include_map</span></code> &gt; 0.5,</li>
+<li>&#8216;OUTSIDEIMAGE&#8217;: tracking point outside of <code class="docutils literal"><span class="pre">include_map</span></code> or <code class="docutils literal"><span class="pre">exclude_map</span></code>,</li>
+<li>&#8216;TRACKPOINT&#8217;: no direction is available,</li>
+<li>&#8216;INVALIDPOINT&#8217;: <code class="docutils literal"><span class="pre">exclude_map</span></code> &gt; 0.5.</li>
+</ul>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.tracking.local</span> <span class="k">import</span> <span class="n">ActTissueClassifier</span>
+
+<span class="n">img_pve_csf</span><span class="p">,</span> <span class="n">img_pve_gm</span><span class="p">,</span> <span class="n">img_pve_wm</span> <span class="o">=</span> <span class="n">read_stanford_pve_maps</span><span class="p">()</span>
+
+<span class="n">background</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">img_pve_gm</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">background</span><span class="p">[(</span><span class="n">img_pve_gm</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span> <span class="o">+</span>
+            <span class="n">img_pve_wm</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span> <span class="o">+</span>
+            <span class="n">img_pve_csf</span><span class="o">.</span><span class="n">get_data</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">include_map</span> <span class="o">=</span> <span class="n">img_pve_gm</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+<span class="n">include_map</span><span class="p">[</span><span class="n">background</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">exclude_map</span> <span class="o">=</span> <span class="n">img_pve_csf</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+<span class="n">act_classifier</span> <span class="o">=</span> <span class="n">ActTissueClassifier</span><span class="p">(</span><span class="n">include_map</span><span class="p">,</span> <span class="n">exclude_map</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">include_map</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+           <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">exclude_map</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span>
+           <span class="n">interpolation</span><span class="o">=</span><span class="s1">&#39;nearest&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s1">&#39;act_maps.png&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id6">
+<img alt="../_images/act_maps.png" src="../_images/act_maps.png" />
+<p class="caption"><span class="caption-text"><strong>Include (left) and exclude (right) maps for ACT.</strong></span></p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">all_streamlines_act_classifier</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">dg</span><span class="p">,</span>
+                                               <span class="n">act_classifier</span><span class="p">,</span>
+                                               <span class="n">seeds</span><span class="p">,</span>
+                                               <span class="n">affine</span><span class="p">,</span>
+                                               <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span>
+                                               <span class="n">return_all</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;deterministic_act_classifier_all.trk&quot;</span><span class="p">,</span>
+         <span class="n">all_streamlines_act_classifier</span><span class="p">,</span>
+         <span class="n">affine</span><span class="p">,</span>
+         <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">streamlines</span> <span class="o">=</span> <span class="n">Streamlines</span><span class="p">(</span><span class="n">all_streamlines_act_classifier</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">window</span><span class="o">.</span><span class="n">have_vtk</span><span class="p">:</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+    <span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">streamlines</span><span class="p">,</span> <span class="n">line_colors</span><span class="p">(</span><span class="n">streamlines</span><span class="p">)))</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">ren</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="s1">&#39;all_streamlines_act_classifier.png&#39;</span><span class="p">,</span>
+                  <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+        <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id7">
+<img alt="../_images/all_streamlines_act_classifier.png" src="../_images/all_streamlines_act_classifier.png" />
+<p class="caption"><span class="caption-text"><strong>Deterministic tractography using ACT stopping criterion.</strong></span></p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">valid_streamlines_act_classifier</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">dg</span><span class="p">,</span>
+                                                 <span class="n">act_classifier</span><span class="p">,</span>
+                                                 <span class="n">seeds</span><span class="p">,</span>
+                                                 <span class="n">affine</span><span class="p">,</span>
+                                                 <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">,</span>
+                                                 <span class="n">return_all</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;deterministic_act_classifier_valid.trk&quot;</span><span class="p">,</span>
+         <span class="n">valid_streamlines_act_classifier</span><span class="p">,</span>
+         <span class="n">affine</span><span class="p">,</span>
+         <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="n">streamlines</span> <span class="o">=</span> <span class="n">Streamlines</span><span class="p">(</span><span class="n">valid_streamlines_act_classifier</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">window</span><span class="o">.</span><span class="n">have_vtk</span><span class="p">:</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">clear</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+    <span class="n">ren</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">streamlines</span><span class="p">,</span> <span class="n">line_colors</span><span class="p">(</span><span class="n">streamlines</span><span class="p">)))</span>
+    <span class="n">window</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">ren</span><span class="p">,</span> <span class="n">out_path</span><span class="o">=</span><span class="s1">&#39;valid_streamlines_act_classifier.png&#39;</span><span class="p">,</span>
+                  <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">600</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">interactive</span><span class="p">:</span>
+        <span class="n">window</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">ren</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id8">
+<img alt="../_images/valid_streamlines_act_classifier.png" src="../_images/valid_streamlines_act_classifier.png" />
+<p class="caption"><span class="caption-text"><strong>Deterministic tractography using a anatomically-constrained tractography
+stopping criterion. Streamlines ending in gray matter region only.</strong></span></p>
+</div>
+<p>The threshold and binary tissue classifiers use respectively a scalar map and a
+binary mask to stop the tracking. The ACT tissue classifier use partial volume
+fraction (PVE) maps from an anatomical image to stop the tracking. Additionally,
+the ACT tissue classifier determines if the tracking stopped in expected regions
+(e.g. gray matter) and allows the user to get only streamlines stopping in those
+regions.</p>
+</div>
+<div class="section" id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
+<p>Currently in ACT the proposed method that cuts streamlines going through
+subcortical gray matter regions is not implemented. The backtracking technique
+for streamlines reaching INVALIDPOINT is not implemented either.</p>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<table class="docutils citation" frame="void" id="smith2012" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Smith2012]</a></td><td>Smith, R. E., Tournier, J.-D., Calamante, F., &amp; Connelly, A.
+Anatomically-constrained tractography: Improved diffusion MRI
+streamlines tractography through effective use of anatomical
+information. NeuroImage, 63(3), 1924-1938, 2012.</td></tr>
+</tbody>
+</table>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" href="../_downloads/tracking_tissue_classifier.py" download=""><code class="xref download docutils literal"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the dipy source distribution under the
+<code class="file docutils literal"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2008-2018, dipy developers &lt;neuroimaging@python.org&gt;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

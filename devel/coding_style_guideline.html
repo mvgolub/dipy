@@ -1,0 +1,308 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DIPY &#8212; dipy 0.14.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/dipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.14.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Keeping code compatible with Pythons 2 and 3" href="python3.html" />
+    <link rel="prev" title="Commit message codes" href="commit_codes.html" />
+  <meta name="keywords" content="DIPY, dMRI, DTI, DSI, diffusion MRI, Tensor,
+  neuroimaging, python, neuroscience, Eleftherios, Garyfallidis, tractography,
+  streamlines, fiber tracking">
+
+  </head>
+  <body role="document">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/dipy-banner.png" alt="DIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="python3.html" title="Keeping code compatible with Pythons 2 and 3"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="commit_codes.html" title="Commit message codes"
+             accesskey="P">previous</a> |</li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">DIPY development</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="index.html">Development</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.org/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="https://mail.python.org/mailman/listinfo/neuroimaging">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/nipy/license.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DIPY Coding Style Guideline</a><ul>
+<li><a class="reference internal" href="#coding-style">Coding style</a></li>
+<li><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="commit_codes.html"
+                        title="previous chapter">Commit message codes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="python3.html"
+                        title="next chapter">Keeping code compatible with Pythons 2 and 3</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/devel/coding_style_guideline.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox-ml" style="display: none">
+  <h3>Search mailing list archive</h3>
+  <script type="text/javascript">
+    function mlsearch(curobj)
+    {
+    curobj.q.value="site:mail.python.org/pipermail/neuroimaging/ "+curobj.userquery.value
+    }
+  </script>
+  <form action="http://www.google.com/search" method="get" onSubmit="mlsearch(this)">
+    <input name="userquery" size="13" type="text" /> <input type="submit" value="Go" />
+    <input name="q" type="hidden" />
+  </form>
+</div>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+<script>
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'nipy/dipy'
+     };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="dipy-coding-style-guideline">
+<span id="coding-style-guideline"></span><h1>DIPY Coding Style Guideline<a class="headerlink" href="#dipy-coding-style-guideline" title="Permalink to this headline">¶</a></h1>
+<p>The main principles behind <a class="reference external" href="http://dipy.org">DIPY</a> development are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Robustness</strong>: the results of a piece of code must be verified
+systematically, and hence stability and robustness of the code must be
+ensured, reducing code redundancies.</li>
+<li><strong>Readability</strong>: the code is written and read by humans, and it is read
+much more frequently than it is written.</li>
+<li><strong>Consistency</strong>: following these guidelines will ease reading the code,
+and will make it less error-prone.</li>
+<li><strong>Documentation</strong>: document the code. Documentation is essential as it is
+one of the key points for the adoption of DIPY as the toolkit of choice in
+diffusion by the scientific community. Documenting helps clarifying
+certain choices, helps avoiding obscure places, and is a way to allow
+other members <em>decode</em> it with less effort.</li>
+<li><strong>Language</strong>: the code must be written in English. Norms and spelling
+should be abided by.</li>
+</ul>
+</div></blockquote>
+<div class="section" id="coding-style">
+<h2>Coding style<a class="headerlink" href="#coding-style" title="Permalink to this headline">¶</a></h2>
+<p>DIPY uses the standard Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP8</a> style to ensure the
+readability and consistency across the toolkit. Conformance to the PEP8 syntax
+is checked automatically when requesting to push to DIPY. There are
+<a class="reference external" href="https://pypi.python.org/pypi/pep8">software systems</a> that will check your
+code for PEP8 compliance, and most text editors can be configured to check the
+compliance of your code with PEP8. Beyond the aspects checked, as a
+contributor to DIPY, you should try to ensure that your code, including
+comments, conform to the above principles.</p>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>DIPY uses <a class="reference external" href="http://www.sphinx-doc.org/en/stable/index.html">Sphinx</a> to
+generate documentation. We welcome contributions of examples, and suggestions
+for changes in the documentation, but please make sure that changes that are
+introduced render properly into the HTML format that is used for the DIPY
+website.</p>
+<p>DIPY follows the <a class="reference external" href="https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt">numpy docstring standard</a>
+for documenting modules, classes, functions, and examples.</p>
+<p>The documentation includes an extensive library of
+<a class="reference external" href="http://dipy.org/examples_index.html">examples</a>. These are Python files that
+are stored in the <code class="docutils literal"><span class="pre">doc/examples</span></code> folder and contain code to execute the
+example, interleaved with multi-line comments that contain explanations of the
+blocks of code. Examples demonstrate how to perform processing (segmentation,
+tracking, etc.) on diffusion files using the DIPY classes. The code is
+intermixed with generous comments that describe the former, and the rationale
+and aim of it. If you are contributing a new feature to DIPY, please provide
+an extended example, with explanations of this feature, and references to the
+relevant papers.</p>
+<p>If the feature that you are working on integrates well into one of the
+existing examples, please edit the <code class="docutils literal"><span class="pre">.py</span></code> file of that example. Otherwise,
+create a new <code class="docutils literal"><span class="pre">.py</span></code> file in that directory. Please also add the name of this
+file into the <code class="docutils literal"><span class="pre">doc/examples/valid_examples.txt</span></code> file (which controls the
+rendering of these examples into the documentation).</p>
+<p>Additionally, DIPY relies on a set of reStructuredText files (<code class="docutils literal"><span class="pre">.rst</span></code>)
+located in the <code class="docutils literal"><span class="pre">doc</span></code> folder. They contain information about theoretical
+backgrounds of DIPY, installation instructions, description of the
+contribution process, etc.</p>
+<p>Again, both sets of files use the <a class="reference external" href="http://www.sphinx-doc.org/en/stable/rest.html">reStructuredText markup language</a> for comments. Sphinx parses
+the files to produce the contents that are later rendered in the <a class="reference external" href="http://dipy.org">DIPY</a>
+website.</p>
+<p>The Python examples are compiled, output images produced, and corresponding
+<code class="docutils literal"><span class="pre">.rst</span></code> files produced so that the comments can be appropriately displayed
+in a web page enriched with images.</p>
+<p>Particularly, in order to ease the contribution of examples and <code class="docutils literal"><span class="pre">.rst</span></code>
+files, and with the consistency criterion in mind, beyond the numpy
+docstring standard aspects, contributors are encouraged to observe the
+following guidelines:</p>
+<blockquote>
+<div><ul class="simple">
+<li>The acronym for the Diffusion Imaging in Python toolkit should be written
+as <strong>DIPY</strong>.</li>
+<li>The classes, objects, and any other construct referenced from the code
+should be written with inverted commas, such as in <em>In DIPY, we use an
+object called ``GradientTable`` which holds all the acquisition specific
+parameters, e.g. b-values, b-vectors, timings and others.</em></li>
+<li>Cite the relevant papers. Use the <em>[NameYear]</em> convention for
+cross-referencing them, such as in <a class="reference internal" href="#garyfallidis2014" id="id1">[Garyfallidis2014]</a>, and put them
+under the <a class="reference internal" href="#references"><span class="std std-ref">References</span></a> section.</li>
+<li>Cross-reference related examples and files. Use the
+<code class="docutils literal"><span class="pre">..</span> <span class="pre">_specific_filename:</span></code> convention to label a file at the top of it.
+Thus, other pages will be able to reference the file using the standard
+Sphinx syntax <code class="docutils literal"><span class="pre">:ref:`specific_filename`</span></code>.</li>
+<li>Use an all-caps scheme for acronyms, and capitalize the first letters of
+the long names, such as in <em>Constrained Spherical Deconvolution (CSD)</em>,
+except in those cases where the most common convention has been to use
+lowercase, such as in <em>superior longitudinal fasciculus (SLF)</em>.</li>
+<li>As customary in Python, use lowercase and separate words with underscores
+for filenames, labels for references, etc.</li>
+<li>When including figures, use the regular font for captions (i.e. do not use
+bold faces), unless otherwise required for a specific text part (e.g. a
+DIPY object, etc.).</li>
+<li>When referring to relative paths, use the backquote inline markup
+convention, such as in <code class="docutils literal"><span class="pre">doc/devel</span></code>. Do not add the
+greater-than/less-than signs to enclose the path.</li>
+</ul>
+</div></blockquote>
+<div class="section" id="references">
+<span id="id2"></span><h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<table class="docutils citation" frame="void" id="garyfallidis2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[Garyfallidis2014]</a></td><td>Garyfallidis E, Brett M, Amirbekian B, Rokem A, van der
+Walt S, Descoteaux M, Nimmo-Smith I and Dipy Contributors (2014). <a class="reference external" href="http://journal.frontiersin.org/Journal/10.3389/fninf.2014.00008/abstract">Dipy, a
+library for the analysis of diffusion MRI data.</a>
+Frontiers in Neuroinformatics, vol.8, no.8.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="python3.html" title="Keeping code compatible with Pythons 2 and 3"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="commit_codes.html" title="Commit message codes"
+             >previous</a> |</li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >DIPY development</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2008-2018, dipy developers &lt;neuroimaging@python.org&gt;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

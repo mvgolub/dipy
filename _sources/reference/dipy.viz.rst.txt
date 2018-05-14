@@ -1,0 +1,1148 @@
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+:mod:`viz`
+==========
+.. automodule:: dipy.viz
+
+.. currentmodule:: dipy.viz
+.. autosummary::
+
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.actor`
+------------------------
+.. automodule:: dipy.viz.actor
+
+.. currentmodule:: dipy.viz.actor
+.. autosummary::
+
+   apply_affine
+   axes
+   colormap_lookup_table
+   contour_from_roi
+   create_colormap
+   dots
+   label
+   line
+   lines_to_vtk_polydata
+   odf_slicer
+   optional_package
+   peak_slicer
+   point
+   scalar_bar
+   set_input
+   setup_module
+   slicer
+   streamtube
+   tensor_slicer
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.colormap`
+---------------------------
+.. automodule:: dipy.viz.colormap
+
+.. currentmodule:: dipy.viz.colormap
+.. autosummary::
+
+   boys2rgb
+   cc
+   colormap_lookup_table
+   create_colormap
+   get_cmap
+   line_colors
+   optional_package
+   orient2rgb
+   setup_module
+   ss
+   warn
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.fvtk`
+-----------------------
+.. automodule:: dipy.viz.fvtk
+
+.. currentmodule:: dipy.viz.fvtk
+.. autosummary::
+
+   VolumeMapper
+   xrange
+   add
+   axes
+   camera
+   clear
+   contour
+   create_colormap
+   dots
+   get_cmap
+   label
+   line
+   ndindex
+   optional_package
+   peaks
+   point
+   record
+   ren
+   renderer
+   rm
+   rm_all
+   setup_module
+   show
+   slicer
+   snapshot
+   sphere_funcs
+   streamtube
+   tensor
+   volume
+   warn
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.interactor`
+-----------------------------
+.. automodule:: dipy.viz.interactor
+
+.. currentmodule:: dipy.viz.interactor
+.. autosummary::
+
+   CustomInteractorStyle
+   Event
+   vtkInteractorStyleUser
+   optional_package
+   setup_module
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.projections`
+------------------------------
+.. automodule:: dipy.viz.projections
+
+.. currentmodule:: dipy.viz.projections
+.. autosummary::
+
+   doctest_skip_parser
+   optional_package
+   setup_module
+   sph_project
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.regtools`
+---------------------------
+.. automodule:: dipy.viz.regtools
+
+.. currentmodule:: dipy.viz.regtools
+.. autosummary::
+
+   draw_lattice_2d
+   optional_package
+   overlay_images
+   overlay_slices
+   plot_2d_diffeomorphic_map
+   plot_slices
+   setup_module
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.ui`
+---------------------
+.. automodule:: dipy.viz.ui
+
+.. currentmodule:: dipy.viz.ui
+.. autosummary::
+
+   Button2D
+   CustomInteractorStyle
+   DiskSlider2D
+   FileSelectMenu2D
+   FileSelectMenuText2D
+   LineSlider2D
+   Panel2D
+   Rectangle2D
+   TextBlock2D
+   TextBox2D
+   UI
+   optional_package
+   read_viz_icons
+   setup_module
+   warn
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.utils`
+------------------------
+.. automodule:: dipy.viz.utils
+
+.. currentmodule:: dipy.viz.utils
+.. autosummary::
+
+   get_actor_from_polydata
+   get_actor_from_polymapper
+   get_polydata_colors
+   get_polydata_lines
+   get_polydata_normals
+   get_polydata_triangles
+   get_polydata_vertices
+   get_polymapper_from_polydata
+   line_colors
+   lines_to_vtk_polydata
+   map_coordinates
+   map_coordinates_3d_4d
+   numpy_to_vtk_colors
+   numpy_to_vtk_points
+   optional_package
+   set_input
+   set_polydata_colors
+   set_polydata_normals
+   set_polydata_triangles
+   set_polydata_vertices
+   setup_module
+   update_polydata_normals
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.widget`
+-------------------------
+.. automodule:: dipy.viz.widget
+
+.. currentmodule:: dipy.viz.widget
+.. autosummary::
+
+   button
+   button_display_coordinates
+   optional_package
+   setup_module
+   slider
+   text
+
+.. AUTO-GENERATED FILE -- DO NOT EDIT!
+
+Module: :mod:`viz.window`
+-------------------------
+.. automodule:: dipy.viz.window
+
+.. currentmodule:: dipy.viz.window
+.. autosummary::
+
+   CustomInteractorStyle
+   InTemporaryDirectory
+   Renderer
+   ShowManager
+   vtkRenderer
+   add
+   analyze_renderer
+   analyze_snapshot
+   asbytes
+   clear
+   copy
+   open_file_dialog
+   optional_package
+   record
+   ren
+   renderer
+   rm
+   rm_all
+   save_file_dialog
+   setup_module
+   show
+   snapshot
+   vtk_to_numpy
+   warn
+
+
+.. currentmodule:: dipy.viz
+
+
+.. currentmodule:: dipy.viz.actor
+
+apply_affine
+~~~~~~~~~~~~
+
+.. autofunction:: apply_affine
+
+axes
+~~~~
+
+.. autofunction:: axes
+
+colormap_lookup_table
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: colormap_lookup_table
+
+contour_from_roi
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: contour_from_roi
+
+create_colormap
+~~~~~~~~~~~~~~~
+
+.. autofunction:: create_colormap
+
+dots
+~~~~
+
+.. autofunction:: dots
+
+label
+~~~~~
+
+.. autofunction:: label
+
+line
+~~~~
+
+.. autofunction:: line
+
+lines_to_vtk_polydata
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: lines_to_vtk_polydata
+
+odf_slicer
+~~~~~~~~~~
+
+.. autofunction:: odf_slicer
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+peak_slicer
+~~~~~~~~~~~
+
+.. autofunction:: peak_slicer
+
+point
+~~~~~
+
+.. autofunction:: point
+
+scalar_bar
+~~~~~~~~~~
+
+.. autofunction:: scalar_bar
+
+set_input
+~~~~~~~~~
+
+.. autofunction:: set_input
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+slicer
+~~~~~~
+
+.. autofunction:: slicer
+
+streamtube
+~~~~~~~~~~
+
+.. autofunction:: streamtube
+
+tensor_slicer
+~~~~~~~~~~~~~
+
+.. autofunction:: tensor_slicer
+
+
+.. currentmodule:: dipy.viz.colormap
+
+boys2rgb
+~~~~~~~~
+
+.. autofunction:: boys2rgb
+
+cc
+~~
+
+.. autofunction:: cc
+
+colormap_lookup_table
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: colormap_lookup_table
+
+create_colormap
+~~~~~~~~~~~~~~~
+
+.. autofunction:: create_colormap
+
+get_cmap
+~~~~~~~~
+
+.. autofunction:: get_cmap
+
+line_colors
+~~~~~~~~~~~
+
+.. autofunction:: line_colors
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+orient2rgb
+~~~~~~~~~~
+
+.. autofunction:: orient2rgb
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+ss
+~~
+
+.. autofunction:: ss
+
+warn
+~~~~
+
+.. autofunction:: warn
+
+
+.. currentmodule:: dipy.viz.fvtk
+
+
+:class:`VolumeMapper`
+~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: VolumeMapper
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`xrange`
+~~~~~~~~~~~~~~~
+
+
+.. autoclass:: xrange
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+add
+~~~
+
+.. autofunction:: add
+
+axes
+~~~~
+
+.. autofunction:: axes
+
+camera
+~~~~~~
+
+.. autofunction:: camera
+
+clear
+~~~~~
+
+.. autofunction:: clear
+
+contour
+~~~~~~~
+
+.. autofunction:: contour
+
+create_colormap
+~~~~~~~~~~~~~~~
+
+.. autofunction:: create_colormap
+
+dots
+~~~~
+
+.. autofunction:: dots
+
+get_cmap
+~~~~~~~~
+
+.. autofunction:: get_cmap
+
+label
+~~~~~
+
+.. autofunction:: label
+
+line
+~~~~
+
+.. autofunction:: line
+
+ndindex
+~~~~~~~
+
+.. autofunction:: ndindex
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+peaks
+~~~~~
+
+.. autofunction:: peaks
+
+point
+~~~~~
+
+.. autofunction:: point
+
+record
+~~~~~~
+
+.. autofunction:: record
+
+ren
+~~~
+
+.. autofunction:: ren
+
+renderer
+~~~~~~~~
+
+.. autofunction:: renderer
+
+rm
+~~
+
+.. autofunction:: rm
+
+rm_all
+~~~~~~
+
+.. autofunction:: rm_all
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+show
+~~~~
+
+.. autofunction:: show
+
+slicer
+~~~~~~
+
+.. autofunction:: slicer
+
+snapshot
+~~~~~~~~
+
+.. autofunction:: snapshot
+
+sphere_funcs
+~~~~~~~~~~~~
+
+.. autofunction:: sphere_funcs
+
+streamtube
+~~~~~~~~~~
+
+.. autofunction:: streamtube
+
+tensor
+~~~~~~
+
+.. autofunction:: tensor
+
+volume
+~~~~~~
+
+.. autofunction:: volume
+
+warn
+~~~~
+
+.. autofunction:: warn
+
+
+.. currentmodule:: dipy.viz.interactor
+
+
+:class:`CustomInteractorStyle`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: CustomInteractorStyle
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`Event`
+~~~~~~~~~~~~~~
+
+
+.. autoclass:: Event
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`vtkInteractorStyleUser`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: vtkInteractorStyleUser
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+
+.. currentmodule:: dipy.viz.projections
+
+doctest_skip_parser
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: doctest_skip_parser
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+sph_project
+~~~~~~~~~~~
+
+.. autofunction:: sph_project
+
+
+.. currentmodule:: dipy.viz.regtools
+
+draw_lattice_2d
+~~~~~~~~~~~~~~~
+
+.. autofunction:: draw_lattice_2d
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+overlay_images
+~~~~~~~~~~~~~~
+
+.. autofunction:: overlay_images
+
+overlay_slices
+~~~~~~~~~~~~~~
+
+.. autofunction:: overlay_slices
+
+plot_2d_diffeomorphic_map
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: plot_2d_diffeomorphic_map
+
+plot_slices
+~~~~~~~~~~~
+
+.. autofunction:: plot_slices
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+
+.. currentmodule:: dipy.viz.ui
+
+
+:class:`Button2D`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Button2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`CustomInteractorStyle`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: CustomInteractorStyle
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`DiskSlider2D`
+~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: DiskSlider2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`FileSelectMenu2D`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: FileSelectMenu2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`FileSelectMenuText2D`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: FileSelectMenuText2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`LineSlider2D`
+~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: LineSlider2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`Panel2D`
+~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Panel2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`Rectangle2D`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Rectangle2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`TextBlock2D`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TextBlock2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`TextBox2D`
+~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: TextBox2D
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`UI`
+~~~~~~~~~~~
+
+
+.. autoclass:: UI
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+read_viz_icons
+~~~~~~~~~~~~~~
+
+.. autofunction:: read_viz_icons
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+warn
+~~~~
+
+.. autofunction:: warn
+
+
+.. currentmodule:: dipy.viz.utils
+
+get_actor_from_polydata
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_actor_from_polydata
+
+get_actor_from_polymapper
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_actor_from_polymapper
+
+get_polydata_colors
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_polydata_colors
+
+get_polydata_lines
+~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_polydata_lines
+
+get_polydata_normals
+~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_polydata_normals
+
+get_polydata_triangles
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_polydata_triangles
+
+get_polydata_vertices
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_polydata_vertices
+
+get_polymapper_from_polydata
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: get_polymapper_from_polydata
+
+line_colors
+~~~~~~~~~~~
+
+.. autofunction:: line_colors
+
+lines_to_vtk_polydata
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: lines_to_vtk_polydata
+
+map_coordinates
+~~~~~~~~~~~~~~~
+
+.. autofunction:: map_coordinates
+
+map_coordinates_3d_4d
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: map_coordinates_3d_4d
+
+numpy_to_vtk_colors
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: numpy_to_vtk_colors
+
+numpy_to_vtk_points
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: numpy_to_vtk_points
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+set_input
+~~~~~~~~~
+
+.. autofunction:: set_input
+
+set_polydata_colors
+~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: set_polydata_colors
+
+set_polydata_normals
+~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: set_polydata_normals
+
+set_polydata_triangles
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: set_polydata_triangles
+
+set_polydata_vertices
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: set_polydata_vertices
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+update_polydata_normals
+~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: update_polydata_normals
+
+
+.. currentmodule:: dipy.viz.widget
+
+button
+~~~~~~
+
+.. autofunction:: button
+
+button_display_coordinates
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: button_display_coordinates
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+slider
+~~~~~~
+
+.. autofunction:: slider
+
+text
+~~~~
+
+.. autofunction:: text
+
+
+.. currentmodule:: dipy.viz.window
+
+
+:class:`CustomInteractorStyle`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: CustomInteractorStyle
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`InTemporaryDirectory`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: InTemporaryDirectory
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`Renderer`
+~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: Renderer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`ShowManager`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: ShowManager
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+
+:class:`vtkRenderer`
+~~~~~~~~~~~~~~~~~~~~
+
+
+.. autoclass:: vtkRenderer
+  :members:
+  :undoc-members:
+  :show-inheritance:
+
+  .. automethod:: __init__
+
+add
+~~~
+
+.. autofunction:: add
+
+analyze_renderer
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: analyze_renderer
+
+analyze_snapshot
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: analyze_snapshot
+
+asbytes
+~~~~~~~
+
+.. autofunction:: asbytes
+
+clear
+~~~~~
+
+.. autofunction:: clear
+
+copy
+~~~~
+
+.. autofunction:: copy
+
+open_file_dialog
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: open_file_dialog
+
+optional_package
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: optional_package
+
+record
+~~~~~~
+
+.. autofunction:: record
+
+ren
+~~~
+
+.. autofunction:: ren
+
+renderer
+~~~~~~~~
+
+.. autofunction:: renderer
+
+rm
+~~
+
+.. autofunction:: rm
+
+rm_all
+~~~~~~
+
+.. autofunction:: rm_all
+
+save_file_dialog
+~~~~~~~~~~~~~~~~
+
+.. autofunction:: save_file_dialog
+
+setup_module
+~~~~~~~~~~~~
+
+.. autofunction:: setup_module
+
+show
+~~~~
+
+.. autofunction:: show
+
+snapshot
+~~~~~~~~
+
+.. autofunction:: snapshot
+
+vtk_to_numpy
+~~~~~~~~~~~~
+
+.. autofunction:: vtk_to_numpy
+
+warn
+~~~~
+
+.. autofunction:: warn
+

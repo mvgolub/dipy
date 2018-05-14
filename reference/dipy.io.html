@@ -1,0 +1,2135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DIPY &#8212; dipy 0.14.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/dipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.14.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="DIPY, dMRI, DTI, DSI, diffusion MRI, Tensor,
+  neuroimaging, python, neuroscience, Eleftherios, Garyfallidis, tractography,
+  streamlines, fiber tracking">
+
+  </head>
+  <body role="document">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/dipy-banner.png" alt="DIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U">API Reference</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.org/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="https://mail.python.org/mailman/listinfo/neuroimaging">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/nipy/license.html">License</a></li>
+  </ul>
+
+
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="docutils literal"><span class="pre">io</span></code></a><ul>
+<li><a class="reference internal" href="#module-dipy.io.bvectxt">Module: <code class="docutils literal"><span class="pre">io.bvectxt</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.dpy">Module: <code class="docutils literal"><span class="pre">io.dpy</span></code></a><ul>
+<li><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-dipy.io.gradients">Module: <code class="docutils literal"><span class="pre">io.gradients</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.image">Module: <code class="docutils literal"><span class="pre">io.image</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.peaks">Module: <code class="docutils literal"><span class="pre">io.peaks</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.pickles">Module: <code class="docutils literal"><span class="pre">io.pickles</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.streamline">Module: <code class="docutils literal"><span class="pre">io.streamline</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.trackvis">Module: <code class="docutils literal"><span class="pre">io.trackvis</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.utils">Module: <code class="docutils literal"><span class="pre">io.utils</span></code></a></li>
+<li><a class="reference internal" href="#module-dipy.io.vtk">Module: <code class="docutils literal"><span class="pre">io.vtk</span></code></a><ul>
+<li><a class="reference internal" href="#dpy"><code class="docutils literal"><span class="pre">Dpy</span></code></a></li>
+<li><a class="reference internal" href="#load-pickle">load_pickle</a></li>
+<li><a class="reference internal" href="#orientation-from-string">orientation_from_string</a></li>
+<li><a class="reference internal" href="#orientation-to-string">orientation_to_string</a></li>
+<li><a class="reference internal" href="#ornt-mapping">ornt_mapping</a></li>
+<li><a class="reference internal" href="#read-bvals-bvecs">read_bvals_bvecs</a></li>
+<li><a class="reference internal" href="#read-bvec-file">read_bvec_file</a></li>
+<li><a class="reference internal" href="#reorient-on-axis">reorient_on_axis</a></li>
+<li><a class="reference internal" href="#reorient-vectors">reorient_vectors</a></li>
+<li><a class="reference internal" href="#save-pickle">save_pickle</a></li>
+<li><a class="reference internal" href="#id6">orientation_from_string</a></li>
+<li><a class="reference internal" href="#id7">orientation_to_string</a></li>
+<li><a class="reference internal" href="#id8">ornt_mapping</a></li>
+<li><a class="reference internal" href="#id9">read_bvec_file</a></li>
+<li><a class="reference internal" href="#id10">reorient_on_axis</a></li>
+<li><a class="reference internal" href="#id11">reorient_vectors</a></li>
+<li><a class="reference internal" href="#splitext">splitext</a></li>
+<li><a class="reference internal" href="#id12"><code class="docutils literal"><span class="pre">Dpy</span></code></a></li>
+<li><a class="reference internal" href="#streamlines"><code class="docutils literal"><span class="pre">Streamlines</span></code></a></li>
+<li><a class="reference internal" href="#intemporarydirectory"><code class="docutils literal"><span class="pre">InTemporaryDirectory</span></code></a></li>
+<li><a class="reference internal" href="#id13">read_bvals_bvecs</a></li>
+<li><a class="reference internal" href="#id14">splitext</a></li>
+<li><a class="reference internal" href="#load-nifti">load_nifti</a></li>
+<li><a class="reference internal" href="#save-nifti">save_nifti</a></li>
+<li><a class="reference internal" href="#peaksandmetrics"><code class="docutils literal"><span class="pre">PeaksAndMetrics</span></code></a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#sphere"><code class="docutils literal"><span class="pre">Sphere</span></code></a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#load-peaks">load_peaks</a></li>
+<li><a class="reference internal" href="#peaks-to-niftis">peaks_to_niftis</a></li>
+<li><a class="reference internal" href="#reshape-peaks-for-visualization">reshape_peaks_for_visualization</a></li>
+<li><a class="reference internal" href="#id15">save_nifti</a></li>
+<li><a class="reference internal" href="#save-peaks">save_peaks</a></li>
+<li><a class="reference internal" href="#id16">load_pickle</a></li>
+<li><a class="reference internal" href="#id17">save_pickle</a></li>
+<li><a class="reference internal" href="#field"><code class="docutils literal"><span class="pre">Field</span></code></a></li>
+<li><a class="reference internal" href="#aff2axcodes">aff2axcodes</a></li>
+<li><a class="reference internal" href="#load-trk">load_trk</a></li>
+<li><a class="reference internal" href="#save-trk">save_trk</a></li>
+<li><a class="reference internal" href="#id24">save_trk</a></li>
+<li><a class="reference internal" href="#nifti1image"><code class="docutils literal"><span class="pre">Nifti1Image</span></code></a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#make5d">make5d</a></li>
+<li><a class="reference internal" href="#nifti1-symmat">nifti1_symmat</a></li>
+<li><a class="reference internal" href="#load-polydata">load_polydata</a></li>
+<li><a class="reference internal" href="#optional-package">optional_package</a></li>
+<li><a class="reference internal" href="#save-polydata">save_polydata</a></li>
+<li><a class="reference internal" href="#set-input">set_input</a></li>
+<li><a class="reference internal" href="#setup-module">setup_module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/reference/dipy.io.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox-ml" style="display: none">
+  <h3>Search mailing list archive</h3>
+  <script type="text/javascript">
+    function mlsearch(curobj)
+    {
+    curobj.q.value="site:mail.python.org/pipermail/neuroimaging/ "+curobj.userquery.value
+    }
+  </script>
+  <form action="http://www.google.com/search" method="get" onSubmit="mlsearch(this)">
+    <input name="userquery" size="13" type="text" /> <input type="submit" value="Go" />
+    <input name="q" type="hidden" />
+  </form>
+</div>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+<script>
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'nipy/dipy'
+     };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-dipy.io">
+<span id="io"></span><h1><a class="reference external" href="https://docs.python.org/3/library/io.html#module-io" title="(in Python v3.6)"><code class="xref py py-mod docutils literal"><span class="pre">io</span></code></a><a class="headerlink" href="#module-dipy.io" title="Permalink to this headline">¶</a></h1>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.Dpy" title="dipy.io.Dpy"><code class="xref py py-obj docutils literal"><span class="pre">Dpy</span></code></a>(fname[,&nbsp;mode,&nbsp;compression])</td>
+<td><p class="rubric">Methods</p>
+</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.load_pickle" title="dipy.io.load_pickle"><code class="xref py py-obj docutils literal"><span class="pre">load_pickle</span></code></a>(fname)</td>
+<td>Load object from pickle file <cite>fname</cite></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.orientation_from_string" title="dipy.io.orientation_from_string"><code class="xref py py-obj docutils literal"><span class="pre">orientation_from_string</span></code></a>(string_ornt)</td>
+<td>Returns an array representation of an ornt string</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.orientation_to_string" title="dipy.io.orientation_to_string"><code class="xref py py-obj docutils literal"><span class="pre">orientation_to_string</span></code></a>(ornt)</td>
+<td>Returns a string representation of a 3d ornt</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.ornt_mapping" title="dipy.io.ornt_mapping"><code class="xref py py-obj docutils literal"><span class="pre">ornt_mapping</span></code></a>(ornt1,&nbsp;ornt2)</td>
+<td>Calculates the mapping needing to get from orn1 to orn2</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.read_bvals_bvecs" title="dipy.io.read_bvals_bvecs"><code class="xref py py-obj docutils literal"><span class="pre">read_bvals_bvecs</span></code></a>(fbvals,&nbsp;fbvecs)</td>
+<td>Read b-values and b-vectors from disk</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.read_bvec_file" title="dipy.io.read_bvec_file"><code class="xref py py-obj docutils literal"><span class="pre">read_bvec_file</span></code></a>(filename[,&nbsp;atol])</td>
+<td>Read gradient table information from a pair of files with extentions .bvec and .bval.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.reorient_on_axis" title="dipy.io.reorient_on_axis"><code class="xref py py-obj docutils literal"><span class="pre">reorient_on_axis</span></code></a>(input,&nbsp;current_ornt,&nbsp;new_ornt)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.reorient_vectors" title="dipy.io.reorient_vectors"><code class="xref py py-obj docutils literal"><span class="pre">reorient_vectors</span></code></a>(input,&nbsp;current_ornt,&nbsp;new_ornt)</td>
+<td>Changes the orientation of a gradients or other vectors</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.save_pickle" title="dipy.io.save_pickle"><code class="xref py py-obj docutils literal"><span class="pre">save_pickle</span></code></a>(fname,&nbsp;dix)</td>
+<td>Save <cite>dix</cite> to <cite>fname</cite> as pickle</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="module-dipy.io.bvectxt">
+<span id="module-io-bvectxt"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.bvectxt</span></code><a class="headerlink" href="#module-dipy.io.bvectxt" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.bvectxt.orientation_from_string" title="dipy.io.bvectxt.orientation_from_string"><code class="xref py py-obj docutils literal"><span class="pre">orientation_from_string</span></code></a>(string_ornt)</td>
+<td>Returns an array representation of an ornt string</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.bvectxt.orientation_to_string" title="dipy.io.bvectxt.orientation_to_string"><code class="xref py py-obj docutils literal"><span class="pre">orientation_to_string</span></code></a>(ornt)</td>
+<td>Returns a string representation of a 3d ornt</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.bvectxt.ornt_mapping" title="dipy.io.bvectxt.ornt_mapping"><code class="xref py py-obj docutils literal"><span class="pre">ornt_mapping</span></code></a>(ornt1,&nbsp;ornt2)</td>
+<td>Calculates the mapping needing to get from orn1 to orn2</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.bvectxt.read_bvec_file" title="dipy.io.bvectxt.read_bvec_file"><code class="xref py py-obj docutils literal"><span class="pre">read_bvec_file</span></code></a>(filename[,&nbsp;atol])</td>
+<td>Read gradient table information from a pair of files with extentions .bvec and .bval.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.bvectxt.reorient_on_axis" title="dipy.io.bvectxt.reorient_on_axis"><code class="xref py py-obj docutils literal"><span class="pre">reorient_on_axis</span></code></a>(input,&nbsp;current_ornt,&nbsp;new_ornt)</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.bvectxt.reorient_vectors" title="dipy.io.bvectxt.reorient_vectors"><code class="xref py py-obj docutils literal"><span class="pre">reorient_vectors</span></code></a>(input,&nbsp;current_ornt,&nbsp;new_ornt)</td>
+<td>Changes the orientation of a gradients or other vectors</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.bvectxt.splitext" title="dipy.io.bvectxt.splitext"><code class="xref py py-obj docutils literal"><span class="pre">splitext</span></code></a>(p)</td>
+<td>Split the extension from a pathname.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.dpy">
+<span id="module-io-dpy"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.dpy</span></code><a class="headerlink" href="#module-dipy.io.dpy" title="Permalink to this headline">¶</a></h2>
+<p>A class for handling large tractography datasets.</p>
+<p>It is built using the h5py which in turn implement
+key features of the HDF5 (hierachical data format) API <a class="reference internal" href="#r61" id="id1">[R61]</a>.</p>
+<div class="section" id="references">
+<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
+<table class="docutils citation" frame="void" id="r61" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[R61]</a></td><td><a class="reference external" href="http://www.hdfgroup.org/HDF5/doc/H5.intro.html">http://www.hdfgroup.org/HDF5/doc/H5.intro.html</a></td></tr>
+</tbody>
+</table>
+</div>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.dpy.Dpy" title="dipy.io.dpy.Dpy"><code class="xref py py-obj docutils literal"><span class="pre">Dpy</span></code></a>(fname[,&nbsp;mode,&nbsp;compression])</td>
+<td><p class="rubric">Methods</p>
+</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.dpy.Streamlines" title="dipy.io.dpy.Streamlines"><code class="xref py py-obj docutils literal"><span class="pre">Streamlines</span></code></a></td>
+<td>alias of <code class="xref py py-class docutils literal"><span class="pre">ArraySequence</span></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.gradients">
+<span id="module-io-gradients"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.gradients</span></code><a class="headerlink" href="#module-dipy.io.gradients" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.gradients.InTemporaryDirectory" title="dipy.io.gradients.InTemporaryDirectory"><code class="xref py py-obj docutils literal"><span class="pre">InTemporaryDirectory</span></code></a>([suffix,&nbsp;prefix,&nbsp;dir])</td>
+<td>Create, return, and change directory to a temporary directory</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.gradients.read_bvals_bvecs" title="dipy.io.gradients.read_bvals_bvecs"><code class="xref py py-obj docutils literal"><span class="pre">read_bvals_bvecs</span></code></a>(fbvals,&nbsp;fbvecs)</td>
+<td>Read b-values and b-vectors from disk</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.gradients.splitext" title="dipy.io.gradients.splitext"><code class="xref py py-obj docutils literal"><span class="pre">splitext</span></code></a>(p)</td>
+<td>Split the extension from a pathname.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.image">
+<span id="module-io-image"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.image</span></code><a class="headerlink" href="#module-dipy.io.image" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.image.load_nifti" title="dipy.io.image.load_nifti"><code class="xref py py-obj docutils literal"><span class="pre">load_nifti</span></code></a>(fname[,&nbsp;return_img,&nbsp;...])</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.image.save_nifti" title="dipy.io.image.save_nifti"><code class="xref py py-obj docutils literal"><span class="pre">save_nifti</span></code></a>(fname,&nbsp;data,&nbsp;affine[,&nbsp;hdr])</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.peaks">
+<span id="module-io-peaks"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.peaks</span></code><a class="headerlink" href="#module-dipy.io.peaks" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.PeaksAndMetrics" title="dipy.io.peaks.PeaksAndMetrics"><code class="xref py py-obj docutils literal"><span class="pre">PeaksAndMetrics</span></code></a></td>
+<td><p class="rubric">Attributes</p>
+</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.peaks.Sphere" title="dipy.io.peaks.Sphere"><code class="xref py py-obj docutils literal"><span class="pre">Sphere</span></code></a>([x,&nbsp;y,&nbsp;z,&nbsp;theta,&nbsp;phi,&nbsp;xyz,&nbsp;faces,&nbsp;edges])</td>
+<td>Points on the unit sphere.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.load_peaks" title="dipy.io.peaks.load_peaks"><code class="xref py py-obj docutils literal"><span class="pre">load_peaks</span></code></a>(fname[,&nbsp;verbose])</td>
+<td>Load a PeaksAndMetrics HDF5 file (PAM5)</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.peaks.peaks_to_niftis" title="dipy.io.peaks.peaks_to_niftis"><code class="xref py py-obj docutils literal"><span class="pre">peaks_to_niftis</span></code></a>(pam,&nbsp;fname_shm,&nbsp;fname_dirs,&nbsp;...)</td>
+<td>Save SH, directions, indices and values of peaks to Nifti.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.reshape_peaks_for_visualization" title="dipy.io.peaks.reshape_peaks_for_visualization"><code class="xref py py-obj docutils literal"><span class="pre">reshape_peaks_for_visualization</span></code></a>(peaks)</td>
+<td>Reshape peaks for visualization.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.peaks.save_nifti" title="dipy.io.peaks.save_nifti"><code class="xref py py-obj docutils literal"><span class="pre">save_nifti</span></code></a>(fname,&nbsp;data,&nbsp;affine[,&nbsp;hdr])</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.save_peaks" title="dipy.io.peaks.save_peaks"><code class="xref py py-obj docutils literal"><span class="pre">save_peaks</span></code></a>(fname,&nbsp;pam[,&nbsp;affine,&nbsp;verbose])</td>
+<td>Save all important attributes of object PeaksAndMetrics in a PAM5 file (HDF5).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.pickles">
+<span id="module-io-pickles"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.pickles</span></code><a class="headerlink" href="#module-dipy.io.pickles" title="Permalink to this headline">¶</a></h2>
+<p>Load and save pickles</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.pickles.load_pickle" title="dipy.io.pickles.load_pickle"><code class="xref py py-obj docutils literal"><span class="pre">load_pickle</span></code></a>(fname)</td>
+<td>Load object from pickle file <cite>fname</cite></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.pickles.save_pickle" title="dipy.io.pickles.save_pickle"><code class="xref py py-obj docutils literal"><span class="pre">save_pickle</span></code></a>(fname,&nbsp;dix)</td>
+<td>Save <cite>dix</cite> to <cite>fname</cite> as pickle</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.streamline">
+<span id="module-io-streamline"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.streamline</span></code><a class="headerlink" href="#module-dipy.io.streamline" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.streamline.Field" title="dipy.io.streamline.Field"><code class="xref py py-obj docutils literal"><span class="pre">Field</span></code></a></td>
+<td>Header fields common to multiple streamline file formats.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.streamline.aff2axcodes" title="dipy.io.streamline.aff2axcodes"><code class="xref py py-obj docutils literal"><span class="pre">aff2axcodes</span></code></a>(aff[,&nbsp;labels,&nbsp;tol])</td>
+<td>axis direction codes for affine <cite>aff</cite></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.streamline.load_trk" title="dipy.io.streamline.load_trk"><code class="xref py py-obj docutils literal"><span class="pre">load_trk</span></code></a>(filename)</td>
+<td>Loads tractogram files(<a href="#id2"><span class="problematic" id="id3">*</span></a>.trk)</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.streamline.save_trk" title="dipy.io.streamline.save_trk"><code class="xref py py-obj docutils literal"><span class="pre">save_trk</span></code></a>(fname,&nbsp;streamlines,&nbsp;affine[,&nbsp;...])</td>
+<td>Saves tractogram files (<a href="#id4"><span class="problematic" id="id5">*</span></a>.trk)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.trackvis">
+<span id="module-io-trackvis"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.trackvis</span></code><a class="headerlink" href="#module-dipy.io.trackvis" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.trackvis.save_trk" title="dipy.io.trackvis.save_trk"><code class="xref py py-obj docutils literal"><span class="pre">save_trk</span></code></a>(filename,&nbsp;points,&nbsp;vox_to_ras,&nbsp;shape)</td>
+<td>A temporary helper function for saving trk files.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.utils">
+<span id="module-io-utils"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.utils</span></code><a class="headerlink" href="#module-dipy.io.utils" title="Permalink to this headline">¶</a></h2>
+<p>Utility functions for file formats</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.utils.Nifti1Image" title="dipy.io.utils.Nifti1Image"><code class="xref py py-obj docutils literal"><span class="pre">Nifti1Image</span></code></a>(dataobj,&nbsp;affine[,&nbsp;header,&nbsp;...])</td>
+<td>Class for single file NIfTI1 format image</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.utils.make5d" title="dipy.io.utils.make5d"><code class="xref py py-obj docutils literal"><span class="pre">make5d</span></code></a>(input)</td>
+<td>reshapes the input to have 5 dimensions, adds extra dimensions just</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.utils.nifti1_symmat" title="dipy.io.utils.nifti1_symmat"><code class="xref py py-obj docutils literal"><span class="pre">nifti1_symmat</span></code></a>(image_data,&nbsp;*args,&nbsp;**kwargs)</td>
+<td>Returns a Nifti1Image with a symmetric matrix intent</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="module-dipy.io.vtk">
+<span id="module-io-vtk"></span><h2>Module: <code class="xref py py-mod docutils literal"><span class="pre">io.vtk</span></code><a class="headerlink" href="#module-dipy.io.vtk" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.vtk.load_polydata" title="dipy.io.vtk.load_polydata"><code class="xref py py-obj docutils literal"><span class="pre">load_polydata</span></code></a>(file_name)</td>
+<td>Load a vtk polydata to a supported format file</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.vtk.optional_package" title="dipy.io.vtk.optional_package"><code class="xref py py-obj docutils literal"><span class="pre">optional_package</span></code></a>(name[,&nbsp;trip_msg])</td>
+<td>Return package-like thing and module setup for package <cite>name</cite></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.vtk.save_polydata" title="dipy.io.vtk.save_polydata"><code class="xref py py-obj docutils literal"><span class="pre">save_polydata</span></code></a>(polydata,&nbsp;file_name[,&nbsp;binary,&nbsp;...])</td>
+<td>Save a vtk polydata to a supported format file</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.vtk.set_input" title="dipy.io.vtk.set_input"><code class="xref py py-obj docutils literal"><span class="pre">set_input</span></code></a>(vtk_object,&nbsp;inp)</td>
+<td>Generic input function which takes into account VTK 5 or 6</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.vtk.setup_module" title="dipy.io.vtk.setup_module"><code class="xref py py-obj docutils literal"><span class="pre">setup_module</span></code></a>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="dpy">
+<h3><a class="reference internal" href="#dipy.io.Dpy" title="dipy.io.Dpy"><code class="xref py py-class docutils literal"><span class="pre">Dpy</span></code></a><a class="headerlink" href="#dpy" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="dipy.io.Dpy">
+<em class="property">class </em><code class="descclassname">dipy.io.</code><code class="descname">Dpy</code><span class="sig-paren">(</span><em>fname</em>, <em>mode='r'</em>, <em>compression=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.Dpy.close" title="dipy.io.Dpy.close"><code class="xref py py-obj docutils literal"><span class="pre">close</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.Dpy.read_track" title="dipy.io.Dpy.read_track"><code class="xref py py-obj docutils literal"><span class="pre">read_track</span></code></a>()</td>
+<td>read one track each time</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.Dpy.read_tracks" title="dipy.io.Dpy.read_tracks"><code class="xref py py-obj docutils literal"><span class="pre">read_tracks</span></code></a>()</td>
+<td>read the entire tractography</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.Dpy.read_tracksi" title="dipy.io.Dpy.read_tracksi"><code class="xref py py-obj docutils literal"><span class="pre">read_tracksi</span></code></a>(indices)</td>
+<td>read tracks with specific indices</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.Dpy.version" title="dipy.io.Dpy.version"><code class="xref py py-obj docutils literal"><span class="pre">version</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.Dpy.write_track" title="dipy.io.Dpy.write_track"><code class="xref py py-obj docutils literal"><span class="pre">write_track</span></code></a>(track)</td>
+<td>write on track each time</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.Dpy.write_tracks" title="dipy.io.Dpy.write_tracks"><code class="xref py py-obj docutils literal"><span class="pre">write_tracks</span></code></a>(tracks)</td>
+<td>write many tracks together</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dipy.io.Dpy.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>fname</em>, <em>mode='r'</em>, <em>compression=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Advanced storage system for tractography based on HDF5</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str, full filename</p>
+<p><strong>mode</strong> : &#8216;r&#8217; read</p>
+<blockquote>
+<div><p>&#8216;w&#8217; write
+&#8216;r+&#8217; read and write only if file already exists</p>
+</div></blockquote>
+<p class="last"><strong>compression</strong> : 0 no compression to 9 maximum compression</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">mkstemp</span> <span class="c1">#temp file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dipy.io.dpy</span> <span class="k">import</span> <span class="n">Dpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">dpy_example</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">fd</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">mkstemp</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">fname</span> <span class="o">+=</span> <span class="s1">&#39;.dpy&#39;</span><span class="c1">#add correct extension</span>
+<span class="gp">... </span>    <span class="n">dpw</span> <span class="o">=</span> <span class="n">Dpy</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">A</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="n">B</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">C</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpr</span> <span class="o">=</span> <span class="n">Dpy</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">read_track</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">read_track</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">read_tracksi</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="c1">#delete file from disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dpy_example</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.Dpy.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.Dpy.read_track">
+<code class="descname">read_track</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.read_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>read one track each time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.Dpy.read_tracks">
+<code class="descname">read_tracks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.read_tracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>read the entire tractography</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.Dpy.read_tracksi">
+<code class="descname">read_tracksi</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.read_tracksi" title="Permalink to this definition">¶</a></dt>
+<dd><p>read tracks with specific indices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.Dpy.version">
+<code class="descname">version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.Dpy.write_track">
+<code class="descname">write_track</code><span class="sig-paren">(</span><em>track</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.write_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>write on track each time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.Dpy.write_tracks">
+<code class="descname">write_tracks</code><span class="sig-paren">(</span><em>tracks</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.Dpy.write_tracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>write many tracks together</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="load-pickle">
+<h3>load_pickle<a class="headerlink" href="#load-pickle" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.load_pickle">
+<code class="descclassname">dipy.io.</code><code class="descname">load_pickle</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.load_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load object from pickle file <cite>fname</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<blockquote>
+<div><p>filename to load dict or other python object</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dix</strong> : object</p>
+<blockquote class="last">
+<div><p>dictionary or other object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>dipy.io.pickles.save_pickle</p>
+</dd></dl>
+
+</div>
+<div class="section" id="orientation-from-string">
+<h3>orientation_from_string<a class="headerlink" href="#orientation-from-string" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.orientation_from_string">
+<code class="descclassname">dipy.io.</code><code class="descname">orientation_from_string</code><span class="sig-paren">(</span><em>string_ornt</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.orientation_from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array representation of an ornt string</p>
+</dd></dl>
+
+</div>
+<div class="section" id="orientation-to-string">
+<h3>orientation_to_string<a class="headerlink" href="#orientation-to-string" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.orientation_to_string">
+<code class="descclassname">dipy.io.</code><code class="descname">orientation_to_string</code><span class="sig-paren">(</span><em>ornt</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.orientation_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string representation of a 3d ornt</p>
+</dd></dl>
+
+</div>
+<div class="section" id="ornt-mapping">
+<h3>ornt_mapping<a class="headerlink" href="#ornt-mapping" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.ornt_mapping">
+<code class="descclassname">dipy.io.</code><code class="descname">ornt_mapping</code><span class="sig-paren">(</span><em>ornt1</em>, <em>ornt2</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.ornt_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the mapping needing to get from orn1 to orn2</p>
+</dd></dl>
+
+</div>
+<div class="section" id="read-bvals-bvecs">
+<h3>read_bvals_bvecs<a class="headerlink" href="#read-bvals-bvecs" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.read_bvals_bvecs">
+<code class="descclassname">dipy.io.</code><code class="descname">read_bvals_bvecs</code><span class="sig-paren">(</span><em>fbvals</em>, <em>fbvecs</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.read_bvals_bvecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read b-values and b-vectors from disk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fbvals</strong> : str</p>
+<blockquote>
+<div><p>Full path to file with b-values. None to not read bvals.</p>
+</div></blockquote>
+<p><strong>fbvecs</strong> : str</p>
+<blockquote>
+<div><p>Full path of file with b-vectors. None to not read bvecs.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>bvals</strong> : array, (N,) or None</p>
+<p class="last"><strong>bvecs</strong> : array, (N, 3) or None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Files can be either &#8216;.bvals&#8217;/&#8217;.bvecs&#8217; or &#8216;.txt&#8217; or &#8216;.npy&#8217; (containing
+arrays stored with the appropriate values).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="read-bvec-file">
+<h3>read_bvec_file<a class="headerlink" href="#read-bvec-file" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.read_bvec_file">
+<code class="descclassname">dipy.io.</code><code class="descname">read_bvec_file</code><span class="sig-paren">(</span><em>filename</em>, <em>atol=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.read_bvec_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read gradient table information from a pair of files with extentions
+.bvec and .bval. The bval file should have one row of values
+representing the bvalues of each volume in the dwi data set. The bvec
+file should have three rows, where the rows are the x, y, and z
+components of the normalized gradient direction for each of the
+volumes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename :</strong></p>
+<blockquote>
+<div><p>The path to the either the bvec or bval file</p>
+</div></blockquote>
+<p><strong>atol</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>The tolorance used to check all the gradient directions are
+normalized. Defult is .001</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="reorient-on-axis">
+<h3>reorient_on_axis<a class="headerlink" href="#reorient-on-axis" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.reorient_on_axis">
+<code class="descclassname">dipy.io.</code><code class="descname">reorient_on_axis</code><span class="sig-paren">(</span><em>input</em>, <em>current_ornt</em>, <em>new_ornt</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.reorient_on_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="reorient-vectors">
+<h3>reorient_vectors<a class="headerlink" href="#reorient-vectors" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.reorient_vectors">
+<code class="descclassname">dipy.io.</code><code class="descname">reorient_vectors</code><span class="sig-paren">(</span><em>input</em>, <em>current_ornt</em>, <em>new_ornt</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.reorient_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the orientation of a gradients or other vectors</p>
+<p>Moves vectors, storted along axis, from current_ornt to new_ornt. For
+example the vector [x, y, z] in &#8220;RAS&#8221; will be [-x, -y, z] in &#8220;LPS&#8221;.</p>
+<p>R: Right
+A: Anterior
+S: Superior
+L: Left
+P: Posterior
+I: Inferior</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gtab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;asr&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[1, 1, 1],</span>
+<span class="go">       [2, 3, 1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;lps&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[-1, -1,  1],</span>
+<span class="go">       [-1, -2,  3]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bvec</span> <span class="o">=</span> <span class="n">gtab</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">bvec</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;lps&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">array([[-1, -1],</span>
+<span class="go">       [-1, -2],</span>
+<span class="go">       [ 1,  3]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">bvec</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;lsp&#39;</span><span class="p">)</span>
+<span class="go">array([[-1, -1],</span>
+<span class="go">       [ 1,  3],</span>
+<span class="go">       [-1, -2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="save-pickle">
+<h3>save_pickle<a class="headerlink" href="#save-pickle" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.save_pickle">
+<code class="descclassname">dipy.io.</code><code class="descname">save_pickle</code><span class="sig-paren">(</span><em>fname</em>, <em>dix</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.save_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save <cite>dix</cite> to <cite>fname</cite> as pickle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<blockquote>
+<div><p>filename to save object e.g. a dictionary</p>
+</div></blockquote>
+<p><strong>dix</strong> : str</p>
+<blockquote class="last">
+<div><p>dictionary or other object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#dipy.io.pickles.load_pickle" title="dipy.io.pickles.load_pickle"><code class="xref py py-obj docutils literal"><span class="pre">dipy.io.pickles.load_pickle</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">mkstemp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fd</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">mkstemp</span><span class="p">()</span> <span class="c1"># make temporary file (opened, attached to fh)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:{</span><span class="s1">&#39;d&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_pickle</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d2</span><span class="o">=</span><span class="n">load_pickle</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We remove the temporary file we created for neatness</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span> <span class="c1"># the file is still open, we need to close the fh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id6">
+<h3>orientation_from_string<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.bvectxt.orientation_from_string">
+<code class="descclassname">dipy.io.bvectxt.</code><code class="descname">orientation_from_string</code><span class="sig-paren">(</span><em>string_ornt</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.bvectxt.orientation_from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array representation of an ornt string</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id7">
+<h3>orientation_to_string<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.bvectxt.orientation_to_string">
+<code class="descclassname">dipy.io.bvectxt.</code><code class="descname">orientation_to_string</code><span class="sig-paren">(</span><em>ornt</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.bvectxt.orientation_to_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string representation of a 3d ornt</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id8">
+<h3>ornt_mapping<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.bvectxt.ornt_mapping">
+<code class="descclassname">dipy.io.bvectxt.</code><code class="descname">ornt_mapping</code><span class="sig-paren">(</span><em>ornt1</em>, <em>ornt2</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.bvectxt.ornt_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the mapping needing to get from orn1 to orn2</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id9">
+<h3>read_bvec_file<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.bvectxt.read_bvec_file">
+<code class="descclassname">dipy.io.bvectxt.</code><code class="descname">read_bvec_file</code><span class="sig-paren">(</span><em>filename</em>, <em>atol=0.001</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.bvectxt.read_bvec_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read gradient table information from a pair of files with extentions
+.bvec and .bval. The bval file should have one row of values
+representing the bvalues of each volume in the dwi data set. The bvec
+file should have three rows, where the rows are the x, y, and z
+components of the normalized gradient direction for each of the
+volumes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename :</strong></p>
+<blockquote>
+<div><p>The path to the either the bvec or bval file</p>
+</div></blockquote>
+<p><strong>atol</strong> : float, optional</p>
+<blockquote class="last">
+<div><p>The tolorance used to check all the gradient directions are
+normalized. Defult is .001</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="id10">
+<h3>reorient_on_axis<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.bvectxt.reorient_on_axis">
+<code class="descclassname">dipy.io.bvectxt.</code><code class="descname">reorient_on_axis</code><span class="sig-paren">(</span><em>input</em>, <em>current_ornt</em>, <em>new_ornt</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.bvectxt.reorient_on_axis" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="id11">
+<h3>reorient_vectors<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.bvectxt.reorient_vectors">
+<code class="descclassname">dipy.io.bvectxt.</code><code class="descname">reorient_vectors</code><span class="sig-paren">(</span><em>input</em>, <em>current_ornt</em>, <em>new_ornt</em>, <em>axis=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.bvectxt.reorient_vectors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the orientation of a gradients or other vectors</p>
+<p>Moves vectors, storted along axis, from current_ornt to new_ornt. For
+example the vector [x, y, z] in &#8220;RAS&#8221; will be [-x, -y, z] in &#8220;LPS&#8221;.</p>
+<p>R: Right
+A: Anterior
+S: Superior
+L: Left
+P: Posterior
+I: Inferior</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gtab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;asr&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[1, 1, 1],</span>
+<span class="go">       [2, 3, 1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;lps&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">array([[-1, -1,  1],</span>
+<span class="go">       [-1, -2,  3]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bvec</span> <span class="o">=</span> <span class="n">gtab</span><span class="o">.</span><span class="n">T</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">bvec</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;lps&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">array([[-1, -1],</span>
+<span class="go">       [-1, -2],</span>
+<span class="go">       [ 1,  3]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reorient_vectors</span><span class="p">(</span><span class="n">bvec</span><span class="p">,</span> <span class="s1">&#39;ras&#39;</span><span class="p">,</span> <span class="s1">&#39;lsp&#39;</span><span class="p">)</span>
+<span class="go">array([[-1, -1],</span>
+<span class="go">       [ 1,  3],</span>
+<span class="go">       [-1, -2]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="splitext">
+<h3>splitext<a class="headerlink" href="#splitext" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.bvectxt.splitext">
+<code class="descclassname">dipy.io.bvectxt.</code><code class="descname">splitext</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.bvectxt.splitext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the extension from a pathname.</p>
+<p>Extension is everything from the last dot to the end, ignoring
+leading dots.  Returns &#8220;(root, ext)&#8221;; ext may be empty.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id12">
+<h3><a class="reference internal" href="#dipy.io.dpy.Dpy" title="dipy.io.dpy.Dpy"><code class="xref py py-class docutils literal"><span class="pre">Dpy</span></code></a><a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="dipy.io.dpy.Dpy">
+<em class="property">class </em><code class="descclassname">dipy.io.dpy.</code><code class="descname">Dpy</code><span class="sig-paren">(</span><em>fname</em>, <em>mode='r'</em>, <em>compression=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.dpy.Dpy.close" title="dipy.io.dpy.Dpy.close"><code class="xref py py-obj docutils literal"><span class="pre">close</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.dpy.Dpy.read_track" title="dipy.io.dpy.Dpy.read_track"><code class="xref py py-obj docutils literal"><span class="pre">read_track</span></code></a>()</td>
+<td>read one track each time</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.dpy.Dpy.read_tracks" title="dipy.io.dpy.Dpy.read_tracks"><code class="xref py py-obj docutils literal"><span class="pre">read_tracks</span></code></a>()</td>
+<td>read the entire tractography</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.dpy.Dpy.read_tracksi" title="dipy.io.dpy.Dpy.read_tracksi"><code class="xref py py-obj docutils literal"><span class="pre">read_tracksi</span></code></a>(indices)</td>
+<td>read tracks with specific indices</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.dpy.Dpy.version" title="dipy.io.dpy.Dpy.version"><code class="xref py py-obj docutils literal"><span class="pre">version</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.dpy.Dpy.write_track" title="dipy.io.dpy.Dpy.write_track"><code class="xref py py-obj docutils literal"><span class="pre">write_track</span></code></a>(track)</td>
+<td>write on track each time</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.dpy.Dpy.write_tracks" title="dipy.io.dpy.Dpy.write_tracks"><code class="xref py py-obj docutils literal"><span class="pre">write_tracks</span></code></a>(tracks)</td>
+<td>write many tracks together</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>fname</em>, <em>mode='r'</em>, <em>compression=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Advanced storage system for tractography based on HDF5</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str, full filename</p>
+<p><strong>mode</strong> : &#8216;r&#8217; read</p>
+<blockquote>
+<div><p>&#8216;w&#8217; write
+&#8216;r+&#8217; read and write only if file already exists</p>
+</div></blockquote>
+<p class="last"><strong>compression</strong> : 0 no compression to 9 maximum compression</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">mkstemp</span> <span class="c1">#temp file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">dipy.io.dpy</span> <span class="k">import</span> <span class="n">Dpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">dpy_example</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="n">fd</span><span class="p">,</span><span class="n">fname</span> <span class="o">=</span> <span class="n">mkstemp</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">fname</span> <span class="o">+=</span> <span class="s1">&#39;.dpy&#39;</span><span class="c1">#add correct extension</span>
+<span class="gp">... </span>    <span class="n">dpw</span> <span class="o">=</span> <span class="n">Dpy</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">A</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="gp">... </span>    <span class="n">B</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">C</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">A</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">B</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">write_track</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpw</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpr</span> <span class="o">=</span> <span class="n">Dpy</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">read_track</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">read_track</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">read_tracksi</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="gp">... </span>    <span class="n">dpr</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span> <span class="c1">#delete file from disk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dpy_example</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.read_track">
+<code class="descname">read_track</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.read_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>read one track each time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.read_tracks">
+<code class="descname">read_tracks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.read_tracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>read the entire tractography</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.read_tracksi">
+<code class="descname">read_tracksi</code><span class="sig-paren">(</span><em>indices</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.read_tracksi" title="Permalink to this definition">¶</a></dt>
+<dd><p>read tracks with specific indices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.version">
+<code class="descname">version</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.write_track">
+<code class="descname">write_track</code><span class="sig-paren">(</span><em>track</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.write_track" title="Permalink to this definition">¶</a></dt>
+<dd><p>write on track each time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.dpy.Dpy.write_tracks">
+<code class="descname">write_tracks</code><span class="sig-paren">(</span><em>tracks</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.dpy.Dpy.write_tracks" title="Permalink to this definition">¶</a></dt>
+<dd><p>write many tracks together</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="streamlines">
+<h3><a class="reference internal" href="#dipy.io.dpy.Streamlines" title="dipy.io.dpy.Streamlines"><code class="xref py py-class docutils literal"><span class="pre">Streamlines</span></code></a><a class="headerlink" href="#streamlines" title="Permalink to this headline">¶</a></h3>
+<dl class="attribute">
+<dt id="dipy.io.dpy.Streamlines">
+<code class="descclassname">dipy.io.dpy.</code><code class="descname">Streamlines</code><a class="headerlink" href="#dipy.io.dpy.Streamlines" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">ArraySequence</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="intemporarydirectory">
+<h3><a class="reference internal" href="#dipy.io.gradients.InTemporaryDirectory" title="dipy.io.gradients.InTemporaryDirectory"><code class="xref py py-class docutils literal"><span class="pre">InTemporaryDirectory</span></code></a><a class="headerlink" href="#intemporarydirectory" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="dipy.io.gradients.InTemporaryDirectory">
+<em class="property">class </em><code class="descclassname">dipy.io.gradients.</code><code class="descname">InTemporaryDirectory</code><span class="sig-paren">(</span><em>suffix=''</em>, <em>prefix='tmp'</em>, <em>dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.gradients.InTemporaryDirectory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">nibabel.tmpdirs.TemporaryDirectory</span></code></p>
+<p>Create, return, and change directory to a temporary directory</p>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_cwd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">_</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;test.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;wt&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;some text&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="s1">&#39;test.txt&#39;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">==</span> <span class="n">my_cwd</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">cleanup</span></code>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dipy.io.gradients.InTemporaryDirectory.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>suffix=''</em>, <em>prefix='tmp'</em>, <em>dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.gradients.InTemporaryDirectory.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="id13">
+<h3>read_bvals_bvecs<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.gradients.read_bvals_bvecs">
+<code class="descclassname">dipy.io.gradients.</code><code class="descname">read_bvals_bvecs</code><span class="sig-paren">(</span><em>fbvals</em>, <em>fbvecs</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.gradients.read_bvals_bvecs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read b-values and b-vectors from disk</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fbvals</strong> : str</p>
+<blockquote>
+<div><p>Full path to file with b-values. None to not read bvals.</p>
+</div></blockquote>
+<p><strong>fbvecs</strong> : str</p>
+<blockquote>
+<div><p>Full path of file with b-vectors. None to not read bvecs.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>bvals</strong> : array, (N,) or None</p>
+<p class="last"><strong>bvecs</strong> : array, (N, 3) or None</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Files can be either &#8216;.bvals&#8217;/&#8217;.bvecs&#8217; or &#8216;.txt&#8217; or &#8216;.npy&#8217; (containing
+arrays stored with the appropriate values).</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id14">
+<h3>splitext<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.gradients.splitext">
+<code class="descclassname">dipy.io.gradients.</code><code class="descname">splitext</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.gradients.splitext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split the extension from a pathname.</p>
+<p>Extension is everything from the last dot to the end, ignoring
+leading dots.  Returns &#8220;(root, ext)&#8221;; ext may be empty.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="load-nifti">
+<h3>load_nifti<a class="headerlink" href="#load-nifti" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.image.load_nifti">
+<code class="descclassname">dipy.io.image.</code><code class="descname">load_nifti</code><span class="sig-paren">(</span><em>fname</em>, <em>return_img=False</em>, <em>return_voxsize=False</em>, <em>return_coords=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.image.load_nifti" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="save-nifti">
+<h3>save_nifti<a class="headerlink" href="#save-nifti" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.image.save_nifti">
+<code class="descclassname">dipy.io.image.</code><code class="descname">save_nifti</code><span class="sig-paren">(</span><em>fname</em>, <em>data</em>, <em>affine</em>, <em>hdr=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.image.save_nifti" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="peaksandmetrics">
+<h3><a class="reference internal" href="#dipy.io.peaks.PeaksAndMetrics" title="dipy.io.peaks.PeaksAndMetrics"><code class="xref py py-class docutils literal"><span class="pre">PeaksAndMetrics</span></code></a><a class="headerlink" href="#peaksandmetrics" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="dipy.io.peaks.PeaksAndMetrics">
+<em class="property">class </em><code class="descclassname">dipy.io.peaks.</code><code class="descname">PeaksAndMetrics</code><a class="headerlink" href="#dipy.io.peaks.PeaksAndMetrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dipy.reconst.peak_direction_getter.PeaksAndMetricsDirectionGetter</span></code></p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">ang_thr</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">qa_thr</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">total_weight</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_direction</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">initial_direction</span></code></td>
+<td>The best starting directions for fiber tracking from point</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dipy.io.peaks.PeaksAndMetrics.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.PeaksAndMetrics.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="sphere">
+<h3><a class="reference internal" href="#dipy.io.peaks.Sphere" title="dipy.io.peaks.Sphere"><code class="xref py py-class docutils literal"><span class="pre">Sphere</span></code></a><a class="headerlink" href="#sphere" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="dipy.io.peaks.Sphere">
+<em class="property">class </em><code class="descclassname">dipy.io.peaks.</code><code class="descname">Sphere</code><span class="sig-paren">(</span><em>x=None</em>, <em>y=None</em>, <em>z=None</em>, <em>theta=None</em>, <em>phi=None</em>, <em>xyz=None</em>, <em>faces=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.Sphere" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Points on the unit sphere.</p>
+<p>The sphere can be constructed using one of three conventions:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Sphere</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+<span class="n">Sphere</span><span class="p">(</span><span class="n">xyz</span><span class="o">=</span><span class="n">xyz</span><span class="p">)</span>
+<span class="n">Sphere</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="n">theta</span><span class="p">,</span> <span class="n">phi</span><span class="o">=</span><span class="n">phi</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>x, y, z</strong> : 1-D array_like</p>
+<blockquote>
+<div><p>Vertices as x-y-z coordinates.</p>
+</div></blockquote>
+<p><strong>theta, phi</strong> : 1-D array_like</p>
+<blockquote>
+<div><p>Vertices as spherical coordinates.  Theta and phi are the inclination
+and azimuth angles respectively.</p>
+</div></blockquote>
+<p><strong>xyz</strong> : (N, 3) ndarray</p>
+<blockquote>
+<div><p>Vertices as x-y-z coordinates.</p>
+</div></blockquote>
+<p><strong>faces</strong> : (N, 3) ndarray</p>
+<blockquote>
+<div><p>Indices into vertices that form triangular faces.  If unspecified,
+the faces are computed using a Delaunay triangulation.</p>
+</div></blockquote>
+<p><strong>edges</strong> : (N, 2) ndarray</p>
+<blockquote class="last">
+<div><p>Edges between vertices.  If unspecified, the edges are
+derived from the faces.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.x" title="dipy.io.peaks.Sphere.x"><code class="xref py py-obj docutils literal"><span class="pre">x</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.y" title="dipy.io.peaks.Sphere.y"><code class="xref py py-obj docutils literal"><span class="pre">y</span></code></a></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.z" title="dipy.io.peaks.Sphere.z"><code class="xref py py-obj docutils literal"><span class="pre">z</span></code></a></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.edges" title="dipy.io.peaks.Sphere.edges"><code class="xref py py-obj docutils literal"><span class="pre">edges</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.faces" title="dipy.io.peaks.Sphere.faces"><code class="xref py py-obj docutils literal"><span class="pre">faces</span></code></a>()</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.find_closest" title="dipy.io.peaks.Sphere.find_closest"><code class="xref py py-obj docutils literal"><span class="pre">find_closest</span></code></a>(xyz)</td>
+<td>Find the index of the vertex in the Sphere closest to the input vector</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.subdivide" title="dipy.io.peaks.Sphere.subdivide"><code class="xref py py-obj docutils literal"><span class="pre">subdivide</span></code></a>([n])</td>
+<td>Subdivides each face of the sphere into four new faces.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.peaks.Sphere.vertices" title="dipy.io.peaks.Sphere.vertices"><code class="xref py py-obj docutils literal"><span class="pre">vertices</span></code></a>()</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dipy.io.peaks.Sphere.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>x=None</em>, <em>y=None</em>, <em>z=None</em>, <em>theta=None</em>, <em>phi=None</em>, <em>xyz=None</em>, <em>faces=None</em>, <em>edges=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.Sphere.__init__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.peaks.Sphere.edges">
+<code class="descname">edges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.Sphere.edges" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.peaks.Sphere.faces">
+<code class="descname">faces</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.Sphere.faces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.peaks.Sphere.find_closest">
+<code class="descname">find_closest</code><span class="sig-paren">(</span><em>xyz</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.Sphere.find_closest" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the index of the vertex in the Sphere closest to the input vector</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>xyz</strong> : array-like, 3 elements</p>
+<blockquote class="last">
+<div><p>A unit vector</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.peaks.Sphere.subdivide">
+<code class="descname">subdivide</code><span class="sig-paren">(</span><em>n=1</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.Sphere.subdivide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subdivides each face of the sphere into four new faces.</p>
+<p>New vertices are created at a, b, and c. Then each face [x, y, z] is
+divided into faces [x, a, c], [y, a, b], [z, b, c], and [a, b, c].</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>   y
+   /               /               a/____
+/\    /            /  \  /             /____\/____          x      c     z
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int, optional</p>
+<blockquote>
+<div><p>The number of subdivisions to preform.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_sphere</strong> : Sphere</p>
+<blockquote class="last">
+<div><p>The subdivided sphere.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.peaks.Sphere.vertices">
+<code class="descname">vertices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.Sphere.vertices" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.peaks.Sphere.x">
+<code class="descname">x</code><a class="headerlink" href="#dipy.io.peaks.Sphere.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.peaks.Sphere.y">
+<code class="descname">y</code><a class="headerlink" href="#dipy.io.peaks.Sphere.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.peaks.Sphere.z">
+<code class="descname">z</code><a class="headerlink" href="#dipy.io.peaks.Sphere.z" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="load-peaks">
+<h3>load_peaks<a class="headerlink" href="#load-peaks" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.peaks.load_peaks">
+<code class="descclassname">dipy.io.peaks.</code><code class="descname">load_peaks</code><span class="sig-paren">(</span><em>fname</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.load_peaks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a PeaksAndMetrics HDF5 file (PAM5)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : string</p>
+<blockquote>
+<div><p>Filename of PAM5 file.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool</p>
+<blockquote>
+<div><p>Print summary information about the loaded file.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>pam</strong> : PeaksAndMetrics object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="peaks-to-niftis">
+<h3>peaks_to_niftis<a class="headerlink" href="#peaks-to-niftis" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.peaks.peaks_to_niftis">
+<code class="descclassname">dipy.io.peaks.</code><code class="descname">peaks_to_niftis</code><span class="sig-paren">(</span><em>pam</em>, <em>fname_shm</em>, <em>fname_dirs</em>, <em>fname_values</em>, <em>fname_indices</em>, <em>fname_gfa</em>, <em>reshape_dirs=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.peaks_to_niftis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save SH, directions, indices and values of peaks to Nifti.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="reshape-peaks-for-visualization">
+<h3>reshape_peaks_for_visualization<a class="headerlink" href="#reshape-peaks-for-visualization" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.peaks.reshape_peaks_for_visualization">
+<code class="descclassname">dipy.io.peaks.</code><code class="descname">reshape_peaks_for_visualization</code><span class="sig-paren">(</span><em>peaks</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.reshape_peaks_for_visualization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reshape peaks for visualization.</p>
+<p>Reshape and convert to float32 a set of peaks for visualisation with mrtrix
+or the fibernavigator.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id15">
+<h3>save_nifti<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.peaks.save_nifti">
+<code class="descclassname">dipy.io.peaks.</code><code class="descname">save_nifti</code><span class="sig-paren">(</span><em>fname</em>, <em>data</em>, <em>affine</em>, <em>hdr=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.save_nifti" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="save-peaks">
+<h3>save_peaks<a class="headerlink" href="#save-peaks" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.peaks.save_peaks">
+<code class="descclassname">dipy.io.peaks.</code><code class="descname">save_peaks</code><span class="sig-paren">(</span><em>fname</em>, <em>pam</em>, <em>affine=None</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.peaks.save_peaks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save all important attributes of object PeaksAndMetrics in a PAM5 file
+(HDF5).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : string</p>
+<blockquote>
+<div><p>Filename of PAM5 file</p>
+</div></blockquote>
+<p><strong>pam</strong> : PeaksAndMetrics</p>
+<blockquote>
+<div><p>Object holding peak_dirs, shm_coeffs and other attributes</p>
+</div></blockquote>
+<p><strong>affine</strong> : array</p>
+<blockquote>
+<div><p>The 4x4 matrix transforming the date from native to world coordinates.
+PeaksAndMetrics should have that attribute but if not it can be
+provided here. Default None.</p>
+</div></blockquote>
+<p><strong>verbose</strong> : bool</p>
+<blockquote class="last">
+<div><p>Print summary information about the saved file.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="id16">
+<h3>load_pickle<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.pickles.load_pickle">
+<code class="descclassname">dipy.io.pickles.</code><code class="descname">load_pickle</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.pickles.load_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load object from pickle file <cite>fname</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<blockquote>
+<div><p>filename to load dict or other python object</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dix</strong> : object</p>
+<blockquote class="last">
+<div><p>dictionary or other object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<p>dipy.io.pickles.save_pickle</p>
+</dd></dl>
+
+</div>
+<div class="section" id="id17">
+<h3>save_pickle<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.pickles.save_pickle">
+<code class="descclassname">dipy.io.pickles.</code><code class="descname">save_pickle</code><span class="sig-paren">(</span><em>fname</em>, <em>dix</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.pickles.save_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save <cite>dix</cite> to <cite>fname</cite> as pickle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<blockquote>
+<div><p>filename to save object e.g. a dictionary</p>
+</div></blockquote>
+<p><strong>dix</strong> : str</p>
+<blockquote class="last">
+<div><p>dictionary or other object</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#dipy.io.pickles.load_pickle" title="dipy.io.pickles.load_pickle"><code class="xref py py-obj docutils literal"><span class="pre">dipy.io.pickles.load_pickle</span></code></a></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">mkstemp</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fd</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">mkstemp</span><span class="p">()</span> <span class="c1"># make temporary file (opened, attached to fh)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:{</span><span class="s1">&#39;d&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save_pickle</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d2</span><span class="o">=</span><span class="n">load_pickle</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We remove the temporary file we created for neatness</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">fd</span><span class="p">)</span> <span class="c1"># the file is still open, we need to close the fh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="field">
+<h3><a class="reference internal" href="#dipy.io.streamline.Field" title="dipy.io.streamline.Field"><code class="xref py py-class docutils literal"><span class="pre">Field</span></code></a><a class="headerlink" href="#field" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="dipy.io.streamline.Field">
+<em class="property">class </em><code class="descclassname">dipy.io.streamline.</code><code class="descname">Field</code><a class="headerlink" href="#dipy.io.streamline.Field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Header fields common to multiple streamline file formats.</p>
+<p>In IPython, use <cite>nibabel.streamlines.Field??</cite> to list them.</p>
+<dl class="method">
+<dt id="dipy.io.streamline.Field.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.streamline.Field.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.DIMENSIONS">
+<code class="descname">DIMENSIONS</code><em class="property"> = 'dimensions'</em><a class="headerlink" href="#dipy.io.streamline.Field.DIMENSIONS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.ENDIANNESS">
+<code class="descname">ENDIANNESS</code><em class="property"> = 'endianness'</em><a class="headerlink" href="#dipy.io.streamline.Field.ENDIANNESS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.MAGIC_NUMBER">
+<code class="descname">MAGIC_NUMBER</code><em class="property"> = 'magic_number'</em><a class="headerlink" href="#dipy.io.streamline.Field.MAGIC_NUMBER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.METHOD">
+<code class="descname">METHOD</code><em class="property"> = 'method'</em><a class="headerlink" href="#dipy.io.streamline.Field.METHOD" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.NB_POINTS">
+<code class="descname">NB_POINTS</code><em class="property"> = 'nb_points'</em><a class="headerlink" href="#dipy.io.streamline.Field.NB_POINTS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.NB_PROPERTIES_PER_STREAMLINE">
+<code class="descname">NB_PROPERTIES_PER_STREAMLINE</code><em class="property"> = 'nb_properties_per_streamline'</em><a class="headerlink" href="#dipy.io.streamline.Field.NB_PROPERTIES_PER_STREAMLINE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.NB_SCALARS_PER_POINT">
+<code class="descname">NB_SCALARS_PER_POINT</code><em class="property"> = 'nb_scalars_per_point'</em><a class="headerlink" href="#dipy.io.streamline.Field.NB_SCALARS_PER_POINT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.NB_STREAMLINES">
+<code class="descname">NB_STREAMLINES</code><em class="property"> = 'nb_streamlines'</em><a class="headerlink" href="#dipy.io.streamline.Field.NB_STREAMLINES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.ORIGIN">
+<code class="descname">ORIGIN</code><em class="property"> = 'origin'</em><a class="headerlink" href="#dipy.io.streamline.Field.ORIGIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.STEP_SIZE">
+<code class="descname">STEP_SIZE</code><em class="property"> = 'step_size'</em><a class="headerlink" href="#dipy.io.streamline.Field.STEP_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.VOXEL_ORDER">
+<code class="descname">VOXEL_ORDER</code><em class="property"> = 'voxel_order'</em><a class="headerlink" href="#dipy.io.streamline.Field.VOXEL_ORDER" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.VOXEL_SIZES">
+<code class="descname">VOXEL_SIZES</code><em class="property"> = 'voxel_sizes'</em><a class="headerlink" href="#dipy.io.streamline.Field.VOXEL_SIZES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.streamline.Field.VOXEL_TO_RASMM">
+<code class="descname">VOXEL_TO_RASMM</code><em class="property"> = 'voxel_to_rasmm'</em><a class="headerlink" href="#dipy.io.streamline.Field.VOXEL_TO_RASMM" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="aff2axcodes">
+<h3>aff2axcodes<a class="headerlink" href="#aff2axcodes" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.streamline.aff2axcodes">
+<code class="descclassname">dipy.io.streamline.</code><code class="descname">aff2axcodes</code><span class="sig-paren">(</span><em>aff</em>, <em>labels=None</em>, <em>tol=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.streamline.aff2axcodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>axis direction codes for affine <cite>aff</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>aff</strong> : (N,M) array-like</p>
+<blockquote>
+<div><p>affine transformation matrix</p>
+</div></blockquote>
+<p><strong>labels</strong> : optional, None or sequence of (2,) sequences</p>
+<blockquote>
+<div><p>Labels for negative and positive ends of output axes of <cite>aff</cite>.  See
+docstring for <code class="docutils literal"><span class="pre">ornt2axcodes</span></code> for more detail</p>
+</div></blockquote>
+<p><strong>tol</strong> : None or float</p>
+<blockquote>
+<div><p>Tolerance for SVD of affine - see <code class="docutils literal"><span class="pre">io_orientation</span></code> for more detail.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>axcodes</strong> : (N,) tuple</p>
+<blockquote class="last">
+<div><p>labels for positive end of voxel axes.  Dropped axes get a label of
+None.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aff</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">10</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">30</span><span class="p">],[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">aff2axcodes</span><span class="p">(</span><span class="n">aff</span><span class="p">,</span> <span class="p">((</span><span class="s1">&#39;L&#39;</span><span class="p">,</span><span class="s1">&#39;R&#39;</span><span class="p">),(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="s1">&#39;F&#39;</span><span class="p">),(</span><span class="s1">&#39;D&#39;</span><span class="p">,</span><span class="s1">&#39;U&#39;</span><span class="p">)))</span>
+<span class="go">(&#39;B&#39;, &#39;R&#39;, &#39;U&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="load-trk">
+<h3>load_trk<a class="headerlink" href="#load-trk" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.streamline.load_trk">
+<code class="descclassname">dipy.io.streamline.</code><code class="descname">load_trk</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.streamline.load_trk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads tractogram files(<a href="#id18"><span class="problematic" id="id19">*</span></a>.trk)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>filename</strong> : str</p>
+<blockquote>
+<div><p>input trk filename</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>streamlines</strong> : list of 2D arrays</p>
+<blockquote>
+<div><p>Each 2D array represents a sequence of 3D points (points, 3).</p>
+</div></blockquote>
+<p><strong>hdr</strong> : dict</p>
+<blockquote class="last">
+<div><p>header from a trk file</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="save-trk">
+<h3>save_trk<a class="headerlink" href="#save-trk" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.streamline.save_trk">
+<code class="descclassname">dipy.io.streamline.</code><code class="descname">save_trk</code><span class="sig-paren">(</span><em>fname</em>, <em>streamlines</em>, <em>affine</em>, <em>vox_size=None</em>, <em>shape=None</em>, <em>header=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.streamline.save_trk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves tractogram files (<a href="#id20"><span class="problematic" id="id21">*</span></a>.trk)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>fname</strong> : str</p>
+<blockquote>
+<div><p>output trk filename</p>
+</div></blockquote>
+<p><strong>streamlines</strong> : list of 2D arrays, generator or ArraySequence</p>
+<blockquote>
+<div><p>Each 2D array represents a sequence of 3D points (points, 3).</p>
+</div></blockquote>
+<p><strong>affine</strong> : array_like (4, 4)</p>
+<blockquote>
+<div><p>The mapping from voxel coordinates to streamline points.</p>
+</div></blockquote>
+<p><strong>vox_size</strong> : array_like (3,), optional</p>
+<blockquote>
+<div><p>The sizes of the voxels in the reference image (default: None)</p>
+</div></blockquote>
+<p><strong>shape</strong> : array, shape (dim,), optional</p>
+<blockquote>
+<div><p>The shape of the reference image (default: None)</p>
+</div></blockquote>
+<p><strong>header</strong> : dict, optional</p>
+<blockquote class="last">
+<div><p>Metadata associated to the tractogram file(<a href="#id22"><span class="problematic" id="id23">*</span></a>.trk). (default: None)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="id24">
+<h3>save_trk<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.trackvis.save_trk">
+<code class="descclassname">dipy.io.trackvis.</code><code class="descname">save_trk</code><span class="sig-paren">(</span><em>filename</em>, <em>points</em>, <em>vox_to_ras</em>, <em>shape</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.trackvis.save_trk" title="Permalink to this definition">¶</a></dt>
+<dd><p>A temporary helper function for saving trk files.</p>
+<p>This function will soon be replaced by better trk file support in nibabel.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="nifti1image">
+<h3><a class="reference internal" href="#dipy.io.utils.Nifti1Image" title="dipy.io.utils.Nifti1Image"><code class="xref py py-class docutils literal"><span class="pre">Nifti1Image</span></code></a><a class="headerlink" href="#nifti1image" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="dipy.io.utils.Nifti1Image">
+<em class="property">class </em><code class="descclassname">dipy.io.utils.</code><code class="descname">Nifti1Image</code><span class="sig-paren">(</span><em>dataobj</em>, <em>affine</em>, <em>header=None</em>, <em>extra=None</em>, <em>file_map=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.utils.Nifti1Image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">nibabel.nifti1.Nifti1Pair</span></code></p>
+<p>Class for single file NIfTI1 format image</p>
+<p class="rubric">Attributes</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">affine</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">dataobj</span></code></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">header</span></code></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">in_memory</span></code></td>
+<td>True when any array data is in memory cache</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">shape</span></code></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">ImageArrayProxy</span></code></td>
+<td>alias of <code class="xref py py-class docutils literal"><span class="pre">ArrayProxy</span></code></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">as_reoriented</span></code>(ornt)</td>
+<td>Apply an orientation change and return a new image</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">filespec_to_file_map</span></code>(klass,&nbsp;filespec)</td>
+<td>Make <cite>file_map</cite> for this class from filename <cite>filespec</cite></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">filespec_to_files</span></code>(klass,&nbsp;filespec)</td>
+<td>filespec_to_files class method is deprecated.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">from_file_map</span></code>(klass,&nbsp;file_map[,&nbsp;mmap,&nbsp;...])</td>
+<td>class method to create image from mapping in <cite>file_map `</cite></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">from_filename</span></code>(klass,&nbsp;filename[,&nbsp;mmap,&nbsp;...])</td>
+<td>class method to create image from filename <cite>filename</cite></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">from_files</span></code>(klass,&nbsp;file_map)</td>
+<td>from_files class method is deprecated.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">from_image</span></code>(klass,&nbsp;img)</td>
+<td>Class method to create new instance of own class from <cite>img</cite></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_affine</span></code>()</td>
+<td>Get affine from image</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_data</span></code>([caching])</td>
+<td>Return image data from image with any necessary scaling applied</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_data_dtype</span></code>()</td>
+<td></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_fdata</span></code>([caching,&nbsp;dtype])</td>
+<td>Return floating point image data with necessary scaling applied</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_filename</span></code>()</td>
+<td>Fetch the image filename</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_header</span></code>()</td>
+<td>Get header from image</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_qform</span></code>([coded])</td>
+<td>Return 4x4 affine matrix from qform parameters in header</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">get_sform</span></code>([coded])</td>
+<td>Return 4x4 affine matrix from sform parameters in header</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">get_shape</span></code>()</td>
+<td>Return shape for image</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#dipy.io.utils.Nifti1Image.header_class" title="dipy.io.utils.Nifti1Image.header_class"><code class="xref py py-obj docutils literal"><span class="pre">header_class</span></code></a></td>
+<td>alias of <code class="xref py py-class docutils literal"><span class="pre">Nifti1Header</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">instance_to_filename</span></code>(klass,&nbsp;img,&nbsp;filename)</td>
+<td>Save <cite>img</cite> in our own format, to name implied by <cite>filename</cite></td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">load</span></code>(klass,&nbsp;filename[,&nbsp;mmap,&nbsp;keep_file_open])</td>
+<td>class method to create image from filename <cite>filename</cite></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">make_file_map</span></code>(klass[,&nbsp;mapping])</td>
+<td>Class method to make files holder for this image type</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">orthoview</span></code>()</td>
+<td>Plot the image using OrthoSlicer3D</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">path_maybe_image</span></code>(klass,&nbsp;filename[,&nbsp;sniff,&nbsp;...])</td>
+<td>Return True if <cite>filename</cite> may be image matching this class</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_data_dtype</span></code>(dtype)</td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_filename</span></code>(filename)</td>
+<td>Sets the files in the object from a given filename</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">set_qform</span></code>(affine[,&nbsp;code,&nbsp;strip_shears])</td>
+<td>Set qform header values from 4x4 affine</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">set_sform</span></code>(affine[,&nbsp;code])</td>
+<td>Set sform transform from 4x4 affine</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">to_file_map</span></code>([file_map])</td>
+<td>Write image to <cite>file_map</cite> or contained <code class="docutils literal"><span class="pre">self.file_map</span></code></td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">to_filename</span></code>(filename)</td>
+<td>Write image to files implied by filename string</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">to_files</span></code>([file_map])</td>
+<td>to_files method is deprecated.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal"><span class="pre">to_filespec</span></code>(filename)</td>
+<td>to_filespec method is deprecated.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal"><span class="pre">uncache</span></code>()</td>
+<td>Delete any cached read of data from proxied data</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#dipy.io.utils.Nifti1Image.update_header" title="dipy.io.utils.Nifti1Image.update_header"><code class="xref py py-obj docutils literal"><span class="pre">update_header</span></code></a>()</td>
+<td>Harmonize header with image data and affine</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="dipy.io.utils.Nifti1Image.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>dataobj</em>, <em>affine</em>, <em>header=None</em>, <em>extra=None</em>, <em>file_map=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.utils.Nifti1Image.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize image</p>
+<blockquote>
+<div>The image is a combination of (array-like, affine matrix, header), with
+optional metadata in <cite>extra</cite>, and filename / file-like objects
+contained in the <cite>file_map</cite> mapping.</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataobj</strong> : object</p>
+<blockquote class="last">
+<div><blockquote>
+<div><p>Object containg image data.  It should be some object that retuns an
+array from <code class="docutils literal"><span class="pre">np.asanyarray</span></code>.  It should have a <code class="docutils literal"><span class="pre">shape</span></code> attribute
+or property</p>
+</div></blockquote>
+<dl class="docutils">
+<dt>affine <span class="classifier-delimiter">:</span> <span class="classifier">None or (4,4) array-like</span></dt>
+<dd><p class="first last">homogenous affine giving relationship between voxel coordinates and
+world coordinates.  Affine can also be None.  In this case,
+<code class="docutils literal"><span class="pre">obj.affine</span></code> also returns None, and the affine as written to disk
+will depend on the file format.</p>
+</dd>
+<dt>header <span class="classifier-delimiter">:</span> <span class="classifier">None or mapping or header instance, optional</span></dt>
+<dd><p class="first last">metadata for this image format</p>
+</dd>
+<dt>extra <span class="classifier-delimiter">:</span> <span class="classifier">None or mapping, optional</span></dt>
+<dd><p class="first last">metadata to associate with image that cannot be stored in the
+metadata of this image type</p>
+</dd>
+<dt>file_map <span class="classifier-delimiter">:</span> <span class="classifier">mapping, optional</span></dt>
+<dd><p class="first last">mapping giving file information for this image format</p>
+</dd>
+</dl>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>If both a <cite>header</cite> and an <cite>affine</cite> are specified, and the <cite>affine</cite> does
+not match the affine that is in the <cite>header</cite>, the <cite>affine</cite> will be used,
+but the <code class="docutils literal"><span class="pre">sform_code</span></code> and <code class="docutils literal"><span class="pre">qform_code</span></code> fields in the header will be
+re-initialised to their default values. This is performed on the basis
+that, if you are changing the affine, you are likely to be changing the
+space to which the affine is pointing.  The <code class="xref py py-meth docutils literal"><span class="pre">set_sform()</span></code> and
+<code class="xref py py-meth docutils literal"><span class="pre">set_qform()</span></code> methods can be used to update the codes after an image
+has been created - see those methods, and the <span class="xref std std-ref">manual</span> for more details.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.utils.Nifti1Image.files_types">
+<code class="descname">files_types</code><em class="property"> = (('image', '.nii'),)</em><a class="headerlink" href="#dipy.io.utils.Nifti1Image.files_types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.utils.Nifti1Image.header_class">
+<code class="descname">header_class</code><a class="headerlink" href="#dipy.io.utils.Nifti1Image.header_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal"><span class="pre">Nifti1Header</span></code></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dipy.io.utils.Nifti1Image.update_header">
+<code class="descname">update_header</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.utils.Nifti1Image.update_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Harmonize header with image data and affine</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dipy.io.utils.Nifti1Image.valid_exts">
+<code class="descname">valid_exts</code><em class="property"> = ('.nii',)</em><a class="headerlink" href="#dipy.io.utils.Nifti1Image.valid_exts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="make5d">
+<h3>make5d<a class="headerlink" href="#make5d" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.utils.make5d">
+<code class="descclassname">dipy.io.utils.</code><code class="descname">make5d</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.utils.make5d" title="Permalink to this definition">¶</a></dt>
+<dd><p>reshapes the input to have 5 dimensions, adds extra dimensions just
+before the last dimession</p>
+</dd></dl>
+
+</div>
+<div class="section" id="nifti1-symmat">
+<h3>nifti1_symmat<a class="headerlink" href="#nifti1-symmat" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.utils.nifti1_symmat">
+<code class="descclassname">dipy.io.utils.</code><code class="descname">nifti1_symmat</code><span class="sig-paren">(</span><em>image_data</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.utils.nifti1_symmat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Nifti1Image with a symmetric matrix intent</p>
+</dd></dl>
+
+</div>
+<div class="section" id="load-polydata">
+<h3>load_polydata<a class="headerlink" href="#load-polydata" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.vtk.load_polydata">
+<code class="descclassname">dipy.io.vtk.</code><code class="descname">load_polydata</code><span class="sig-paren">(</span><em>file_name</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.vtk.load_polydata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a vtk polydata to a supported format file</p>
+<p>Supported file formats are OBJ, VTK, FIB, PLY, STL and XML</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file_name</strong> : string</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>output</strong> : vtkPolyData</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="optional-package">
+<h3>optional_package<a class="headerlink" href="#optional-package" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.vtk.optional_package">
+<code class="descclassname">dipy.io.vtk.</code><code class="descname">optional_package</code><span class="sig-paren">(</span><em>name</em>, <em>trip_msg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.vtk.optional_package" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return package-like thing and module setup for package <cite>name</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>name</strong> : str</p>
+<blockquote>
+<div><p>package name</p>
+</div></blockquote>
+<p><strong>trip_msg</strong> : None or str</p>
+<blockquote>
+<div><p>message to give when someone tries to use the return package, but we
+could not import it, and have returned a TripWire object instead.
+Default message if None.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>pkg_like</strong> : module or <code class="docutils literal"><span class="pre">TripWire</span></code> instance</p>
+<blockquote>
+<div><p>If we can import the package, return it.  Otherwise return an object
+raising an error when accessed</p>
+</div></blockquote>
+<p><strong>have_pkg</strong> : bool</p>
+<blockquote>
+<div><p>True if import for package was successful, false otherwise</p>
+</div></blockquote>
+<p><strong>module_setup</strong> : function</p>
+<blockquote class="last">
+<div><p>callable usually set as <code class="docutils literal"><span class="pre">setup_module</span></code> in calling namespace, to allow
+skipping tests.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="save-polydata">
+<h3>save_polydata<a class="headerlink" href="#save-polydata" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.vtk.save_polydata">
+<code class="descclassname">dipy.io.vtk.</code><code class="descname">save_polydata</code><span class="sig-paren">(</span><em>polydata</em>, <em>file_name</em>, <em>binary=False</em>, <em>color_array_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.vtk.save_polydata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a vtk polydata to a supported format file</p>
+<p>Save formats can be VTK, FIB, PLY, STL and XML.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>polydata</strong> : vtkPolyData</p>
+<p class="last"><strong>file_name</strong> : string</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="set-input">
+<h3>set_input<a class="headerlink" href="#set-input" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.vtk.set_input">
+<code class="descclassname">dipy.io.vtk.</code><code class="descname">set_input</code><span class="sig-paren">(</span><em>vtk_object</em>, <em>inp</em><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.vtk.set_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic input function which takes into account VTK 5 or 6</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>vtk_object: vtk object</strong></p>
+<p><strong>inp: vtkPolyData or vtkImageData or vtkAlgorithmOutput</strong></p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">vtk_object</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>This can be used in the following way::</dt>
+<dd>from dipy.viz.utils import set_input
+poly_mapper = set_input(vtk.vtkPolyDataMapper(), poly_data)</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="setup-module">
+<h3>setup_module<a class="headerlink" href="#setup-module" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="dipy.io.vtk.setup_module">
+<code class="descclassname">dipy.io.vtk.</code><code class="descname">setup_module</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dipy.io.vtk.setup_module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+
+          <li class="nav-item nav-item-1"><a href="../documentation.html" >Documentation</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" >API Reference</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2008-2018, dipy developers &lt;neuroimaging@python.org&gt;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>

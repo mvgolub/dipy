@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>DIPY &#8212; dipy 0.14.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/dipy.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.14.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="keywords" content="DIPY, dMRI, DTI, DSI, diffusion MRI, Tensor,
+  neuroimaging, python, neuroscience, Eleftherios, Garyfallidis, tractography,
+  streamlines, fiber tracking">
+
+  </head>
+  <body role="document">
+<div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
+ <a href="../index.html">
+  <img src="../_static/dipy-banner.png" alt="DIPY logo"  border="0" />
+</div>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+
+
+<h4> Site Navigation </h4>
+  <ul>
+    <li><a href="../documentation.html">Documentation</a></li>
+    <li><a href="../devel/index.html">Development</a></li>
+  </ul>
+
+<h4> NIPY Community </h4>
+  <ul class="simple">
+    <li><a class="reference external"
+	href="http://nipy.org/">Community Home</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/">NIPY Projects</a></li>
+    <li><a class="reference external"
+	href="https://mail.python.org/mailman/listinfo/neuroimaging">Mailing List</a></li>
+    <li><a class="reference external"
+	href="http://nipy.org/nipy/license.html">License</a></li>
+  </ul>
+
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples_built/deterministic_fiber_tracking.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+
+<div id="searchbox-ml" style="display: none">
+  <h3>Search mailing list archive</h3>
+  <script type="text/javascript">
+    function mlsearch(curobj)
+    {
+    curobj.q.value="site:mail.python.org/pipermail/neuroimaging/ "+curobj.userquery.value
+    }
+  </script>
+  <form action="http://www.google.com/search" method="get" onSubmit="mlsearch(this)">
+    <input name="userquery" size="13" type="text" /> <input type="submit" value="Go" />
+    <input name="q" type="hidden" />
+  </form>
+</div>
+
+<div id="searchbox-site" style="display: none">
+  <h3>Search this site</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="13" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox-ml').show(0);</script>
+<script type="text/javascript">$('#searchbox-site').show(0);</script>
+
+
+<script>
+     ((window.gitter = {}).chat = {}).options = {
+       room: 'nipy/dipy'
+     };
+</script>
+<script src="https://sidecar.gitter.im/dist/sidecar.v1.js" async defer></script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="an-introduction-to-the-deterministic-maximum-direction-getter">
+<span id="example-deterministic-fiber-tracking"></span><h1>An introduction to the Deterministic Maximum Direction Getter<a class="headerlink" href="#an-introduction-to-the-deterministic-maximum-direction-getter" title="Permalink to this headline">¶</a></h1>
+<p>Deterministic maximum direction getter is the deterministic version of the
+probabilistic direction getter. It can be used with the same local models
+and has the same parameters. Deterministic maximum fiber tracking follows
+the trajectory of the most probable pathway within the tracking constraint
+(e.g. max angle). In other words, it follows the direction with the highest
+probability from a distribution, as opposed to the probabilistic direction
+getter which draws the direction from the distribution. Therefore, the maximum
+deterministic direction getter is equivalent to the probabilistic direction
+getter returning always the maximum value of the distribution.</p>
+<p>Deterministic maximum fiber tracking is an alternative to EuDX deterministic
+tractography and unlike EuDX does not follow the peaks of the local models but
+uses the entire orientation distributions.</p>
+<p>This example is an extension of the
+<a class="reference internal" href="probabilistic_fiber_tracking.html#example-probabilistic-fiber-tracking"><span class="std std-ref">An introduction to the Probabilistic Direction Getter</span></a> example. We begin by loading the
+data and fitting a Constrained Spherical Deconvolution (CSD) reconstruction
+model.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="n">read_stanford_labels</span>
+<span class="kn">from</span> <span class="nn">dipy.reconst.csdeconv</span> <span class="k">import</span> <span class="n">ConstrainedSphericalDeconvModel</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking</span> <span class="k">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">dipy.tracking.local</span> <span class="k">import</span> <span class="p">(</span><span class="n">ThresholdTissueClassifier</span><span class="p">,</span> <span class="n">LocalTracking</span><span class="p">)</span>
+
+<span class="n">hardi_img</span><span class="p">,</span> <span class="n">gtab</span><span class="p">,</span> <span class="n">labels_img</span> <span class="o">=</span> <span class="n">read_stanford_labels</span><span class="p">()</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">hardi_img</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">labels_img</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+<span class="n">affine</span> <span class="o">=</span> <span class="n">hardi_img</span><span class="o">.</span><span class="n">affine</span>
+
+<span class="n">seed_mask</span> <span class="o">=</span> <span class="n">labels</span> <span class="o">==</span> <span class="mi">2</span>
+<span class="n">white_matter</span> <span class="o">=</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">labels</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">seeds</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">seeds_from_mask</span><span class="p">(</span><span class="n">seed_mask</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">affine</span><span class="o">=</span><span class="n">affine</span><span class="p">)</span>
+
+<span class="n">csd_model</span> <span class="o">=</span> <span class="n">ConstrainedSphericalDeconvModel</span><span class="p">(</span><span class="n">gtab</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sh_order</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">csd_fit</span> <span class="o">=</span> <span class="n">csd_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">white_matter</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We use the fractional anisotropy (FA) of the DTI model to build a tissue
+classifier.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">dipy.reconst.dti</span> <span class="k">as</span> <span class="nn">dti</span>
+<span class="kn">from</span> <span class="nn">dipy.reconst.dti</span> <span class="k">import</span> <span class="n">fractional_anisotropy</span>
+
+<span class="n">tensor_model</span> <span class="o">=</span> <span class="n">dti</span><span class="o">.</span><span class="n">TensorModel</span><span class="p">(</span><span class="n">gtab</span><span class="p">)</span>
+<span class="n">tenfit</span> <span class="o">=</span> <span class="n">tensor_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">white_matter</span><span class="p">)</span>
+
+<span class="n">FA</span> <span class="o">=</span> <span class="n">fractional_anisotropy</span><span class="p">(</span><span class="n">tenfit</span><span class="o">.</span><span class="n">evals</span><span class="p">)</span>
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">ThresholdTissueClassifier</span><span class="p">(</span><span class="n">FA</span><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The Fiber Orientation Distribution (FOD) of the CSD model estimates the
+distribution of small fiber bundles within each voxel. This distribution
+can be used for deterministic fiber tracking. As for probabilistic tracking,
+there are many ways to provide those distributions to the deterministic maximum
+direction getter. Here, the spherical harmonic representation of the FOD
+is used.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dipy.data</span> <span class="k">import</span> <span class="n">default_sphere</span>
+<span class="kn">from</span> <span class="nn">dipy.direction</span> <span class="k">import</span> <span class="n">DeterministicMaximumDirectionGetter</span>
+<span class="kn">from</span> <span class="nn">dipy.io.trackvis</span> <span class="k">import</span> <span class="n">save_trk</span>
+
+<span class="n">detmax_dg</span> <span class="o">=</span> <span class="n">DeterministicMaximumDirectionGetter</span><span class="o">.</span><span class="n">from_shcoeff</span><span class="p">(</span><span class="n">csd_fit</span><span class="o">.</span><span class="n">shm_coeff</span><span class="p">,</span>
+                                                             <span class="n">max_angle</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+                                                             <span class="n">sphere</span><span class="o">=</span><span class="n">default_sphere</span><span class="p">)</span>
+<span class="n">streamlines</span> <span class="o">=</span> <span class="n">LocalTracking</span><span class="p">(</span><span class="n">detmax_dg</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">seeds</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=.</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="n">save_trk</span><span class="p">(</span><span class="s2">&quot;deterministic_maximum_shm_coeff.trk&quot;</span><span class="p">,</span> <span class="n">streamlines</span><span class="p">,</span> <span class="n">affine</span><span class="p">,</span>
+         <span class="n">labels</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition-example-source-code admonition">
+<p class="first admonition-title">Example source code</p>
+<p class="last">You can download <a class="reference download internal" href="../_downloads/deterministic_fiber_tracking.py" download=""><code class="xref download docutils literal"><span class="pre">the</span> <span class="pre">full</span> <span class="pre">source</span> <span class="pre">code</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">example</span></code></a>.
+This same script is also included in the dipy source distribution under the
+<code class="file docutils literal"><span class="pre">doc/examples/</span></code> directory.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+  <li><a href="../index.html">Home</a> |&nbsp;</li>
+  <li><a href="../stateoftheart.html">Overview</a> |&nbsp;</li>
+  <li><a href="../examples_index.html">Gallery</a> |&nbsp;</li>
+  <li><a href="../installation.html">Download</a> |&nbsp;</li>
+  <li><a href="../subscribe.html">Subscribe</a> |&nbsp;</li>
+  <li><a href="../developers.html">Developers</a> |&nbsp;</li>
+  <li><a href="../cite.html">Cite</a> &nbsp;</li>
+ 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2008-2018, dipy developers &lt;neuroimaging@python.org&gt;.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.5.6.
+    </div>
+  </body>
+</html>
