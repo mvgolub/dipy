@@ -7,9 +7,9 @@ from dipy.segment.clustering import Cluster, ClusterCentroid
 from dipy.segment.clustering import ClusterMap, ClusterMapCentroid
 from dipy.segment.clustering import Clustering
 
-from nose.tools import assert_equal, assert_true, assert_false
-from numpy.testing import assert_array_equal, assert_raises, run_module_suite
-from dipy.testing import assert_arrays_equal
+from dipy.testing import assert_true, assert_false, assert_arrays_equal
+from numpy.testing import (assert_array_equal, assert_raises, run_module_suite,
+                           assert_equal)
 
 
 features_shape = (1, 10)
@@ -34,9 +34,9 @@ def test_cluster_attributes_and_constructor():
     assert_equal(len(cluster), 0)
 
     # Duplicate
-    assert_equal(cluster, Cluster(cluster.id,
-                                  cluster.indices,
-                                  cluster.refdata))
+    assert_true(cluster == Cluster(cluster.id,
+                                   cluster.indices,
+                                   cluster.refdata))
     assert_false(cluster != Cluster(cluster.id,
                                     cluster.indices,
                                     cluster.refdata))
@@ -117,7 +117,7 @@ def test_cluster_getitem():
 
     # Test advanced indexing
     assert_arrays_equal(cluster[advanced_indices],
-                       [data[indices[i]] for i in advanced_indices])
+                        [data[indices[i]] for i in advanced_indices])
 
     # Test index out of bounds
     assert_raises(IndexError, cluster.__getitem__, len(cluster))
@@ -163,7 +163,7 @@ def test_cluster_centroid_attributes_and_constructor():
     assert_equal(len(cluster), 0)
 
     # Duplicate
-    assert_equal(cluster, ClusterCentroid(centroid))
+    assert_true(cluster == ClusterCentroid(centroid))
     assert_false(cluster != ClusterCentroid(centroid))
     assert_false(cluster == ClusterCentroid(centroid+1))
 
@@ -286,7 +286,7 @@ def test_cluster_map_add_cluster():
         clusters.add_cluster(cluster)
         assert_equal(type(cluster), Cluster)
         assert_equal(len(clusters), i+1)
-        assert_equal(cluster, clusters[-1])
+        assert_true(cluster == clusters[-1])
 
     assert_array_equal(list(itertools.chain(*clusters)),
                        list(itertools.chain(*list_of_indices)))
@@ -400,7 +400,7 @@ def test_cluster_map_getitem():
 
     # Test indexing
     for i in advanced_indices:
-        assert_equal(cluster_map[i], clusters[i])
+        assert_true(cluster_map[i] == clusters[i])
 
     # Test advanced indexing
     assert_arrays_equal(cluster_map[advanced_indices],
@@ -412,7 +412,8 @@ def test_cluster_map_getitem():
 
     # Test slicing and negative indexing
     assert_equal(cluster_map[-1], clusters[-1])
-    assert_array_equal(cluster_map[::2], clusters[::2])
+    assert_array_equal(np.array(cluster_map[::2], dtype=object),
+                       np.array(clusters[::2], dtype=object))
     assert_arrays_equal(cluster_map[::-1], clusters[::-1])
     assert_arrays_equal(cluster_map[:-1], clusters[:-1])
     assert_arrays_equal(cluster_map[1:], clusters[1:])
@@ -540,7 +541,8 @@ def test_cluster_map_comparison_with_object():
 
     # Comparison with another ClusterMap object
     other_cluster_map = copy.deepcopy(cluster_map)
-    assert_equal(cluster_map, other_cluster_map)
+    assert_equal(np.array(cluster_map, dtype=object),
+                 np.array(other_cluster_map, dtype=object))
 
     other_cluster_map = copy.deepcopy(cluster_map)
     assert_false(cluster_map != other_cluster_map)
@@ -575,7 +577,7 @@ def test_cluster_map_centroid_add_cluster():
         clusters.add_cluster(cluster)
         assert_array_equal(cluster.centroid, centroids[-1])
         assert_equal(type(cluster), ClusterCentroid)
-        assert_equal(cluster, clusters[-1])
+        assert_true(cluster == clusters[-1])
 
     assert_equal(type(clusters.centroids), list)
     assert_array_equal(list(itertools.chain(*clusters.centroids)),
@@ -670,7 +672,7 @@ def test_cluster_map_centroid_getitem():
 
     # Test indexing
     for i in advanced_indices:
-        assert_equal(cluster_map[i], clusters[i])
+        assert_true(cluster_map[i] == clusters[i])
 
     # Test advanced indexing
     assert_arrays_equal(cluster_map[advanced_indices],
@@ -681,7 +683,7 @@ def test_cluster_map_centroid_getitem():
     assert_raises(IndexError, cluster_map.__getitem__, -len(clusters)-1)
 
     # Test slicing and negative indexing
-    assert_equal(cluster_map[-1], clusters[-1])
+    assert_true(cluster_map[-1] == clusters[-1])
     assert_array_equal(cluster_map[::2], clusters[::2])
     assert_arrays_equal(cluster_map[::-1], clusters[::-1])
     assert_arrays_equal(cluster_map[:-1], clusters[:-1])
@@ -754,7 +756,3 @@ def test_subclassing_clustering():
     assert_raises(NotImplementedError,
                   super(SubClustering, clustering_algo).cluster,
                   None)
-
-
-if __name__ == '__main__':
-    run_module_suite()

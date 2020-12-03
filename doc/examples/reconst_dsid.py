@@ -14,7 +14,7 @@ against standard DSI ODF and a ground truth multi tensor ODF.
 
 import numpy as np
 from dipy.sims.voxel import multi_tensor, multi_tensor_odf
-from dipy.data import get_data, get_sphere
+from dipy.data import get_fnames, get_sphere
 from dipy.core.gradients import gradient_table
 from dipy.reconst.dsi import (DiffusionSpectrumDeconvModel,
                               DiffusionSpectrumModel)
@@ -24,7 +24,7 @@ For the simulation we will use a standard DSI acqusition scheme with 514
 gradient directions and 1 S0.
 """
 
-btable = np.loadtxt(get_data('dsi515btable'))
+btable = np.loadtxt(get_fnames('dsi515btable'))
 
 gtab = gradient_table(btable[:, 0], btable[:, 1:])
 
@@ -42,7 +42,7 @@ fractions = [50, 50]
 signal, _ = multi_tensor(gtab, evals, 100, angles=directions,
                          fractions=fractions, snr=None)
 
-sphere = get_sphere('symmetric724').subdivide(1)
+sphere = get_sphere('repulsion724').subdivide(1)
 
 odf_gt = multi_tensor_odf(sphere.vertices, evals, angles=directions,
                           fractions=fractions)
@@ -71,7 +71,7 @@ from dipy.viz import window, actor
 interactive = False
 
 
-ren = window.Renderer()
+scene = window.Scene()
 
 # concatenate data as 4D array
 odfs = np.vstack((odf_gt, dsi_odf, dsid_odf))[:, None, None]
@@ -79,10 +79,10 @@ odf_actor = actor.odf_slicer(odfs, sphere=sphere, scale=0.5, colormap='plasma')
 
 odf_actor.display(y=0)
 odf_actor.RotateX(90)
-ren.add(odf_actor)
-window.record(ren, out_path='dsid.png', size=(300, 300))
+scene.add(odf_actor)
+window.record(scene, out_path='dsid.png', size=(300, 300))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: dsid.png

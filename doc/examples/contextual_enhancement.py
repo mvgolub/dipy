@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-==============================================
+==========================================
 Crossing-preserving contextual enhancement
-==============================================
+==========================================
 
 This demo presents an example of crossing-preserving contextual enhancement of
 FOD/ODF fields [Meesters2016]_, implementing the contextual PDE framework
@@ -79,13 +79,17 @@ spherical deconvolution is used to model the fiber orientations.
 """
 
 import numpy as np
-from dipy.data import fetch_stanford_hardi, read_stanford_hardi
+from dipy.core.gradients import gradient_table
+from dipy.data import get_fnames, default_sphere
+from dipy.io.image import load_nifti_data
+from dipy.io.gradients import read_bvals_bvecs
 from dipy.sims.voxel import add_noise
 
 # Read data
-fetch_stanford_hardi()
-img, gtab = read_stanford_hardi()
-data = img.get_data()
+hardi_fname, hardi_bval_fname, hardi_bvec_fname = get_fnames('stanford_hardi')
+data = load_nifti_data(hardi_fname)
+bvals, bvecs = read_bvals_bvecs(hardi_bval_fname, hardi_bvec_fname)
+gtab = gradient_table(bvals, bvecs)
 
 # Add Rician noise
 from dipy.segment.mask import median_otsu
@@ -97,7 +101,9 @@ data_noisy = add_noise(data, 10.0, np.mean(b0_slice[mask]), noise_type='rician')
 # Select a small part of it.
 padding = 3  # Include a larger region to avoid boundary effects
 data_small = data[25-padding:40+padding, 65-padding:80+padding, 35:42]
-data_noisy_small = data_noisy[25-padding:40+padding, 65-padding:80+padding, 35:42]
+data_noisy_small = data_noisy[25-padding:40+padding,
+                              65-padding:80+padding,
+                              35:42]
 
 """
 Enables/disables interactive visualization
@@ -111,15 +117,15 @@ Deconvolution is used.
 """
 
 # Perform CSD on the original data
-from dipy.reconst.csdeconv import auto_response
+from dipy.reconst.csdeconv import auto_response_ssst
 from dipy.reconst.csdeconv import ConstrainedSphericalDeconvModel
-response, ratio = auto_response(gtab, data, roi_radius=10, fa_thr=0.7)
+response, ratio = auto_response_ssst(gtab, data, roi_radii=10, fa_thr=0.7)
 csd_model_orig = ConstrainedSphericalDeconvModel(gtab, response)
 csd_fit_orig = csd_model_orig.fit(data_small)
 csd_shm_orig = csd_fit_orig.shm_coeff
 
 # Perform CSD on the original data + noise
-response, ratio = auto_response(gtab, data_noisy, roi_radius=10, fa_thr=0.7)
+response, ratio = auto_response_ssst(gtab, data_noisy, roi_radii=10, fa_thr=0.7)
 csd_model_noisy = ConstrainedSphericalDeconvModel(gtab, response)
 csd_fit_noisy = csd_model_noisy.fit(data_noisy_small)
 csd_shm_noisy = csd_fit_noisy.shm_coeff
@@ -127,9 +133,9 @@ csd_shm_noisy = csd_fit_noisy.shm_coeff
 """
 Inspired by [Rodrigues2010]_, a lookup-table is created, containing
 rotated versions of the kernel :math:`P_t` sampled over a discrete set of
-orientations. In order to ensure rotationally invariant processing, the discrete
-orientations are required to be equally distributed over a sphere. By default,
-a sphere with 100 directions is used.
+orientations. In order to ensure rotationally invariant processing, the
+discrete orientations are required to be equally distributed over a sphere.
+By default, a sphere with 100 directions is used.
 
 """
 
@@ -147,9 +153,8 @@ Visualize the kernel
 """
 
 from dipy.viz import window, actor
-from dipy.data import get_sphere
 from dipy.reconst.shm import sf_to_sh, sh_to_sf
-ren = window.Renderer()
+scene = window.Scene()
 
 # convolve kernel with delta spike
 spike = np.zeros((7, 7, 7, k.get_orientations().shape[0]), dtype=np.float64)
@@ -157,18 +162,17 @@ spike[3, 3, 3, 0] = 1
 spike_shm_conv = convolve(sf_to_sh(spike, k.get_sphere(), sh_order=8), k,
                           sh_order=8, test_mode=True)
 
-sphere = get_sphere('symmetric724')
-spike_sf_conv = sh_to_sf(spike_shm_conv, sphere, sh_order=8)
+spike_sf_conv = sh_to_sf(spike_shm_conv, default_sphere, sh_order=8)
 model_kernel = actor.odf_slicer(spike_sf_conv * 6,
-                                sphere=sphere,
+                                sphere=default_sphere,
                                 norm=False,
                                 scale=0.4)
 model_kernel.display(x=3)
-ren.add(model_kernel)
-ren.set_camera(position=(30, 0, 0), focal_point=(0, 0, 0), view_up=(0, 0, 1))
-window.record(ren, out_path='kernel.png', size=(900, 900))
+scene.add(model_kernel)
+scene.set_camera(position=(30, 0, 0), focal_point=(0, 0, 0), view_up=(0, 0, 1))
+window.record(scene, out_path='kernel.png', size=(900, 900))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: kernel.png
@@ -191,13 +195,14 @@ The Sharpening Deconvolution Transform is applied to sharpen the ODF field.
 
 # Sharpen via the Sharpening Deconvolution Transform
 from dipy.reconst.csdeconv import odf_sh_to_sharp
-csd_shm_enh_sharp = odf_sh_to_sharp(csd_shm_enh, sphere,  sh_order=8, lambda_=0.1)
+csd_shm_enh_sharp = odf_sh_to_sharp(csd_shm_enh, default_sphere, sh_order=8,
+                                    lambda_=0.1)
 
 # Convert raw and enhanced data to discrete form
-csd_sf_orig = sh_to_sf(csd_shm_orig, sphere, sh_order=8)
-csd_sf_noisy = sh_to_sf(csd_shm_noisy, sphere, sh_order=8)
-csd_sf_enh = sh_to_sf(csd_shm_enh, sphere, sh_order=8)
-csd_sf_enh_sharp = sh_to_sf(csd_shm_enh_sharp, sphere, sh_order=8)
+csd_sf_orig = sh_to_sf(csd_shm_orig, default_sphere, sh_order=8)
+csd_sf_noisy = sh_to_sf(csd_shm_noisy, default_sphere, sh_order=8)
+csd_sf_enh = sh_to_sf(csd_shm_enh, default_sphere, sh_order=8)
+csd_sf_enh_sharp = sh_to_sf(csd_shm_enh_sharp, default_sphere, sh_order=8)
 
 # Normalize the sharpened ODFs
 csd_sf_enh_sharp = csd_sf_enh_sharp * np.amax(csd_sf_orig)/np.amax(csd_sf_enh_sharp) * 1.25
@@ -207,44 +212,44 @@ The end results are visualized. It can be observed that the end result after
 diffusion and sharpening is closer to the original noiseless dataset.
 """
 
-ren = window.Renderer()
+scene = window.Scene()
 
 # original ODF field
 fodf_spheres_org = actor.odf_slicer(csd_sf_orig,
-                                    sphere=sphere,
+                                    sphere=default_sphere,
                                     scale=0.4,
                                     norm=False)
 fodf_spheres_org.display(z=3)
 fodf_spheres_org.SetPosition(0, 25, 0)
-ren.add(fodf_spheres_org)
+scene.add(fodf_spheres_org)
 
 # ODF field with added noise
 fodf_spheres = actor.odf_slicer(csd_sf_noisy,
-                                sphere=sphere,
+                                sphere=default_sphere,
                                 scale=0.4,
                                 norm=False,)
 fodf_spheres.SetPosition(0, 0, 0)
-ren.add(fodf_spheres)
+scene.add(fodf_spheres)
 
 # Enhancement of noisy ODF field
 fodf_spheres_enh = actor.odf_slicer(csd_sf_enh,
-                                    sphere=sphere,
+                                    sphere=default_sphere,
                                     scale=0.4,
                                     norm=False)
 fodf_spheres_enh.SetPosition(25, 0, 0)
-ren.add(fodf_spheres_enh)
+scene.add(fodf_spheres_enh)
 
 # Additional sharpening
 fodf_spheres_enh_sharp = actor.odf_slicer(csd_sf_enh_sharp,
-                                          sphere=sphere,
+                                          sphere=default_sphere,
                                           scale=0.4,
                                           norm=False)
 fodf_spheres_enh_sharp.SetPosition(25, 25, 0)
-ren.add(fodf_spheres_enh_sharp)
+scene.add(fodf_spheres_enh_sharp)
 
-window.record(ren, out_path='enhancements.png', size=(900, 900))
+window.record(scene, out_path='enhancements.png', size=(900, 900))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 

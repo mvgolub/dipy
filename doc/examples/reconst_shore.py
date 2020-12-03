@@ -4,15 +4,19 @@ Continuous and analytical diffusion signal modelling with 3D-SHORE
 ==================================================================
 
 We show how to model the diffusion signal as a linear combination
-of continuous functions from the SHORE basis [Merlet2013]_.
-We also compute the analytical Orientation Distribution Function (ODF).
+of continuous functions from the SHORE basis [Merlet2013]_, [Özarslan2008]_,
+[Özarslan2009]_. We also compute the analytical Orientation Distribution
+Function (ODF).
 
 First import the necessary modules:
 """
 
 from dipy.reconst.shore import ShoreModel
 from dipy.viz import window, actor
-from dipy.data import fetch_isbi2013_2shell, read_isbi2013_2shell, get_sphere
+from dipy.core.gradients import gradient_table
+from dipy.data import get_fnames, get_sphere
+from dipy.io.gradients import read_bvals_bvecs
+from dipy.io.image import load_nifti, load_nifti_data
 
 """
 Download and read the data for this tutorial.
@@ -26,9 +30,11 @@ the data. They respectively correspond to ``(xmin,xmax,ymin,ymax,zmin,zmax)``
 with x, y, z and the three axis defining the spatial positions of the voxels.
 """
 
-fetch_isbi2013_2shell()
-img, gtab = read_isbi2013_2shell()
-data = img.get_data()
+fraw, fbval, fbvec = get_fnames('isbi2013_2shell')
+
+data, affine = load_nifti(fraw)
+bvals, bvecs = read_bvals_bvecs(fbval, fbvec)
+gtab = gradient_table(bvals, bvecs)
 data_small = data[10:40, 22, 10:40]
 
 print('data.shape (%d, %d, %d, %d)' % data.shape)
@@ -38,7 +44,7 @@ print('data.shape (%d, %d, %d, %d)' % data.shape)
 object (gradient information e.g. b-values). For example, to show the b-values
 it is possible to write::
 
-    ``print(gtab.bvals)``
+    print(gtab.bvals)
 
 Instantiate the SHORE Model.
 
@@ -69,7 +75,7 @@ asmfit = asm.fit(data_small)
 Load an odf reconstruction sphere
 """
 
-sphere = get_sphere('symmetric724')
+sphere = get_sphere('repulsion724')
 
 """
 Compute the ODFs
@@ -85,14 +91,15 @@ Display the ODFs
 # Enables/disables interactive visualization
 interactive = False
 
-ren = window.Renderer()
-sfu = actor.odf_slicer(odf[:, None, :], sphere=sphere, colormap='plasma', scale=0.5)
+scene = window.Scene()
+sfu = actor.odf_slicer(odf[:, None, :], sphere=sphere, colormap='plasma',
+                       scale=0.5)
 sfu.RotateX(-90)
 sfu.display(y=0)
-ren.add(sfu)
-window.record(ren, out_path='odfs.png', size=(600, 600))
+scene.add(sfu)
+window.record(scene, out_path='odfs.png', size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: odfs.png
@@ -102,6 +109,13 @@ if interactive:
 
 References
 ----------
+.. [Özarslan2008] Özarslan E. et al., "Simple harmonic oscillator based
+   estimation and reconstruction for one-dimensional q-space MR,” in Proc Intl
+   Soc Mag Reson Med, 16, Toronto, Canada, 2008
+
+.. [Özarslan2009] Özarslan E. et al., "Simple harmonic oscillator based
+   reconstruction and estimation for three-dimensional q-space MRI," in Proc
+   Intl Soc Mag Reson Med, 17, Honolulu, HI, 2009
 
 .. [Merlet2013] Merlet S. et al., "Continuous diffusion signal, EAP and ODF
    estimation via Compressive Sensing in diffusion MRI", Medical Image

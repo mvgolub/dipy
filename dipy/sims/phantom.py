@@ -1,10 +1,10 @@
 import numpy as np
 # import scipy.stats as stats
 
-from dipy.sims.voxel import SingleTensor, diffusion_evals
+from dipy.sims.voxel import single_tensor, diffusion_evals
 import dipy.sims.voxel as vox
 from dipy.core.geometry import vec2vec_rotmat
-from dipy.data import get_data
+from dipy.data import get_fnames
 from dipy.core.gradients import gradient_table
 
 
@@ -144,7 +144,7 @@ def orbital_phantom(gtab=None,
     """
 
     if gtab is None:
-        fimg, fbvals, fbvecs = get_data('small_64D')
+        fimg, fbvals, fbvecs = get_fnames('small_64D')
         gtab = gradient_table(fbvals, fbvecs)
 
     if func is None:
@@ -173,7 +173,7 @@ def orbital_phantom(gtab=None,
 
     for i in range(len(dx)):
         evecs, R = diff2eigenvectors(dx[i], dy[i], dz[i])
-        S = SingleTensor(gtab, S0, evals, evecs, snr=None)
+        S = single_tensor(gtab, S0, evals, evecs, snr=None)
 
         vol[int(x[i]), int(y[i]), int(z[i]), :] += S
 
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     # """
 
     # from dipy.viz import window, actor
-    # ren = window.Renderer()
-    # ren.add(actor.volume(vol234[...,0]))
-    # window.show(r)
+    # scene = window.Scene()
+    # scene.add(actor.volume(vol234[...,0]))
+    # window.show(scene)
     # vol234n=add_rician_noise(vol234,20)

@@ -1,15 +1,13 @@
-''' Metrics for tracks, where tracks are arrays of points '''
-from __future__ import division, print_function, absolute_import
+""" Metrics for tracks, where tracks are arrays of points """
 
-from dipy.utils.six.moves import xrange
-from dipy.testing import setup_test
-
+from dipy.utils.deprecator import deprecate_with_version
+from dipy.tracking.streamline import set_number_of_points
 import numpy as np
 from scipy.interpolate import splprep, splev
 
 
 def winding(xyz):
-    '''Total turning angle projected.
+    """Total turning angle projected.
 
     Project space curve to best fitting plane. Calculate the cumulative signed
     angle between each line segment and the previous one.
@@ -24,7 +22,7 @@ def winding(xyz):
     a : scalar
         Total turning angle in degrees.
 
-    '''
+    """
 
     U, s, V = np.linalg.svd(xyz-np.mean(xyz, axis=0), 0)
     proj = np.dot(U[:, 0:2], np.diag(s[0:2]))
@@ -42,7 +40,7 @@ def winding(xyz):
 
 
 def length(xyz, along=False):
-    ''' Euclidean length of track line
+    """ Euclidean length of track line
 
     This will give length in mm if tracks are expressed in world coordinates.
 
@@ -76,7 +74,7 @@ def length(xyz, along=False):
     0
     >>> length([], along=True)
     array([0])
-    '''
+    """
     xyz = np.asarray(xyz)
     if xyz.shape[0] < 2:
         if along:
@@ -89,7 +87,7 @@ def length(xyz, along=False):
 
 
 def bytes(xyz):
-    '''Size of track in bytes.
+    """Size of track in bytes.
 
     Parameters
     ------------
@@ -101,12 +99,12 @@ def bytes(xyz):
     b : int
         Number of bytes.
 
-    '''
+    """
     return xyz.nbytes
 
 
 def midpoint(xyz):
-    ''' Midpoint of track
+    """ Midpoint of track
 
     Parameters
     ----------
@@ -143,7 +141,7 @@ def midpoint(xyz):
     >>> xyz = np.array([[0,9,7],[1,9,7],[3,9,7]])
     >>> midpoint(xyz)
     array([ 1.5,  9. ,  7. ])
-    '''
+    """
     xyz = np.asarray(xyz)
     n_pts = xyz.shape[0]
     if n_pts == 0:
@@ -161,8 +159,35 @@ def midpoint(xyz):
     return Lambda*xyz[ind]+(1-Lambda)*xyz[ind-1]
 
 
+@deprecate_with_version("dipy.tracking.metrics.downsample is deprecated, "
+                        "Please use "
+                        "dipy.tracking.streamline.set_number_of_points instead",
+                        since='1.2', until='1.4')
+def downsample(xyz, n_pols=3):
+    """ downsample for a specific number of points along the streamline
+    Uses the length of the curve. It works in a similar fashion to
+    midpoint and arbitrarypoint but it also reduces the number of segments
+    of a streamline.
+
+    Parameters
+    ----------
+    xyz : array-like shape (N,3)
+       array representing x,y,z of N points in a streamlines
+    n_pol : int
+       integer representing number of points (poles) we need along the curve.
+
+    Returns
+    -------
+    xyz2 : array shape (M,3)
+       array representing x,y,z of M points that where extrapolated. M
+       should be equal to n_pols
+
+    """
+    return set_number_of_points(xyz, n_pols)
+
+
 def center_of_mass(xyz):
-    ''' Center of mass of streamline
+    """ Center of mass of streamline
 
     Parameters
     ------------
@@ -186,7 +211,7 @@ def center_of_mass(xyz):
     >>> xyz = np.array([[0,0,0],[1,1,1],[2,2,2]])
     >>> center_of_mass(xyz)
     array([ 1.,  1.,  1.])
-    '''
+    """
     xyz = np.asarray(xyz)
     if xyz.size == 0:
         raise ValueError('xyz array cannot be empty')
@@ -194,9 +219,9 @@ def center_of_mass(xyz):
 
 
 def magn(xyz, n=1):
-    ''' magnitude of vector
+    """ magnitude of vector
 
-    '''
+    """
     mag = np.sum(xyz**2, axis=1)**0.5
     imag = np.where(mag == 0)
     mag[imag] = np.finfo(float).eps
@@ -207,7 +232,7 @@ def magn(xyz, n=1):
 
 
 def frenet_serret(xyz):
-    r''' Frenet-Serret Space Curve Invariants
+    r""" Frenet-Serret Space Curve Invariants
 
     Calculates the 3 vector and 2 scalar invariants of a space curve
     defined by vectors r = (x,y,z).  If z is omitted (i.e. the array xyz has
@@ -261,7 +286,7 @@ def frenet_serret(xyz):
     >>> z=theta/(2*np.pi)
     >>> xyz=np.vstack((x,y,z)).T
     >>> T,N,B,k,t=tm.frenet_serret(xyz)
-    '''
+    """
 
     xyz = np.asarray(xyz)
     n_pts = xyz.shape[0]
@@ -288,7 +313,7 @@ def frenet_serret(xyz):
 
 
 def mean_curvature(xyz):
-    ''' Calculates the mean curvature of a curve
+    """ Calculates the mean curvature of a curve
 
     Parameters
     ------------
@@ -317,7 +342,7 @@ def mean_curvature(xyz):
     >>> z=0*x
     >>> xyz=np.vstack((x,y,z)).T
     >>> _= tm.mean_curvature(xyz) #mean curvature for semi-circle
-    '''
+    """
     xyz = np.asarray(xyz)
     n_pts = xyz.shape[0]
     if n_pts == 0:
@@ -333,7 +358,7 @@ def mean_curvature(xyz):
 
 
 def mean_orientation(xyz):
-    '''
+    """
     Calculates the mean orientation of a curve
 
     Parameters
@@ -345,7 +370,7 @@ def mean_orientation(xyz):
     -------
     m : float
         Mean orientation.
-    '''
+    """
     xyz = np.asarray(xyz)
     n_pts = xyz.shape[0]
     if n_pts == 0:
@@ -382,18 +407,18 @@ def generate_combinations(items, n):
         yield []
     elif n == 2:
         # if n=2 non_recursive
-        for i in xrange(len(items)-1):
-            for j in xrange(i+1, len(items)):
+        for i in range(len(items)-1):
+            for j in range(i+1, len(items)):
                 yield [i, j]
     else:
         # if n>2 uses recursion
-        for i in xrange(len(items)):
+        for i in range(len(items)):
             for cc in generate_combinations(items[i+1:], n-1):
                 yield [items[i]] + cc
 
 
 def longest_track_bundle(bundle, sort=False):
-    ''' Return longest track or length sorted track indices in `bundle`
+    """ Return longest track or length sorted track indices in `bundle`
 
     If `sort` == True, return the indices of the sorted tracks in the
     bundle, otherwise return the longest track.
@@ -423,7 +448,7 @@ def longest_track_bundle(bundle, sort=False):
     >>> longest_track_bundle(bundle, True) #doctest: +ELLIPSIS
     array([0, 1]...)
 
-    '''
+    """
     alllengths = [length(t) for t in bundle]
     alllengths = np.array(alllengths)
     if sort:
@@ -435,7 +460,7 @@ def longest_track_bundle(bundle, sort=False):
 
 
 def intersect_sphere(xyz, center, radius):
-    ''' If any segment of the track is intersecting with a sphere of
+    """ If any segment of the track is intersecting with a sphere of
     specific center and radius return True otherwise False
 
     Parameters
@@ -466,13 +491,13 @@ def intersect_sphere(xyz, center, radius):
     http://local.wasp.uwa.edu.au/~pbourke/geometry/sphereline/source.cpp
     we just applied it for every segment neglecting the intersections where
     the intersecting points are not inside the segment
-    '''
+    """
     center = np.array(center)
     # print center
 
     lt = xyz.shape[0]
 
-    for i in xrange(lt-1):
+    for i in range(lt-1):
         # first point
         x1 = xyz[i]
         # second point
@@ -486,7 +511,7 @@ def intersect_sphere(xyz, center, radius):
              radius**2)
         bb4ac = b*b-4*a*c
         # print 'bb4ac',bb4ac
-        if abs(a) < np.finfo(float).eps or bb4ac < 0:  # too small segment or
+        if abs(a) < np.finfo(float).eps or bb4ac < 0:   # too small segment or
                                                         # no intersection
             continue
         if bb4ac == 0:  # one intersection point p
@@ -509,7 +534,7 @@ def intersect_sphere(xyz, center, radius):
 
 
 def inside_sphere(xyz, center, radius):
-    ''' If any point of the track is inside a sphere of a specified
+    r""" If any point of the track is inside a sphere of a specified
     center and radius return True otherwise False.  Mathematicaly this
     can be simply described by $|x-c|\le r$ where $x$ a point $c$ the
     center of the sphere and $r$ the radius of the sphere.
@@ -536,12 +561,12 @@ def inside_sphere(xyz, center, radius):
     >>> sph_radius = 1
     >>> inside_sphere(line,sph_cent,sph_radius)
     True
-    '''
+    """
     return (np.sqrt(np.sum((xyz-center)**2, axis=1)) <= radius).any()
 
 
 def inside_sphere_points(xyz, center, radius):
-    ''' If a track intersects with a sphere of a specified center and
+    r""" If a track intersects with a sphere of a specified center and
     radius return the points that are inside the sphere otherwise False.
     Mathematicaly this can be simply described by $|x-c| \le r$ where $x$
     a point $c$ the center of the sphere and $r$ the radius of the
@@ -569,12 +594,12 @@ def inside_sphere_points(xyz, center, radius):
     >>> sph_radius = 1
     >>> inside_sphere_points(line,sph_cent,sph_radius)
     array([[1, 1, 1]])
-    '''
+    """
     return xyz[(np.sqrt(np.sum((xyz-center)**2, axis=1)) <= radius)]
 
 
 def spline(xyz, s=3, k=2, nest=-1):
-    ''' Generate B-splines as documented in
+    """ Generate B-splines as documented in
     http://www.scipy.org/Cookbook/Interpolation
 
     The scipy.interpolate packages wraps the netlib FITPACK routines
@@ -636,7 +661,7 @@ def spline(xyz, s=3, k=2, nest=-1):
     ----------
     scipy.interpolate.splprep
     scipy.interpolate.splev
-    '''
+    """
     # find the knot points
     tckp, u = splprep([xyz[:, 0], xyz[:, 1], xyz[:, 2]], s=s, k=k, nest=nest)
     # evaluate spline, including interpolated points
@@ -645,7 +670,7 @@ def spline(xyz, s=3, k=2, nest=-1):
 
 
 def startpoint(xyz):
-    ''' First point of the track
+    """ First point of the track
 
     Parameters
     -------------
@@ -670,12 +695,12 @@ def startpoint(xyz):
     >>> sp.any()==xyz[0].any()
     True
 
-    '''
+    """
     return xyz[0]
 
 
 def endpoint(xyz):
-    '''
+    """
     Parameters
     ----------
     xyz : array, shape(N,3)
@@ -698,13 +723,13 @@ def endpoint(xyz):
     >>> ep=endpoint(xyz)
     >>> ep.any()==xyz[-1].any()
     True
-    '''
+    """
 
     return xyz[-1]
 
 
 def arbitrarypoint(xyz, distance):
-    ''' Select an arbitrary point along distance on the track (curve)
+    """ Select an arbitrary point along distance on the track (curve)
 
     Parameters
     ----------
@@ -731,7 +756,7 @@ def arbitrarypoint(xyz, distance):
     >>> z=0*x
     >>> xyz=np.vstack((x,y,z)).T
     >>> ap=arbitrarypoint(xyz,length(xyz)/3)
-    '''
+    """
     xyz = np.asarray(xyz)
     n_pts = xyz.shape[0]
     if n_pts == 0:
@@ -752,8 +777,8 @@ def arbitrarypoint(xyz, distance):
 
 
 def _extrap(xyz, cumlen, distance):
-    ''' Helper function for extrapolate
-    '''
+    """ Helper function for extrapolate
+    """
     ind = np.where((cumlen-distance) > 0)[0][0]
     len0 = cumlen[ind-1]
     len1 = cumlen[ind]
@@ -762,73 +787,8 @@ def _extrap(xyz, cumlen, distance):
     return Lambda*xyz[ind]+(1-Lambda)*xyz[ind-1]
 
 
-def downsample(xyz, n_pols=3):
-    ''' downsample for a specific number of points along the curve/track
-
-    Uses the length of the curve. It works in a similar fashion to
-    midpoint and arbitrarypoint but it also reduces the number of segments
-    of a track.
-
-    Parameters
-    ----------
-    xyz : array-like shape (N,3)
-       array representing x,y,z of N points in a track
-    n_pol : int
-       integer representing number of points (poles) we need along the curve.
-
-    Returns
-    -------
-    xyz2 : array shape (M,3)
-       array representing x,y,z of M points that where extrapolated. M
-       should be equal to n_pols
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> # a semi-circle
-    >>> theta=np.pi*np.linspace(0,1,100)
-    >>> x=np.cos(theta)
-    >>> y=np.sin(theta)
-    >>> z=0*x
-    >>> xyz=np.vstack((x,y,z)).T
-    >>> xyz2=downsample(xyz,3)
-    >>> # a cosine
-    >>> x=np.pi*np.linspace(0,1,100)
-    >>> y=np.cos(theta)
-    >>> z=0*y
-    >>> xyz=np.vstack((x,y,z)).T
-    >>> _= downsample(xyz,3)
-    >>> len(xyz2)
-    3
-    >>> xyz3=downsample(xyz,10)
-    >>> len(xyz3)
-    10
-    '''
-    xyz = np.asarray(xyz)
-    n_pts = xyz.shape[0]
-    if n_pts == 0:
-        raise ValueError('xyz array cannot be empty')
-    if n_pts == 1:
-        return xyz.copy().squeeze()
-    cumlen = np.zeros(n_pts)
-    cumlen[1:] = length(xyz, along=True)
-    step = cumlen[-1]/(n_pols-1)
-    if cumlen[-1] < step:
-        raise ValueError('Given number of points n_pols is incorrect. ')
-    if n_pols <= 2:
-        raise ValueError('Given number of points n_pols needs to be'
-                         ' higher than 2. ')
-
-    ar = np.arange(0, cumlen[-1], step)
-    if np.abs(ar[-1]-cumlen[-1]) < np.finfo('f4').eps:
-        ar = ar[:-1]
-
-    xyz2 = [_extrap(xyz, cumlen, distance) for distance in ar]
-    return np.vstack((np.array(xyz2), xyz[-1]))
-
-
 def principal_components(xyz):
-    ''' We use PCA to calculate the 3 principal directions for a track
+    """ We use PCA to calculate the 3 principal directions for a track
 
     Parameters
     ----------
@@ -854,14 +814,14 @@ def principal_components(xyz):
     >>> va, ve = principal_components(xyz)
     >>> np.allclose(va, [0.51010101, 0.09883545, 0])
     True
-    '''
+    """
     C = np.cov(xyz.T)
     va, ve = np.linalg.eig(C)
     return va, ve
 
 
 def midpoint2point(xyz, p):
-    ''' Calculate distance from midpoint of a curve to arbitrary point p
+    """ Calculate distance from midpoint of a curve to arbitrary point p
 
     Parameters
     -------------
@@ -887,7 +847,7 @@ def midpoint2point(xyz, p):
     >>> xyz=np.vstack((x,y,z)).T
     >>> dist=midpoint2point(xyz,np.array([0,0,0]))
 
-    '''
+    """
     mid = midpoint(xyz)
     return np.sqrt(np.sum((xyz-mid)**2))
 

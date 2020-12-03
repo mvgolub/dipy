@@ -11,20 +11,20 @@
 .. _nipy: http://nipy.org
 .. _`Brain Imaging Center`: http://bic.berkeley.edu/
 .. _dipy: http://dipy.org
-.. _`dipy github`: http://github.com/nipy/dipy
-.. _dipy pypi: http://pypi.python.org/pypi/dipy
+.. _`dipy github`: http://github.com/dipy/dipy
+.. _`dipy pypi`: http://pypi.python.org/pypi/dipy
 .. _nipy issues: http://github.com/nipy/nipy/issues
-.. _dipy issues: http://github.com/nipy/dipy/issues
+.. _dipy issues: http://github.com/dipy/dipy/issues
 .. _dipy paper: http://www.frontiersin.org/Neuroinformatics/10.3389/fninf.2014.00008/abstract
 .. _journal paper: http://www.frontiersin.org/Neuroinformatics/10.3389/fninf.2014.00008/abstract
 .. _nibabel: http://nipy.org/nibabel
 .. _nibabel pypi: http://pypi.python.org/pypi/nibabel
 .. _nipy development guidelines: http://nipy.org/nipy/devel/guidelines/index.html
 .. _buildbots: http://nipy.bic.berkeley.edu/builders
-.. _`dipy gitter`: https://gitter.im/nipy/dipy
+.. _`dipy gitter`: https://gitter.im/dipy/dipy
 .. _neurostars: https://neurostars.org/
 .. _h5py: https://www.h5py.org/
-.. _cvxpy: http://www.cvxpy.org/en/latest/
+.. _cvxpy: http://www.cvxpy.org/
 
 .. Packaging
 .. _neurodebian: http://neuro.debian.net
@@ -35,7 +35,6 @@
 
 .. Documentation tools
 .. _graphviz: http://www.graphviz.org/
-.. _Sphinx: http://sphinx.pocoo.org/
 .. _`Sphinx reST`: http://sphinx.pocoo.org/rest.html
 .. _reST: http://docutils.sourceforge.net/rst.html
 .. _docutils: http://docutils.sourceforge.net
@@ -56,7 +55,7 @@
 .. _`nipy bugs`: https://bugs.launchpad.net/nipy
 .. _pep8: http://www.python.org/dev/peps/pep-0008/
 .. _`numpy coding style`: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
-.. _python module path: http://docs.python.org/tutorial/modules.html#the-module-search-path
+.. _`python module path`: http://docs.python.org/tutorial/modules.html#the-module-search-path
 
 .. Code support stuff
 .. _pychecker: http://pychecker.sourceforge.net/
@@ -74,9 +73,10 @@
 .. _doctest-mode: http://www.cis.upenn.edu/~edloper/projects/doctestmode/
 .. _bazaar: http://bazaar-vcs.org/
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose
+.. _pytest: https://docs.pytest.org
 .. _`python coverage tester`: http://nedbatchelder.com/code/modules/coverage.html
 .. _cython: http://cython.org
-.. _travis-ci: https://travis-ci.org/
+.. _travis-ci: https://travis-ci.com/
 
 .. Other python projects
 .. _numpy: http://numpy.scipy.org
@@ -99,6 +99,7 @@
 .. _pytables: http://www.pytables.org
 .. _python-vtk: http://www.vtk.org
 .. _pypi: https://pypi.python.org/pypi
+.. _FURY: https://fury.gl
 
 .. Python imaging projects
 .. _PyMVPA: http://www.pymvpa.org

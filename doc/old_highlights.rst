@@ -4,6 +4,100 @@
 Older Highlights
 ****************
 
+**DIPY 1.2.0** is now available. New features include:
+
+- New command line interfaces for group analysis: BUAN.
+- Added b-tensor encoding for gradient table.
+- Better support for single shell or multi-shell response functions.
+- Stats module refactored.
+- Numpy minimum version is 1.2.0.
+- Fixed compatibilities with FURY 0.6+, VTK9+, CVXPY 1.1+.
+- Added multiple tutorials for DIPY command line interfaces.
+- Updated SH basis convention.
+- Improved performance of tissue classification.
+- Fixed a memory overlap bug (multi_median).
+- Large documentation update (typography / references).
+- Closed 256 issues and merged 94 pull requests.
+
+
+**DIPY 1.1.1** is now available. New features include:
+
+- New module for deep learning ``dipy.nn`` (uses TensorFlow 2.0).
+- Improved DKI performance and increased utilities.
+- Non-linear and RESTORE fits from DTI compatible now with DKI.
+- Numerical solutions for estimating axial, radial and mean kurtosis.
+- Added Kurtosis Fractional Anisotropy by Glenn et al. 2015.
+- Added Mean Kurtosis Tensor by Hansen et al. 2013.
+- Nibabel minimum version is 3.0.0.
+- Azure CI added and Appveyor CI removed.
+- New command line interfaces for LPCA, MPPCA and Gibbs unringing.
+- New MSMT CSD tutorial added.
+- Horizon refactored and updated to support StatefulTractograms.
+- Speeded up all cython modules by using a smarter configuration setting.
+- All tutorials updated to API changes and 2 new tutorials added.
+- Large documentation update.
+- Closed 126 issues and merged 50 pull requests.
+
+
+**DIPY 1.0.0** is now available. New features include:
+
+- Critical :doc:`API changes <api_changes>`
+- Large refactoring of tracking API.
+- New denoising algorithm: MP-PCA.
+- New Gibbs ringing removal.
+- New interpolation module: ``dipy.core.interpolation``.
+- New reconstruction models: MTMS-CSD, Mean Signal DKI.
+- Increased coordinate systems consistency.
+- New object to manage safely tractography data: StatefulTractogram
+- New command line interface for downloading datasets: FetchFlow
+- Horizon updated, medical visualization interface powered by QuickBundlesX.
+- Removed all deprecated functions and parameters.
+- Removed compatibility with Python 2.7.
+- Updated minimum dependencies version (Numpy, Scipy).
+- All tutorials updated to API changes and 3 new added.
+- Large documentation update.
+- Closed 289 issues and merged 98 pull requests.
+
+
+**DIPY 0.16.0** is now available. New features include:
+
+- Horizon, medical visualization interface powered by QuickBundlesX.
+- New Tractometry tools: Bundle Analysis / Bundle Profiles.
+- New reconstruction model: IVIM MIX (Variable Projection).
+- New command line interface: Affine and Diffeomorphic Registration.
+- New command line interface: Probabilistic, Deterministic and PFT Tracking.
+- Integration of Cython Guidelines for developers.
+- Replacement of Nose by Pytest.
+- Documentation update.
+- Closed 103 issues and merged 41 pull requests.
+
+
+**DIPY 0.15.0** is now available. New features include:
+
+- Updated RecoBundles for automatic anatomical bundle segmentation.
+- New Reconstruction Model: qtau-dMRI.
+- New command line interfaces (e.g. dipy_slr).
+- New continuous integration with AppVeyor CI.
+- Nibabel Streamlines API now used almost everywhere for better memory management.
+- Compatibility with Python 3.7.
+- Many tutorials added or updated (5 New).
+- Large documentation update.
+- Moved visualization module to a new library: FURY.
+- Closed 287 issues and merged 93 pull requests.
+
+**DIPY 0.14** is now available. New features include:
+
+- RecoBundles: anatomically relevant segmentation of bundles
+- New super fast clustering algorithm: QuickBundlesX
+- New tracking algorithm: Particle Filtering Tracking.
+- New tracking algorithm: Probabilistic Residual Bootstrap Tracking.
+- Integration of the Streamlines API for reading, saving and processing tractograms.
+- Fiber ORientation Estimated using Continuous Axially Symmetric Tensors (Forecast).
+- New command line interfaces.
+- Deprecated fvtk (old visualization framework).
+- A range of new visualization improvements.
+- Large documentation update.
+
 **DIPY 0.13.0** is now available. New features include:
 
 - Faster local PCA implementation.

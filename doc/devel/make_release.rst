@@ -79,7 +79,7 @@ Release checklist
   ``README`` in the root directory, maybe with ``vim`` ``diffthis`` command.
   Check all the links are still valid.
 
-* Check all the DIPY builds are green on the `nipy buildbots`_
+* Check all the DIPY builds are green on the nipy `buildbots`_
 
 * If you have travis-ci_ building set up you might want to push the code in its
   current state to a branch that will build, e.g.::
@@ -135,7 +135,7 @@ Release checklist
 * Make sure all tests pass on your local machine (from the ``<dipy root>`` directory)::
 
     cd ..
-    nosetests --with-doctest dipy
+    pytest -sv --with-doctest dipy
     cd dipy # back to the root directory
 
 * Check the documentation doctests::
@@ -145,7 +145,7 @@ Release checklist
     cd ..
 
   At the moment this generates lots of errors from the autodoc documentation
-  running the doctests in the code, where the doctests pass when run in nose -
+  running the doctests in the code, where the doctests pass when run in pytest -
   we should find out why this is at some point, but leave it for now.
 
 * Trigger builds of all the binary build testers for DIPY, using the web
@@ -184,7 +184,7 @@ Doing the release! This has two steps:
 The trick here is to get all the testing, pushing to upstream done *before* you
 do the final release commit.  There should be only one commit with the release
 version number, so you might want to make the release commit on your local
-machine, push to pypi_, review, fix, rebase, until all is good.  Then and only
+machine, push to `dipy pypi`_, review, fix, rebase, until all is good.  Then and only
 then do you push to upstream on github.
 
 * Make the release commit.  Edit :file:`dipy/info.py` to set

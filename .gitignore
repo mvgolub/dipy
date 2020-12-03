@@ -13,6 +13,8 @@
 *.mat
 *.pkl
 *.orig
+*.trk
+*.pam5
 build
 *~
 doc/_build
@@ -32,4 +34,6 @@ __config__.py
 .buildbot.patch
 .eggs/
 dipy/.idea/
-.idea/
+.idea
+.vscode
+.pytest_cache/*

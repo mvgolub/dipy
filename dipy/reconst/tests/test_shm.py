@@ -1,44 +1,50 @@
-"""Test spherical harmonic models and the tools associated with those models"""
+"""Test spherical harmonic models and the tools associated with those models.
+"""
 import warnings
 import numpy as np
 import numpy.linalg as npl
 
-from nose.tools import assert_equal, assert_raises, assert_true
-from numpy.testing import assert_array_equal, assert_array_almost_equal
-import numpy.testing as npt
+from dipy.testing import assert_true, assert_less
+from numpy.testing import (assert_array_equal, assert_array_almost_equal,
+                           assert_equal, assert_raises, run_module_suite)
 from scipy.special import sph_harm as sph_harm_sp
 
-from dipy.core.sphere import hemi_icosahedron
+from dipy.core.sphere import hemi_icosahedron, Sphere
 from dipy.core.gradients import gradient_table
+from dipy.core.interpolation import NearestNeighborInterpolator
 from dipy.sims.voxel import single_tensor
 from dipy.direction.peaks import peak_directions
 from dipy.reconst.shm import sf_to_sh, sh_to_sf
-from dipy.reconst.interpolate import NearestNeighborInterpolator
 from dipy.sims.voxel import multi_tensor_odf
 from dipy.data import mrtrix_spherical_functions
 from dipy.reconst import odf
 
 
 from dipy.reconst.shm import (real_sph_harm, real_sym_sh_basis,
-                              real_sym_sh_mrtrix, sph_harm_ind_list,
-                              order_from_ncoef,
-                              OpdtModel, normalize_data, hat, lcr_matrix,
+                              real_sym_sh_mrtrix, real_sh_descoteaux,
+                              real_sh_tournier, sph_harm_ind_list,
+                              order_from_ncoef, OpdtModel,
+                              normalize_data, hat, lcr_matrix,
                               smooth_pinv, bootstrap_data_array,
                               bootstrap_data_voxel, ResidualBootstrapWrapper,
                               CsaOdfModel, QballModel, SphHarmFit,
                               spherical_harmonics, anisotropic_power,
-                              calculate_max_order)
+                              calculate_max_order, sh_to_sf_matrix, gen_dirac,
+                              convert_sh_to_full_basis, convert_sh_from_legacy,
+                              convert_sh_to_legacy)
 
 
 def test_order_from_ncoeff():
-    """
-
-    """
     # Just try some out:
     for sh_order in [2, 4, 6, 8, 12, 24]:
         m, n = sph_harm_ind_list(sh_order)
         n_coef = m.shape[0]
-        npt.assert_equal(order_from_ncoef(n_coef), sh_order)
+        assert_equal(order_from_ncoef(n_coef), sh_order)
+
+        # Try out full basis
+        m_full, n_full = sph_harm_ind_list(sh_order, True)
+        n_coef_full = m_full.shape[0]
+        assert_equal(order_from_ncoef(n_coef_full, True), sh_order)
 
 
 def test_sph_harm_ind_list():
@@ -48,6 +54,13 @@ def test_sph_harm_ind_list():
     assert_true(np.all(np.abs(m_list) <= n_list))
     assert_array_equal(n_list % 2, 0)
     assert_raises(ValueError, sph_harm_ind_list, 1)
+
+    # Test for a full basis
+    m_list, n_list = sph_harm_ind_list(8, True)
+    assert_equal(m_list.shape, n_list.shape)
+    # There are (sh_order + 1) * (sh_order + 1) coefficients
+    assert_equal(m_list.shape, (81,))
+    assert_true(np.all(np.abs(m_list) <= n_list))
 
 
 def test_real_sph_harm():
@@ -97,6 +110,11 @@ def test_real_sph_harm():
     assert_equal(rsh(aa, bb, cc, dd).shape, (3, 4, 5, 6))
 
 
+def test_gen_dirac():
+    sh = gen_dirac(np.array([0]), np.array([0]), np.array([0]), np.array([0]))
+    assert_true(np.abs(sh[0] - 1.0/np.sqrt(4.0 * np.pi)) < 0.0001)
+
+
 def test_real_sym_sh_mrtrix():
     coef, expected, sphere = mrtrix_spherical_functions()
     basis, m, n = real_sym_sh_mrtrix(8, sphere.theta, sphere.phi)
@@ -106,16 +124,79 @@ def test_real_sym_sh_mrtrix():
 
 def test_real_sym_sh_basis():
     # This test should do for now
-    # The mrtrix basis should be the same as re-ordering and re-scaling the
-    # fibernav basis
+    # The tournier07 basis should be the same as re-ordering and re-scaling the
+    # descoteaux07 basis
     new_order = [0, 5, 4, 3, 2, 1, 14, 13, 12, 11, 10, 9, 8, 7, 6]
     sphere = hemi_icosahedron.subdivide(2)
     basis, m, n = real_sym_sh_mrtrix(4, sphere.theta, sphere.phi)
     expected = basis[:, new_order]
     expected *= np.where(m == 0, 1., np.sqrt(2))
 
-    fibernav_basis, m, n = real_sym_sh_basis(4, sphere.theta, sphere.phi)
-    assert_array_almost_equal(fibernav_basis, expected)
+    descoteaux07_basis, m, n = real_sym_sh_basis(4, sphere.theta, sphere.phi)
+    assert_array_almost_equal(descoteaux07_basis, expected)
+
+
+def test_real_sh_tournier():
+    vertices = hemi_icosahedron.subdivide(2).vertices
+    mevals = np.array([[0.0015, 0.0003, 0.0003], [0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0), (60, 0)]
+    odf = multi_tensor_odf(vertices, mevals, angles, [50, 50])
+
+    mevals = np.array([[0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0)]
+    odf2 = multi_tensor_odf(-vertices, mevals, angles, [100])
+
+    sphere = Sphere(xyz=np.vstack((vertices, -vertices)))
+    # Asymmetric spherical function with 162 coefficients
+    sf = np.append(odf, odf2)
+
+    # In order for our approximation to be precise enough, we
+    # will use a SH basis of orders up to 10 (121 coefficients)
+    B, m, n = real_sh_tournier(10, sphere.theta, sphere.phi, full_basis=True)
+
+    invB = smooth_pinv(B, L=np.zeros_like(n))
+    sh_coefs = np.dot(invB, sf)
+    sf_approx = np.dot(B, sh_coefs)
+
+    assert_array_almost_equal(sf_approx, sf, 2)
+
+
+def test_real_sh_descoteaux():
+    vertices = hemi_icosahedron.subdivide(2).vertices
+    mevals = np.array([[0.0015, 0.0003, 0.0003], [0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0), (60, 0)]
+    odf = multi_tensor_odf(vertices, mevals, angles, [50, 50])
+
+    mevals = np.array([[0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0)]
+    odf2 = multi_tensor_odf(-vertices, mevals, angles, [100])
+
+    sphere = Sphere(xyz=np.vstack((vertices, -vertices)))
+    # Asymmetric spherical function with 162 coefficients
+    sf = np.append(odf, odf2)
+
+    # In order for our approximation to be precise enough, we
+    # will use a SH basis of orders up to 10 (121 coefficients)
+    B, m, n = real_sh_descoteaux(10, sphere.theta, sphere.phi,
+                                 full_basis=True)
+    invB = smooth_pinv(B, L=np.zeros_like(n))
+    sh_coefs = np.dot(invB, sf)
+    sf_approx = np.dot(B, sh_coefs)
+
+    assert_array_almost_equal(sf_approx, sf, 2)
+
+
+def test_sh_to_sf_matrix():
+    sphere = Sphere(xyz=hemi_icosahedron.vertices)
+    B1, invB1 = sh_to_sf_matrix(sphere)
+    B2, m, n = real_sh_descoteaux(4, sphere.theta, sphere.phi)
+    invB2 = smooth_pinv(B2, L=np.zeros_like(n))
+    B3 = sh_to_sf_matrix(sphere, return_inv=False)
+
+    assert_array_almost_equal(B1, B2.T)
+    assert_array_almost_equal(invB1, invB2.T)
+    assert_array_almost_equal(B3, B1)
+    assert_raises(ValueError, sh_to_sf_matrix, sphere, basis_type="")
 
 
 def test_smooth_pinv():
@@ -264,6 +345,14 @@ class TestQballModel(object):
         fit = model.fit(signal, mask)
         assert_array_equal(fit.gfa, 0)
 
+    def test_min_signal_default(self):
+        signal, gtab, expected = make_fake_signal()
+        model_default = self.model(gtab, 4)
+        shm_default = model_default.fit(signal).shm_coeff
+        model_correct = self.model(gtab, 4, min_signal=1e-5)
+        shm_correct = model_correct.fit(signal).shm_coeff
+        assert_equal(shm_default, shm_correct)
+
 
 def test_SphHarmFit():
     coef = np.zeros((3, 4, 5, 45))
@@ -348,30 +437,77 @@ def test_ResidualBootstrapWrapper():
 def test_sf_to_sh():
     # Subdividing a hemi_icosahedron twice produces 81 unique points, which
     # is more than enough to fit a order 8 (45 coefficients) spherical harmonic
-    sphere = hemi_icosahedron.subdivide(2)
+    hemisphere = hemi_icosahedron.subdivide(2)
+    mevals = np.array([[0.0015, 0.0003, 0.0003], [0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0), (60, 0)]
+    odf = multi_tensor_odf(hemisphere.vertices, mevals, angles, [50, 50])
 
-    mevals = np.array(([0.0015, 0.0003, 0.0003], [0.0015, 0.0003, 0.0003]))
-    angles = [(0, 0), (90, 0)]
+    # 1D case with the 2 symmetric bases functions
+    # Tournier basis
+    odf_sh = sf_to_sh(odf, hemisphere, 8, "tournier07")
+    odf_reconst = sh_to_sf(odf_sh, hemisphere, 8, "tournier07")
+    assert_array_almost_equal(odf, odf_reconst, 2)
 
-    odf = multi_tensor_odf(sphere.vertices, mevals, angles, [50, 50])
+    # Legacy definition
+    odf_sh = sf_to_sh(odf, hemisphere, 8, "tournier07", legacy=True)
+    odf_reconst = sh_to_sf(odf_sh, hemisphere, 8, "tournier07", legacy=True)
+    assert_array_almost_equal(odf, odf_reconst, 2)
 
-    # 1D case with the 3 bases functions
-    odf_sh = sf_to_sh(odf, sphere, 8)
-    odf2 = sh_to_sf(odf_sh, sphere, 8)
-    assert_array_almost_equal(odf, odf2, 2)
+    # Descoteaux basis
+    odf_sh = sf_to_sh(odf, hemisphere, 8, "descoteaux07")
+    odf_reconst = sh_to_sf(odf_sh, hemisphere, 8, "descoteaux07")
+    assert_array_almost_equal(odf, odf_reconst, 2)
 
-    odf_sh = sf_to_sh(odf, sphere, 8, "mrtrix")
-    odf2 = sh_to_sf(odf_sh, sphere, 8, "mrtrix")
-    assert_array_almost_equal(odf, odf2, 2)
+    # Legacy definition
+    odf_sh = sf_to_sh(odf, hemisphere, 8, "descoteaux07", legacy=True)
+    odf_reconst = sh_to_sf(odf_sh, hemisphere, 8, "descoteaux07", legacy=True)
+    assert_array_almost_equal(odf, odf_reconst, 2)
 
-    odf_sh = sf_to_sh(odf, sphere, 8, "fibernav")
-    odf2 = sh_to_sf(odf_sh, sphere, 8, "fibernav")
-    assert_array_almost_equal(odf, odf2, 2)
+    # We now create an asymmetric signal
+    # to try out our full SH basis
+    mevals = np.array([[0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0)]
+    odf2 = multi_tensor_odf(hemisphere.vertices, mevals, angles, [100])
+
+    # We simulate our asymmetric signal by using a different ODF
+    # per hemisphere. The sphere used is a concatenation of the
+    # vertices of our hemisphere, for a total of 162 vertices.
+    sphere = Sphere(xyz=np.vstack((hemisphere.vertices, -hemisphere.vertices)))
+    asym_odf = np.append(odf, odf2)
+
+    # Try out full bases with order 10 (121 coefficients)
+    # Tournier basis
+    odf_sh = sf_to_sh(asym_odf, sphere, 10, 'tournier07', full_basis=True)
+    odf_reconst = sh_to_sf(odf_sh, sphere, 10, 'tournier07', full_basis=True)
+    assert_array_almost_equal(odf_reconst, asym_odf, 2)
+
+    # Legacy definition
+    odf_sh = sf_to_sh(asym_odf, sphere, 10, 'tournier07',
+                      full_basis=True, legacy=True)
+    odf_reconst = sh_to_sf(odf_sh, sphere, 10, 'tournier07',
+                           full_basis=True, legacy=True)
+    assert_array_almost_equal(odf_reconst, asym_odf, 2)
+
+    # Descoteaux basis
+    odf_sh = sf_to_sh(asym_odf, sphere, 10, 'descoteaux07', full_basis=True)
+    odf_reconst = sh_to_sf(odf_sh, sphere, 10, 'descoteaux07', full_basis=True)
+    assert_array_almost_equal(odf_reconst, asym_odf, 2)
+
+    # Legacy definition
+    odf_sh = sf_to_sh(asym_odf, sphere, 10, 'descoteaux07',
+                      full_basis=True, legacy=True)
+    odf_reconst = sh_to_sf(odf_sh, sphere, 10, 'descoteaux07',
+                           full_basis=True, legacy=True)
+    assert_array_almost_equal(odf_reconst, asym_odf, 2)
+
+    # An invalid basis name should raise an error
+    assert_raises(ValueError, sh_to_sf, odf, hemisphere, basis_type="")
+    assert_raises(ValueError, sf_to_sh, odf_sh, hemisphere, basis_type="")
 
     # 2D case
-    odf2d = np.vstack((odf2, odf))
-    odf2d_sh = sf_to_sh(odf2d, sphere, 8)
-    odf2d_sf = sh_to_sf(odf2d_sh, sphere, 8)
+    odf2d = np.vstack((odf, odf))
+    odf2d_sh = sf_to_sh(odf2d, hemisphere, 8)
+    odf2d_sf = sh_to_sf(odf2d_sh, hemisphere, 8)
     assert_array_almost_equal(odf2d, odf2d_sf, 2)
 
 
@@ -418,6 +554,9 @@ def test_faster_sph_harm():
     sh2 = sph_harm_sp(m, n, theta[:, None], phi[:, None])
 
     assert_array_almost_equal(sh, sh2, 8)
+    sh = spherical_harmonics(m, n, theta[:, None], phi[:, None],
+                             use_scipy=False)
+    assert_array_almost_equal(sh, sh2, 8)
 
 
 def test_anisotropic_power():
@@ -453,12 +592,95 @@ def test_calculate_max_order():
     http://jdtournier.github.io/mrtrix-0.2/tractography/preprocess.html
     """
     orders = [2, 4, 6, 8, 10, 12]
-    n_coeffs = [6, 15, 28, 45, 66, 91]
-    for o, n in zip(orders, n_coeffs):
-        assert_equal(calculate_max_order(n), o)
+    n_coeffs_sym = [6, 15, 28, 45, 66, 91]
+    # n = (R + 1)^2 for a full basis
+    n_coeffs_full = [9, 25, 49, 81, 121, 169]
+    for o, n_sym, n_full in zip(orders, n_coeffs_sym, n_coeffs_full):
+        assert_equal(calculate_max_order(n_sym), o)
+        assert_equal(calculate_max_order(n_full, True), o)
 
     assert_raises(ValueError, calculate_max_order, 29)
+    assert_raises(ValueError, calculate_max_order, 29, True)
+
+
+def test_convert_sh_to_full_basis():
+    hemisphere = hemi_icosahedron.subdivide(2)
+    mevals = np.array([[0.0015, 0.0003, 0.0003], [0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0), (60, 0)]
+    odf = multi_tensor_odf(hemisphere.vertices, mevals, angles, [50, 50])
+
+    sh_coeffs = sf_to_sh(odf, hemisphere, 8)
+    full_sh_coeffs = convert_sh_to_full_basis(sh_coeffs)
+    odf_reconst = sh_to_sf(full_sh_coeffs, hemisphere, 8, full_basis=True)
+
+    assert_array_almost_equal(odf, odf_reconst, 2)
+
+
+def test_convert_sh_from_legacy():
+    hemisphere = hemi_icosahedron.subdivide(2)
+    mevals = np.array([[0.0015, 0.0003, 0.0003], [0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0), (60, 0)]
+    odf = multi_tensor_odf(hemisphere.vertices, mevals, angles, [50, 50])
+
+    sh_coeffs = sf_to_sh(odf, hemisphere, 8, legacy=True)
+    converted_coeffs = convert_sh_from_legacy(sh_coeffs, 'descoteaux07')
+    expected_coeffs = sf_to_sh(odf, hemisphere, 8, legacy=False)
+
+    assert_array_almost_equal(converted_coeffs, expected_coeffs, 2)
+
+    sh_coeffs = sf_to_sh(odf, hemisphere, 8, basis_type='tournier07',
+                         legacy=True)
+    converted_coeffs = convert_sh_from_legacy(sh_coeffs, 'tournier07')
+    expected_coeffs = sf_to_sh(odf, hemisphere, 8,
+                               basis_type='tournier07', legacy=False)
+
+    assert_array_almost_equal(converted_coeffs, expected_coeffs, 2)
+
+    # 2D case
+    odfs = np.array([odf, odf])
+    sh_coeffs = sf_to_sh(odfs, hemisphere, 8, basis_type='tournier07',
+                         legacy=True, full_basis=True)
+    converted_coeffs = convert_sh_from_legacy(sh_coeffs, 'tournier07',
+                                              full_basis=True)
+    expected_coeffs = sf_to_sh(odfs, hemisphere, 8, basis_type='tournier07',
+                               full_basis=True, legacy=False)
+
+    assert_array_almost_equal(converted_coeffs, expected_coeffs, 2)
+    assert_raises(ValueError, convert_sh_from_legacy, sh_coeffs, '', True)
+
+
+def test_convert_sh_to_legacy():
+    hemisphere = hemi_icosahedron.subdivide(2)
+    mevals = np.array([[0.0015, 0.0003, 0.0003], [0.0015, 0.0003, 0.0003]])
+    angles = [(0, 0), (60, 0)]
+    odf = multi_tensor_odf(hemisphere.vertices, mevals, angles, [50, 50])
+
+    sh_coeffs = sf_to_sh(odf, hemisphere, 8, legacy=False)
+    converted_coeffs = convert_sh_to_legacy(sh_coeffs, 'descoteaux07')
+    expected_coeffs = sf_to_sh(odf, hemisphere, 8, legacy=True)
+
+    assert_array_almost_equal(converted_coeffs, expected_coeffs, 2)
+
+    sh_coeffs = sf_to_sh(odf, hemisphere, 8, basis_type='tournier07',
+                         legacy=False)
+    converted_coeffs = convert_sh_to_legacy(sh_coeffs, 'tournier07')
+    expected_coeffs = sf_to_sh(odf, hemisphere, 8, basis_type='tournier07',
+                               legacy=True)
+
+    assert_array_almost_equal(converted_coeffs, expected_coeffs, 2)
+
+    # 2D case
+    odfs = np.array([odf, odf])
+    sh_coeffs = sf_to_sh(odfs, hemisphere, 8, basis_type='tournier07',
+                         full_basis=True, legacy=False)
+    converted_coeffs = convert_sh_to_legacy(sh_coeffs, 'tournier07',
+                                            full_basis=True)
+    expected_coeffs = sf_to_sh(odfs, hemisphere, 8, basis_type='tournier07',
+                               legacy=True, full_basis=True)
+
+    assert_array_almost_equal(converted_coeffs, expected_coeffs, 2)
+    assert_raises(ValueError, convert_sh_to_legacy, sh_coeffs, '', True)
+
 
 if __name__ == "__main__":
-    import nose
-    nose.runmodule()
+    run_module_suite()

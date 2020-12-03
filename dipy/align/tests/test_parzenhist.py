@@ -3,7 +3,9 @@ import scipy as sp
 from functools import reduce
 from operator import mul
 from dipy.core.ndindex import ndindex
-from dipy.data import get_data
+from dipy.core.interpolation import (interpolate_scalar_2d,
+                                     interpolate_scalar_3d)
+from dipy.data import get_fnames
 from dipy.align import vector_fields as vf
 from dipy.align.transforms import regtransforms
 from dipy.align.parzenhist import (ParzenJointHistogram,
@@ -279,7 +281,7 @@ def setup_random_transform(transform, rfactor, nslices=45, sigma=1):
     np.random.seed(3147702)
     zero_slices = nslices // 3
 
-    fname = get_data('t1_coronal_slice')
+    fname = get_fnames('t1_coronal_slice')
     moving_slice = np.load(fname)
     moving_slice = moving_slice[40:180, 50:210]
 
@@ -422,10 +424,10 @@ def test_joint_pdf_gradients_sparse():
         dim = ttype[1]
         if dim == 2:
             nslices = 1
-            interp_method = vf.interpolate_scalar_2d
+            interp_method = interpolate_scalar_2d
         else:
             nslices = 45
-            interp_method = vf.interpolate_scalar_3d
+            interp_method = interpolate_scalar_3d
 
         transform = regtransforms[ttype]
         factor = factors[ttype]

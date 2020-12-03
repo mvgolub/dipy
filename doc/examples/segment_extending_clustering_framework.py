@@ -7,8 +7,8 @@ QuickBundles [Garyfallidis12]_ is a flexible algorithm that requires only a
 distance metric and an adjacency threshold to perform clustering. There is a
 wide variety of metrics that could be used to cluster streamlines.
 
-The purpose of this tutorial is to show how to easily create new ``Feature`` and
-new ``Metric`` classes that can be used by QuickBundles.
+The purpose of this tutorial is to show how to easily create new ``Feature``
+and new ``Metric`` classes that can be used by QuickBundles.
 
 .. _clustering-framework:
 
@@ -61,6 +61,15 @@ Let's start by importing the necessary modules.
 
 from dipy.segment.metric import Feature
 from dipy.tracking.streamline import length
+import numpy as np
+from dipy.data import get_fnames
+from dipy.io.streamline import load_tractogram
+from dipy.tracking.streamline import Streamlines
+from dipy.viz import window, actor
+from dipy.segment.clustering import QuickBundles
+from dipy.segment.metric import SumPointwiseEuclideanMetric
+from dipy.segment.metric import Metric
+from dipy.segment.metric import VectorOfEndpointsFeature
 
 """
 We now define the class ``ArcLengthFeature`` that will perform the desired
@@ -72,7 +81,6 @@ its process is invariant to the order of the points within a streamline.
 This is needed as there is no way one can tell which extremity of a
 streamline is the beginning and which one is the end.
 """
-
 
 class ArcLengthFeature(Feature):
     """ Computes the arc length of a streamline. """
@@ -91,7 +99,6 @@ class ArcLengthFeature(Feature):
         # or use a DIPY's function that computes the arc length of a streamline.
         return length(streamline)
 
-
 """
 The new feature extraction ``ArcLengthFeature`` is ready to be used. Let's use
 it to cluster a set of streamlines by their arc length. For educational
@@ -101,22 +108,16 @@ neuroanatomy as the fornix.
 We start by loading the fornix streamlines.
 """
 
-import numpy as np
-from nibabel import trackvis as tv
-from dipy.data import get_data
-from dipy.viz import window, actor
+fname = get_fnames('fornix')
+fornix = load_tractogram(fname, 'same',
+                         bbox_valid_check=False).streamlines
 
-fname = get_data('fornix')
-streams, hdr = tv.read(fname)
-streamlines = [i[0] for i in streams]
+streamlines = Streamlines(fornix)
 
 """
 Perform QuickBundles clustering using the metric
 ``SumPointwiseEuclideanMetric`` and our ``ArcLengthFeature``.
 """
-
-from dipy.segment.clustering import QuickBundles
-from dipy.segment.metric import SumPointwiseEuclideanMetric
 
 metric = SumPointwiseEuclideanMetric(feature=ArcLengthFeature())
 qb = QuickBundles(threshold=2., metric=metric)
@@ -132,15 +133,15 @@ colormap_full = np.ones((len(streamlines), 3))
 for cluster, color in zip(clusters, colormap):
     colormap_full[cluster.indices] = color
 
-ren = window.Renderer()
-ren.SetBackground(1, 1, 1)
-ren.add(actor.streamtube(streamlines, colormap_full))
-window.record(ren, out_path='fornix_clusters_arclength.png', size=(600, 600))
+scene = window.Scene()
+scene.SetBackground(1, 1, 1)
+scene.add(actor.streamtube(streamlines, colormap_full))
+window.record(scene, out_path='fornix_clusters_arclength.png', size=(600, 600))
 
 # Enables/disables interactive visualization
 interactive = False
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: fornix_clusters_arclength.png
@@ -163,9 +164,6 @@ about this distance check `<http://en.wikipedia.org/wiki/Cosine_similarity>`_.
 Let's start by importing the necessary modules.
 """
 
-from dipy.segment.metric import Metric
-from dipy.segment.metric import VectorOfEndpointsFeature
-
 """
 We now define the class ``CosineMetric`` that will perform the desired
 distance computation. When subclassing ``Metric``, two methods have to be
@@ -184,7 +182,7 @@ class CosineMetric(Metric):
     def are_compatible(self, shape1, shape2):
         """ Checks if two features are vectors of same dimension.
 
-        Basically this method exists so we don't have to do this check
+        Basically this method exists so that we don't have to check
         inside the `dist` method (speedup).
         """
         return shape1 == shape2 and shape1[0] == 1
@@ -199,6 +197,7 @@ class CosineMetric(Metric):
         cos_theta = np.maximum(cos_theta, -1.)
         return np.arccos(cos_theta) / np.pi  # Normalized cosine distance
 
+
 """
 The new distance ``CosineMetric`` is ready to be used. Let's use
 it to cluster a set of streamlines according to the cosine distance of the
@@ -208,20 +207,13 @@ cluster a small streamline bundle known from neuroanatomy as the fornix.
 We start by loading the fornix streamlines.
 """
 
-import numpy as np
-from nibabel import trackvis as tv
-from dipy.data import get_data
-from dipy.viz import window, actor
-
-fname = get_data('fornix')
-streams, hdr = tv.read(fname)
-streamlines = [i[0] for i in streams]
+fname = get_fnames('fornix')
+fornix = load_tractogram(fname, 'same', bbox_valid_check=False)
+streamlines = fornix.streamlines
 
 """
 Perform QuickBundles clustering using our metric ``CosineMetric``.
 """
-
-from dipy.segment.clustering import QuickBundles
 
 metric = CosineMetric()
 qb = QuickBundles(threshold=0.1, metric=metric)
@@ -237,12 +229,12 @@ colormap_full = np.ones((len(streamlines), 3))
 for cluster, color in zip(clusters, colormap):
     colormap_full[cluster.indices] = color
 
-ren = window.Renderer()
-ren.SetBackground(1, 1, 1)
-ren.add(actor.streamtube(streamlines, colormap_full))
-window.record(ren, out_path='fornix_clusters_cosine.png', size=(600, 600))
+scene = window.Scene()
+scene.SetBackground(1, 1, 1)
+scene.add(actor.streamtube(streamlines, colormap_full))
+window.record(scene, out_path='fornix_clusters_cosine.png', size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: fornix_clusters_cosine.png

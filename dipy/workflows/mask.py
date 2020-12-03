@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-from __future__ import division
 
-import inspect
 import logging
 import numpy as np
 
@@ -25,12 +23,12 @@ class MaskFlow(Workflow):
            Path to image to be masked.
         lb : float
             Lower bound value.
-        ub : float
-            Upper bound value (default Inf)
+        ub : float, optional
+            Upper bound value.
         out_dir : string, optional
-           Output directory (default input file directory)
+           Output directory. (default current directory)
         out_mask : string, optional
-           Name of the masked file (default 'mask.nii.gz')
+           Name of the masked file.
         """
         if lb >= ub:
             logging.error('The upper bound(less than) should be greater'

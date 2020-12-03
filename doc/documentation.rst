@@ -11,7 +11,9 @@ Contents:
    introduction
    mission
    installation
+   data
    examples_index
+   interfaces/index
    faq
    developers
    cite

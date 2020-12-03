@@ -10,11 +10,11 @@ First import the necessary modules.
 """
 
 import numpy as np
-from nibabel import trackvis as tv
+from dipy.io.streamline import load_tractogram
 from dipy.tracking.streamline import Streamlines
 from dipy.segment.clustering import QuickBundles
 from dipy.io.pickles import save_pickle
-from dipy.data import get_data
+from dipy.data import get_fnames
 from dipy.viz import window, actor
 
 """
@@ -22,15 +22,14 @@ For educational purposes we will try to cluster a small streamline bundle known
 from neuroanatomy as the fornix.
 """
 
-fname = get_data('fornix')
+fname = get_fnames('fornix')
 
 """
 Load fornix streamlines.
 """
 
-streams, hdr = tv.read(fname)
-
-streamlines = [i[0] for i in streams]
+fornix = load_tractogram(fname, 'same', bbox_valid_check=False)
+streamlines = fornix.streamlines
 
 """
 Perform QuickBundles clustering using the MDF metric and a 10mm distance
@@ -95,12 +94,12 @@ Lets first show the initial dataset.
 # Enables/disables interactive visualization
 interactive = False
 
-ren = window.Renderer()
-ren.SetBackground(1, 1, 1)
-ren.add(actor.streamtube(streamlines, window.colors.white))
-window.record(ren, out_path='fornix_initial.png', size=(600, 600))
+scene = window.Scene()
+scene.SetBackground(1, 1, 1)
+scene.add(actor.streamtube(streamlines, window.colors.white))
+window.record(scene, out_path='fornix_initial.png', size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: fornix_initial.png
@@ -113,13 +112,13 @@ Show the centroids of the fornix after clustering (with random colors):
 
 colormap = actor.create_colormap(np.arange(len(clusters)))
 
-window.clear(ren)
-ren.SetBackground(1, 1, 1)
-ren.add(actor.streamtube(streamlines, window.colors.white, opacity=0.05))
-ren.add(actor.streamtube(clusters.centroids, colormap, linewidth=0.4))
-window.record(ren, out_path='fornix_centroids.png', size=(600, 600))
+scene.clear()
+scene.SetBackground(1, 1, 1)
+scene.add(actor.streamtube(streamlines, window.colors.white, opacity=0.05))
+scene.add(actor.streamtube(clusters.centroids, colormap, linewidth=0.4))
+window.record(scene, out_path='fornix_centroids.png', size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: fornix_centroids.png
@@ -134,12 +133,12 @@ colormap_full = np.ones((len(streamlines), 3))
 for cluster, color in zip(clusters, colormap):
     colormap_full[cluster.indices] = color
 
-window.clear(ren)
-ren.SetBackground(1, 1, 1)
-ren.add(actor.streamtube(streamlines, colormap_full))
-window.record(ren, out_path='fornix_clusters.png', size=(600, 600))
+scene.clear()
+scene.SetBackground(1, 1, 1)
+scene.add(actor.streamtube(streamlines, colormap_full))
+window.record(scene, out_path='fornix_clusters.png', size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: fornix_clusters.png

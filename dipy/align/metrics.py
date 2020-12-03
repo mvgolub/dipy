@@ -1,11 +1,10 @@
 """  Metrics for Symmetric Diffeomorphic Registration """
 
-from __future__ import print_function
 import abc
 import numpy as np
 import scipy as sp
-from scipy import gradient, ndimage
-from dipy.utils.six import with_metaclass
+from numpy import gradient
+from scipy import ndimage
 from dipy.align import vector_fields as vfu
 from dipy.align import sumsqdiff as ssd
 from dipy.align import crosscorr as cc
@@ -13,7 +12,7 @@ from dipy.align import expectmax as em
 from dipy.align import floating
 
 
-class SimilarityMetric(with_metaclass(abc.ABCMeta, object)):
+class SimilarityMetric(object, metaclass=abc.ABCMeta):
     def __init__(self, dim):
         r""" Similarity Metric abstract class
 
@@ -144,7 +143,7 @@ class SimilarityMetric(with_metaclass(abc.ABCMeta, object)):
         original_moving_image : array, shape (R, C) or (S, R, C)
             original image from which the current moving image was generated
         transformation : DiffeomorphicMap object
-            the transformation that was applied to original image to generate
+            the transformation that was applied to the original image to generate
             the current moving image
         """
         pass
@@ -244,6 +243,19 @@ class CCMetric(SimilarityMetric):
         re-orienting the gradients in the voxel space using the corresponding
         affine transformations.
         """
+
+        def invalid_image_size(image):
+            min_size = self.radius * 2 + 1
+            return any([size < min_size for size in image.shape])
+
+        msg = ("Each image dimension should be superior to 2 * radius + 1."
+               "Decrease CCMetric radius or increase your image size")
+
+        if invalid_image_size(self.static_image):
+            raise ValueError("Static image size is too small. " + msg)
+        if invalid_image_size(self.moving_image):
+            raise ValueError("Moving image size is too small. " + msg)
+
         self.factors = self.precompute_factors(self.static_image,
                                                self.moving_image,
                                                self.radius)
@@ -251,7 +263,7 @@ class CCMetric(SimilarityMetric):
 
         self.gradient_moving = np.empty(
             shape=(self.moving_image.shape)+(self.dim,), dtype=floating)
-        for i, grad in enumerate(sp.gradient(self.moving_image)):
+        for i, grad in enumerate(gradient(self.moving_image)):
             self.gradient_moving[..., i] = grad
 
         # Convert moving image's gradient field from voxel to physical space
@@ -263,7 +275,7 @@ class CCMetric(SimilarityMetric):
 
         self.gradient_static = np.empty(
             shape=(self.static_image.shape)+(self.dim,), dtype=floating)
-        for i, grad in enumerate(sp.gradient(self.static_image)):
+        for i, grad in enumerate(gradient(self.static_image)):
             self.gradient_static[..., i] = grad
 
         # Convert moving image's gradient field from voxel to physical space
@@ -426,7 +438,7 @@ class EMMetric(SimilarityMetric):
         self.gradient_moving = np.empty(
             shape=(self.moving_image.shape)+(self.dim,), dtype=floating)
 
-        for i, grad in enumerate(sp.gradient(self.moving_image)):
+        for i, grad in enumerate(gradient(self.moving_image)):
             self.gradient_moving[..., i] = grad
 
         # Convert moving image's gradient field from voxel to physical space
@@ -439,7 +451,7 @@ class EMMetric(SimilarityMetric):
         self.gradient_static = np.empty(
             shape=(self.static_image.shape)+(self.dim,), dtype=floating)
 
-        for i, grad in enumerate(sp.gradient(self.static_image)):
+        for i, grad in enumerate(gradient(self.static_image)):
             self.gradient_static[..., i] = grad
 
         # Convert moving image's gradient field from voxel to physical space
@@ -461,10 +473,10 @@ class EMMetric(SimilarityMetric):
         self.movingq_sigma_sq_field = self.movingq_variances[movingq]
         self.movingq_means_field = self.movingq_means[movingq]
         if self.use_double_gradient:
-            for i, grad in enumerate(sp.gradient(self.staticq_means_field)):
+            for i, grad in enumerate(gradient(self.staticq_means_field)):
                 self.gradient_moving[..., i] += grad
 
-            for i, grad in enumerate(sp.gradient(self.movingq_means_field)):
+            for i, grad in enumerate(gradient(self.movingq_means_field)):
                 self.gradient_static[..., i] += grad
 
     def free_iteration(self):
@@ -761,7 +773,7 @@ class SSDMetric(SimilarityMetric):
     def compute_backward(self):
         r"""Computes one step bringing the static image towards the moving.
 
-        Computes the update displacement field to be used for registration of
+        Computes the updated displacement field to be used for registration of
         the static image towards the moving image
         """
         return self.compute_step(False)
@@ -916,7 +928,7 @@ def v_cycle_2d(n, k, delta_field, sigma_sq_field, gradient_field, target,
     References
     ----------
     [Bruhn05] Andres Bruhn and Joachim Weickert, "Towards ultimate motion
-              estimation: combining highest accuracy with real-time
+              estimation: combining the highest accuracy with real-time
               performance", 10th IEEE International Conference on Computer
               Vision, 2005. ICCV 2005.
     """

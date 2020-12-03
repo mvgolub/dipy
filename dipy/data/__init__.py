@@ -1,11 +1,10 @@
-"""
-Read test or example data
-"""
-from __future__ import division, print_function, absolute_import
+"""Read test or example data."""
 
+import os
 import sys
 import json
 import warnings
+import pickle
 
 from nibabel import load
 from os.path import join as pjoin, dirname
@@ -14,8 +13,8 @@ import gzip
 import numpy as np
 from dipy.core.gradients import GradientTable, gradient_table
 from dipy.core.sphere import Sphere, HemiSphere
-from dipy.sims.voxel import SticksAndBall
-from dipy.data.fetcher import (fetch_scil_b0,
+from dipy.data.fetcher import (get_fnames,
+                               fetch_scil_b0,
                                read_scil_b0,
                                fetch_stanford_hardi,
                                read_stanford_hardi,
@@ -26,14 +25,13 @@ from dipy.data.fetcher import (fetch_scil_b0,
                                fetch_isbi2013_2shell,
                                read_isbi2013_2shell,
                                read_stanford_labels,
+                               fetch_stanford_labels,
                                fetch_syn_data,
                                read_syn_data,
                                fetch_stanford_t1,
                                read_stanford_t1,
                                fetch_stanford_pve_maps,
                                read_stanford_pve_maps,
-                               fetch_viz_icons,
-                               read_viz_icons,
                                fetch_bundles_2_subjects,
                                read_bundles_2_subjects,
                                fetch_cenir_multib,
@@ -46,22 +44,21 @@ from dipy.data.fetcher import (fetch_scil_b0,
                                read_tissue_data,
                                fetch_cfin_multib,
                                read_cfin_dwi,
-                               read_cfin_t1)
+                               read_cfin_t1,
+                               fetch_target_tractogram_hcp,
+                               fetch_bundle_atlas_hcp842,
+                               get_bundle_atlas_hcp842,
+                               get_target_tractogram_hcp,
+                               fetch_bundle_fa_hcp,
+                               fetch_gold_standard_io)
 
 from ..utils.arrfuncs import as_native_array
+from dipy.io.image import load_nifti
 from dipy.tracking.streamline import relist_streamlines
 
-if sys.version_info[0] < 3:
-    import cPickle
 
-    def loads_compat(bytes):
-        return cPickle.loads(bytes)
-else:  # Python 3
-    import pickle
-    # Need to load pickles saved in Python 2
-
-    def loads_compat(bytes):
-        return pickle.loads(bytes, encoding='latin1')
+def loads_compat(bytes):
+    return pickle.loads(bytes, encoding='latin1')
 
 
 DATA_DIR = pjoin(dirname(__file__), 'files')
@@ -154,7 +151,7 @@ def get_skeleton(name='C1'):
 
 
 def get_sphere(name='symmetric362'):
-    ''' provide triangulated spheres
+    """ provide triangulated spheres
 
     Parameters
     ------------
@@ -185,7 +182,7 @@ def get_sphere(name='symmetric362'):
     Traceback (most recent call last):
         ...
     DataError: No sphere called "not a sphere name"
-    '''
+    """
     fname = SPHERE_FILES.get(name)
     if fname is None:
         raise DataError('No sphere called "%s"' % name)
@@ -196,98 +193,8 @@ def get_sphere(name='symmetric362'):
                   faces=as_native_array(res['faces']))
 
 
-default_sphere = HemiSphere.from_sphere(get_sphere('symmetric724'))
+default_sphere = HemiSphere.from_sphere(get_sphere('repulsion724'))
 small_sphere = HemiSphere.from_sphere(get_sphere('symmetric362'))
-
-
-def get_data(name='small_64D'):
-    """ provides filenames of some test datasets or other useful parametrisations
-
-    Parameters
-    ----------
-    name : str
-        the filename/s of which dataset to return, one of:
-        'small_64D' small region of interest nifti,bvecs,bvals 64 directions
-        'small_101D' small region of interest nifti,bvecs,bvals 101 directions
-        'aniso_vox' volume with anisotropic voxel size as Nifti
-        'fornix' 300 tracks in Trackvis format (from Pittsburgh
-            Brain Competition)
-        'gqi_vectors' the scanner wave vectors needed for a GQI acquisitions
-            of 101 directions tested on Siemens 3T Trio
-        'small_25' small ROI (10x8x2) DTI data (b value 2000, 25 directions)
-        'test_piesno' slice of N=8, K=14 diffusion data
-        'reg_c' small 2D image used for validating registration
-        'reg_o' small 2D image used for validation registration
-        'cb_2' two vectorized cingulum bundles
-
-    Returns
-    -------
-    fnames : tuple
-        filenames for dataset
-
-    Examples
-    ----------
-    >>> import numpy as np
-    >>> from dipy.data import get_data
-    >>> fimg,fbvals,fbvecs=get_data('small_101D')
-    >>> bvals=np.loadtxt(fbvals)
-    >>> bvecs=np.loadtxt(fbvecs).T
-    >>> import nibabel as nib
-    >>> img=nib.load(fimg)
-    >>> data=img.get_data()
-    >>> data.shape == (6, 10, 10, 102)
-    True
-    >>> bvals.shape == (102,)
-    True
-    >>> bvecs.shape == (102, 3)
-    True
-    """
-
-    if name == 'small_64D':
-        fbvals = pjoin(DATA_DIR, 'small_64D.bvals.npy')
-        fbvecs = pjoin(DATA_DIR, 'small_64D.gradients.npy')
-        fimg = pjoin(DATA_DIR, 'small_64D.nii')
-        return fimg, fbvals, fbvecs
-    if name == '55dir_grad.bvec':
-        return pjoin(DATA_DIR, '55dir_grad.bvec')
-    if name == 'small_101D':
-        fbvals = pjoin(DATA_DIR, 'small_101D.bval')
-        fbvecs = pjoin(DATA_DIR, 'small_101D.bvec')
-        fimg = pjoin(DATA_DIR, 'small_101D.nii.gz')
-        return fimg, fbvals, fbvecs
-    if name == 'aniso_vox':
-        return pjoin(DATA_DIR, 'aniso_vox.nii.gz')
-    if name == 'ascm_test':
-        return pjoin(DATA_DIR, 'ascm_out_test.nii.gz')
-    if name == 'fornix':
-        return pjoin(DATA_DIR, 'tracks300.trk')
-    if name == 'gqi_vectors':
-        return pjoin(DATA_DIR, 'ScannerVectors_GQI101.txt')
-    if name == 'dsi515btable':
-        return pjoin(DATA_DIR, 'dsi515_b_table.txt')
-    if name == 'dsi4169btable':
-        return pjoin(DATA_DIR, 'dsi4169_b_table.txt')
-    if name == 'grad514':
-        return pjoin(DATA_DIR, 'grad_514.txt')
-    if name == "small_25":
-        fbvals = pjoin(DATA_DIR, 'small_25.bval')
-        fbvecs = pjoin(DATA_DIR, 'small_25.bvec')
-        fimg = pjoin(DATA_DIR, 'small_25.nii.gz')
-        return fimg, fbvals, fbvecs
-    if name == "S0_10":
-        fimg = pjoin(DATA_DIR, 'S0_10slices.nii.gz')
-        return fimg
-    if name == "test_piesno":
-        fimg = pjoin(DATA_DIR, 'test_piesno.nii.gz')
-        return fimg
-    if name == "reg_c":
-        return pjoin(DATA_DIR, 'C.npy')
-    if name == "reg_o":
-        return pjoin(DATA_DIR, 'circle.npy')
-    if name == 'cb_2':
-        return pjoin(DATA_DIR, 'cb_2.npz')
-    if name == "t1_coronal_slice":
-        return pjoin(DATA_DIR, 't1_coronal_slice.npy')
 
 
 def _gradient_from_file(filename):
@@ -307,28 +214,28 @@ get_gtab_taiwan_dsi = _gradient_from_file("gtab_taiwan_dsi.txt")
 
 
 def dsi_voxels():
-    fimg, fbvals, fbvecs = get_data('small_101D')
+    fimg, fbvals, fbvecs = get_fnames('small_101D')
     bvals = np.loadtxt(fbvals)
     bvecs = np.loadtxt(fbvecs).T
-    img = load(fimg)
-    data = img.get_data()
+    data, _ = load_nifti(fimg)
     gtab = gradient_table(bvals, bvecs)
     return data, gtab
 
 
 def dsi_deconv_voxels():
-    gtab = gradient_table(np.loadtxt(get_data('dsi515btable')))
+    from dipy.sims.voxel import sticks_and_ball
+    gtab = gradient_table(np.loadtxt(get_fnames('dsi515btable')))
     data = np.zeros((2, 2, 2, 515))
     for ix in range(2):
         for iy in range(2):
             for iz in range(2):
-                data[ix, iy, iz], dirs = SticksAndBall(gtab,
-                                                       d=0.0015,
-                                                       S0=1.,
-                                                       angles=[(0, 0),
-                                                               (90, 0)],
-                                                       fractions=[50, 50],
-                                                       snr=None)
+                data[ix, iy, iz], _ = sticks_and_ball(gtab,
+                                                      d=0.0015,
+                                                      S0=1.,
+                                                      angles=[(0, 0),
+                                                              (90, 0)],
+                                                      fractions=[50, 50],
+                                                      snr=None)
     return data, gtab
 
 
@@ -352,8 +259,8 @@ def mrtrix_spherical_functions():
     These coefficients were obtained by using the dwi2SH command of mrtrix.
 
     """
-    func_discrete = load(pjoin(DATA_DIR, "func_discrete.nii.gz")).get_data()
-    func_coef = load(pjoin(DATA_DIR, "func_coef.nii.gz")).get_data()
+    func_discrete, _ = load_nifti(pjoin(DATA_DIR, "func_discrete.nii.gz"))
+    func_coef, _ = load_nifti(pjoin(DATA_DIR, "func_coef.nii.gz"))
     gradients = np.loadtxt(pjoin(DATA_DIR, "sphere_grad.txt"))
     # gradients[0] and the first volume of func_discrete,
     # func_discrete[..., 0], are associated with the b=0 signal.
@@ -366,12 +273,7 @@ dipy_cmaps = None
 
 
 def get_cmap(name):
-    """Makes a callable, similar to maptlotlib.pyplot.get_cmap"""
-    if name.lower() == "accent":
-        warnings.warn("The `Accent` colormap is deprecated as of version" +
-                      " 0.12 of Dipy and will be removed in a future " +
-                      "version. Please use another colormap",
-                      DeprecationWarning)
+    """Make a callable, similar to maptlotlib.pyplot.get_cmap."""
     global dipy_cmaps
     if dipy_cmaps is None:
         filename = pjoin(DATA_DIR, "dipy_colormaps.json")
@@ -398,7 +300,7 @@ def get_cmap(name):
 
 
 def two_cingulum_bundles():
-    fname = get_data('cb_2')
+    fname = get_fnames('cb_2')
     res = np.load(fname)
     cb1 = relist_streamlines(res['points'], res['offsets'])
     cb2 = relist_streamlines(res['points2'], res['offsets2'])

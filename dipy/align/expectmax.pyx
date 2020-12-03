@@ -7,7 +7,7 @@
 import numpy as np
 cimport cython
 cimport numpy as cnp
-from .fused_types cimport floating, number
+from dipy.align.fused_types cimport floating, number
 cdef extern from "dpy_math.h" nogil:
     int dpy_isinf(double)
     double floor(double)
@@ -21,7 +21,7 @@ def quantize_positive_2d(floating[:, :] v, int num_levels):
     Quantizes the input image at num_levels intensity levels considering <=0
     as a special value. Those input pixels <=0, and only those, will be
     assigned a quantization level of 0. The positive values are divided into
-    the remaining num_levels-1 uniform quanization levels.
+    the remaining num_levels-1 uniform quantization levels.
 
     The following are undefined, and raise a ValueError:
     * Quantizing at zero levels because at least one level must be assigned
@@ -118,7 +118,7 @@ def quantize_positive_3d(floating[:, :, :] v, int num_levels):
     Quantizes the input volume at num_levels intensity levels considering <=0
     as a special value. Those input voxels <=0, and only those, will be
     assigned a quantization level of 0. The positive values are divided into
-    the remaining num_levels-1 uniform quanization levels.
+    the remaining num_levels-1 uniform quantization levels.
 
     The following are undefined, and raise a ValueError:
     * Quantizing at zero levels because at least one level must be assigned
@@ -243,7 +243,7 @@ def compute_masked_class_stats_2d(int[:, :] mask, floating[:, :] v,
     variances : array, shape (num_labels,)
         variances[i], 0<=i<num_labels will be the standard deviation of the
         intensities in v of all voxels labeled i, or infinite if less than 2
-        voxels are labeld i.
+        voxels are labeled i.
     """
     ftype=np.asarray(v).dtype
     cdef:
@@ -310,7 +310,7 @@ def compute_masked_class_stats_3d(int[:, :, :] mask, floating[:, :, :] v,
     variances : array, shape (num_labels,)
         variances[i], 0<=i<num_labels will be the standard deviation of the
         intensities in v of all voxels labeled i, or infinite if less than 2
-        voxels are labeld i.
+        voxels are labeled i.
     """
     ftype=np.asarray(v).dtype
     cdef:

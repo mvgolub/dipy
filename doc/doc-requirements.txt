@@ -1,0 +1,13 @@
+cython
+numpy
+scipy
+nibabel>=3.0.0
+h5py
+cvxpy
+pandas
+tables
+matplotlib
+fury
+scikit-learn
+scikit-image
+statsmodels

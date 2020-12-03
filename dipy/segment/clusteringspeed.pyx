@@ -10,7 +10,7 @@ from dipy.segment.clustering import TreeCluster, TreeClusterMap
 
 
 from libc.math cimport fabs
-from cythonutils cimport Data2D, Shape, shape2tuple,\
+from dipy.segment.cythonutils cimport Data2D, Shape, shape2tuple,\
     tuple2shape, same_shape, create_memview_2d, free_memview_2d
 
 cdef extern from "math.h" nogil:
@@ -527,7 +527,7 @@ cdef class QuickBundles(object):
 
         nearest_cluster.id = -1
         nearest_cluster.dist = BIGGEST_DOUBLE
-
+        nearest_cluster.flip = 0
 
         for k in range(self.clusters.c_size()):
 

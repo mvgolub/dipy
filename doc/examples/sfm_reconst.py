@@ -14,6 +14,9 @@ First, we import the modules we will use in this example:
 import dipy.reconst.sfm as sfm
 import dipy.data as dpd
 import dipy.direction.peaks as dpp
+from dipy.io.image import load_nifti, save_nifti
+from dipy.io.gradients import read_bvals_bvecs
+from dipy.core.gradients import gradient_table
 from dipy.viz import window, actor
 
 """
@@ -26,9 +29,11 @@ other examples.
 
 """
 
-from dipy.data import read_stanford_hardi
-img, gtab = read_stanford_hardi()
-data = img.get_data()
+hardi_fname, hardi_bval_fname, hardi_bvec_fname = dpd.get_fnames('stanford_hardi')
+data, affine = load_nifti(hardi_fname)
+
+bvals, bvecs = read_bvals_bvecs(hardi_bval_fname, hardi_bvec_fname)
+gtab = gradient_table(bvals, bvecs)
 
 # Enables/disables interactive visualization
 interactive = False
@@ -75,16 +80,17 @@ function:
 
 """
 
-from dipy.reconst.csdeconv import auto_response
-response, ratio = auto_response(gtab, data, roi_radius=10, fa_thr=0.7)
+from dipy.reconst.csdeconv import auto_response_ssst
+response, ratio = auto_response_ssst(gtab, data, roi_radii=10, fa_thr=0.7)
 
 """
 The ``response`` return value contains two entries. The first is an array with
 the eigenvalues of the response function and the second is the average S0 for
 this response.
 
-It is a very good practice to always validate the result of ``auto_response``.
-For, this purpose we can print it and have a look at its values.
+It is a very good practice to always validate the result of 
+``auto_response_ssst``. For, this purpose we can print it and have a look
+at its values.
 """
 
 print(response)
@@ -117,15 +123,16 @@ model on the sphere, and plot it.
 sf_fit = sf_model.fit(data_small)
 sf_odf = sf_fit.odf(sphere)
 
-fodf_spheres = actor.odf_slicer(sf_odf, sphere=sphere, scale=0.8, colormap='plasma')
+fodf_spheres = actor.odf_slicer(sf_odf, sphere=sphere, scale=0.8,
+                                colormap='plasma')
 
-ren = window.Renderer()
-ren.add(fodf_spheres)
+scene = window.Scene()
+scene.add(fodf_spheres)
 
 print('Saving illustration as sf_odfs.png')
-window.record(ren, out_path='sf_odfs.png', size=(1000, 1000))
+window.record(scene, out_path='sf_odfs.png', size=(1000, 1000))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 We can extract the peaks from the ODF, and plot these as well
@@ -139,26 +146,26 @@ sf_peaks = dpp.peaks_from_model(sf_model,
                                 return_sh=False)
 
 
-window.clear(ren)
+scene.clear()
 fodf_peaks = actor.peak_slicer(sf_peaks.peak_dirs, sf_peaks.peak_values)
-ren.add(fodf_peaks)
+scene.add(fodf_peaks)
 
 print('Saving illustration as sf_peaks.png')
-window.record(ren, out_path='sf_peaks.png', size=(1000, 1000))
+window.record(scene, out_path='sf_peaks.png', size=(1000, 1000))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 Finally, we plot both the peaks and the ODFs, overlayed:
 """
 
 fodf_spheres.GetProperty().SetOpacity(0.4)
-ren.add(fodf_spheres)
+scene.add(fodf_spheres)
 
 print('Saving illustration as sf_both.png')
-window.record(ren, out_path='sf_both.png', size=(1000, 1000))
+window.record(scene, out_path='sf_both.png', size=(1000, 1000))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: sf_both.png

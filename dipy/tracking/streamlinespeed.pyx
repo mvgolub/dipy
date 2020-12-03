@@ -55,7 +55,7 @@ cdef void c_arclengths_from_arraysequence(Streamline points,
 
 
 def length(streamlines):
-    ''' Euclidean length of streamlines
+    """ Euclidean length of streamlines
 
     Length is in mm only if streamlines are expressed in world coordinates.
 
@@ -94,22 +94,22 @@ def length(streamlines):
     >>> length(np.array([[1, 2, 3]]))
     0.0
 
-    '''
+    """
     if isinstance(streamlines, Streamlines):
         if len(streamlines) == 0:
             return 0.0
 
         arclengths = np.zeros(len(streamlines), dtype=np.float64)
 
-        if streamlines.data.dtype == np.float32:
+        if streamlines._data.dtype == np.float32:
             c_arclengths_from_arraysequence[float2d](
-                                    streamlines.data,
+                                    streamlines._data,
                                     streamlines._offsets.astype(np.intp),
                                     streamlines._lengths.astype(np.intp),
                                     arclengths)
         else:
             c_arclengths_from_arraysequence[double2d](
-                                      streamlines.data,
+                                      streamlines._data,
                                       streamlines._offsets.astype(np.intp),
                                       streamlines._lengths.astype(np.intp),
                                       arclengths)
@@ -266,7 +266,7 @@ cdef void c_set_number_of_points_from_arraysequence(Streamline points,
 
 
 def set_number_of_points(streamlines, nb_points=3):
-    ''' Change the number of points of streamlines
+    """ Change the number of points of streamlines
         (either by downsampling or upsampling)
 
     Change the number of points of streamlines in order to obtain
@@ -315,7 +315,7 @@ def set_number_of_points(streamlines, nb_points=3):
     >>> [len(s) for s in new_streamlines]
     [10, 10]
 
-    '''
+    """
     if isinstance(streamlines, Streamlines):
         if len(streamlines) == 0:
             return Streamlines()

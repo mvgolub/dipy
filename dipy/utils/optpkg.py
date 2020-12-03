@@ -6,20 +6,13 @@ except ImportError:
     import dipy.utils._importlib as importlib
 
 try:
-    import nose
+    import pytest
 except ImportError:
-    have_nose = False
+    have_pytest = False
 else:
-    have_nose = True
+    have_pytest = True
 
 from dipy.utils.tripwire import TripWire
-
-if have_nose:
-    class OptionalImportError(ImportError, nose.SkipTest):
-        pass
-else:
-    class OptionalImportError(ImportError):
-        pass
 
 
 def optional_package(name, trip_msg=None):
@@ -45,8 +38,8 @@ def optional_package(name, trip_msg=None):
         callable usually set as ``setup_module`` in calling namespace, to allow
         skipping tests.
 
-    Example
-    -------
+    Examples
+    --------
     Typical use would be something like this at the top of a module using an
     optional package:
 
@@ -92,7 +85,7 @@ def optional_package(name, trip_msg=None):
     pkg = TripWire(trip_msg)
 
     def setup_module():
-        if have_nose:
-            raise nose.plugins.skip.SkipTest('No %s for these tests'
-                                             % name)
+        if have_pytest:
+            pytest.mark.skip('No {0} for these tests'.format(name))
+
     return pkg, False, setup_module

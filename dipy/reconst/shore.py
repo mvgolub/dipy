@@ -1,7 +1,7 @@
-from __future__ import division
 
 from warnings import warn
 from math import factorial
+from distutils.version import LooseVersion
 
 import numpy as np
 
@@ -152,13 +152,12 @@ class ShoreModel(Cache):
         with respect to the SHORE basis and compute the real and analytical
         ODF.
 
-        from dipy.data import get_data,get_sphere
-        sphere = get_sphere('symmetric724')
-        fimg, fbvals, fbvecs = get_data('ISBI_testing_2shells_table')
+        from dipy.data import get_fnames, default_sphere
+        fimg, fbvals, fbvecs = get_fnames('ISBI_testing_2shells_table')
         bvals, bvecs = read_bvals_bvecs(fbvals, fbvecs)
         gtab = gradient_table(bvals, bvecs)
-        from dipy.sims.voxel import SticksAndBall
-        data, golden_directions = SticksAndBall(
+        from dipy.sims.voxel import sticks_and_ball
+        data, golden_directions = sticks_and_ball(
             gtab, d=0.0015, S0=1., angles=[(0, 0), (90, 0)],
             fractions=[50, 50], snr=None)
         from dipy.reconst.canal import ShoreModel
@@ -167,7 +166,7 @@ class ShoreModel(Cache):
         asm = ShoreModel(gtab, radial_order=radial_order, zeta=zeta,
                          lambdaN=1e-8, lambdaL=1e-8)
         asmfit = asm.fit(data)
-        odf= asmfit.odf(sphere)
+        odf= asmfit.odf(default_sphere)
         """
 
         self.bvals = gtab.bvals
@@ -210,7 +209,6 @@ class ShoreModel(Cache):
 
     @multi_voxel_fit
     def fit(self, data):
-
         Lshore = l_shore(self.radial_order)
         Nshore = n_shore(self.radial_order)
         # Generate the SHORE basis
@@ -247,29 +245,36 @@ class ShoreModel(Cache):
             M0 = M[self.gtab.b0s_mask, :]
 
             c = cvxpy.Variable(M.shape[1])
-            design_matrix = cvxpy.Constant(M)
+            if LooseVersion(cvxpy.__version__) < LooseVersion('1.1'):
+                design_matrix = cvxpy.Constant(M) * c
+            else:
+                design_matrix = cvxpy.Constant(M) @ c
             objective = cvxpy.Minimize(
-                cvxpy.sum_squares(design_matrix * c - data_norm) +
+                cvxpy.sum_squares(design_matrix - data_norm) +
                 self.lambdaN * cvxpy.quad_form(c, Nshore) +
                 self.lambdaL * cvxpy.quad_form(c, Lshore)
             )
 
             if not self.positive_constraint:
-                constraints = [M0[0] * c == 1]
+                if LooseVersion(cvxpy.__version__) < LooseVersion('1.1'):
+                    constraints = [M0[0] * c == 1]
+                else:
+                    constraints = [M0[0] @ c == 1]
             else:
                 lg = int(np.floor(self.pos_grid ** 3 / 2))
                 v, t = create_rspace(self.pos_grid, self.pos_radius)
-                psi = self.cache_get(
-                    'shore_matrix_positive_constraint',
-                    key=(self.pos_grid, self.pos_radius)
-                )
+                psi = self.cache_get('shore_matrix_positive_constraint',
+                                     key=(self.pos_grid, self.pos_radius))
                 if psi is None:
                     psi = shore_matrix_pdf(
                         self.radial_order, self.zeta, t[:lg])
                     self.cache_set(
                         'shore_matrix_positive_constraint',
                         (self.pos_grid, self.pos_radius), psi)
-                constraints = [(M0[0] * c) == 1., (psi * c) >= 1e-3]
+                if LooseVersion(cvxpy.__version__) < LooseVersion('1.1'):
+                    constraints = [(M0[0] * c) == 1., (psi * c) >= 1e-3]
+                else:
+                    constraints = [(M0[0] @ c) == 1., (psi @ c) >= 1e-3]
             prob = cvxpy.Problem(objective, constraints)
             try:
                 prob.solve(solver=self.cvxpy_solver)

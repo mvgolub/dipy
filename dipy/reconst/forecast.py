@@ -1,14 +1,14 @@
-from __future__ import division
 
 from warnings import warn
 import numpy as np
+from distutils.version import LooseVersion
 from dipy.reconst.cache import Cache
 from dipy.reconst.multi_voxel import multi_voxel_fit
 from dipy.reconst.csdeconv import csdeconv
 from dipy.reconst.shm import real_sph_harm
 from scipy.special import gamma, hyp1f1
 from dipy.core.geometry import cart2sphere
-from dipy.data import get_sphere
+from dipy.data import default_sphere
 from dipy.reconst.odf import OdfModel, OdfFit
 from scipy.optimize import leastsq
 from dipy.utils.optpkg import optional_package
@@ -16,10 +16,11 @@ cvxpy, have_cvxpy, _ = optional_package("cvxpy")
 
 
 class ForecastModel(OdfModel, Cache):
-    r"""Fiber ORientation Estimated using Continuous Axially Symmetric Tensors 
-    (FORECAST) [1,2,3]_. FORECAST is a Spherical Deconvolution reconstruction model
-    for multi-shell diffusion data which enables the calculation of a voxel
-    adaptive response function using the Spherical Mean Tecnique (SMT) [2,3]_. 
+    r"""Fiber ORientation Estimated using Continuous Axially Symmetric Tensors
+    (FORECAST) [1,2,3]_. FORECAST is a Spherical Deconvolution reconstruction
+    model for multi-shell diffusion data which enables the calculation of a
+    voxel adaptive response function using the Spherical Mean Tecnique (SMT)
+    [2,3]_.
 
     With FORECAST it is possible to calculate crossing invariant parallel
     diffusivity, perpendicular diffusivity, mean diffusivity, and fractional
@@ -31,13 +32,14 @@ class ForecastModel(OdfModel, Cache):
            Using High Angular Resolution Diffusion Imaging", Magnetic
            Resonance in Medicine, 2005.
 
-    .. [2] Kaden E. et al., "Quantitative Mapping of the Per-Axon Diffusion 
-           Coefficients in Brain White Matter", Magnetic Resonance in 
+    .. [2] Kaden E. et al., "Quantitative Mapping of the Per-Axon Diffusion
+           Coefficients in Brain White Matter", Magnetic Resonance in
            Medicine, 2016.
 
     .. [3] Zucchelli E. et al., "A generalized SMT-based framework for
            Diffusion MRI microstructural model estimation", MICCAI Workshop
            on Computational DIFFUSION MRI (CDMRI), 2017.
+
     Notes
     -----
     The implementation of FORECAST may require CVXPY (http://www.cvxpy.org/).
@@ -52,11 +54,11 @@ class ForecastModel(OdfModel, Cache):
                  lambda_csd=1.0):
         r""" Analytical and continuous modeling of the diffusion signal with
         respect to the FORECAST basis [1,2,3]_.
-        This implementation is a modification of the original FORECAST 
+        This implementation is a modification of the original FORECAST
         model presented in [1]_ adapted for multi-shell data as in [2,3]_ .
 
         The main idea is to model the diffusion signal as the combination of a
-        single fiber response function $F(\mathbf{b})$ times the fODF 
+        single fiber response function $F(\mathbf{b})$ times the fODF
         $\rho(\mathbf{v})$
 
         ..math::
@@ -82,7 +84,7 @@ class ForecastModel(OdfModel, Cache):
             Laplace-Beltrami regularization weight.
         dec_alg : str,
             Spherical deconvolution algorithm. The possible values are Weighted Least Squares ('WLS'),
-            Positivity Constraints using CVXPY ('POS') and the Constraint 
+            Positivity Constraints using CVXPY ('POS') and the Constraint
             Spherical Deconvolution algorithm ('CSD'). Default is 'CSD'.
         sphere : array, shape (N,3),
             sphere points where to enforce positivity when 'POS' or 'CSD'
@@ -96,8 +98,8 @@ class ForecastModel(OdfModel, Cache):
                Using High Angular Resolution Diffusion Imaging", Magnetic
                Resonance in Medicine, 2005.
 
-        .. [2] Kaden E. et al., "Quantitative Mapping of the Per-Axon Diffusion 
-               Coefficients in Brain White Matter", Magnetic Resonance in 
+        .. [2] Kaden E. et al., "Quantitative Mapping of the Per-Axon Diffusion
+               Coefficients in Brain White Matter", Magnetic Resonance in
                Medicine, 2016.
 
         .. [3] Zucchelli M. et al., "A generalized SMT-based framework for
@@ -108,28 +110,27 @@ class ForecastModel(OdfModel, Cache):
         --------
         In this example, where the data, gradient table and sphere tessellation
         used for reconstruction are provided, we model the diffusion signal
-        with respect to the FORECAST and compute the fODF, parallel and 
+        with respect to the FORECAST and compute the fODF, parallel and
         perpendicular diffusivity.
 
-        >>> from dipy.data import get_sphere, get_3shell_gtab
+        >>> from dipy.data import default_sphere, get_3shell_gtab
         >>> gtab = get_3shell_gtab()
-        >>> from dipy.sims.voxel import MultiTensor
-        >>> mevals = np.array(([0.0017, 0.0003, 0.0003], 
+        >>> from dipy.sims.voxel import multi_tensor
+        >>> mevals = np.array(([0.0017, 0.0003, 0.0003],
         ...                    [0.0017, 0.0003, 0.0003]))
         >>> angl = [(0, 0), (60, 0)]
-        >>> data, sticks = MultiTensor(gtab,
-        ...                            mevals,
-        ...                            S0=100.0,
-        ...                            angles=angl,
-        ...                            fractions=[50, 50],
-        ...                            snr=None)
+        >>> data, sticks = multi_tensor(gtab,
+        ...                             mevals,
+        ...                             S0=100.0,
+        ...                             angles=angl,
+        ...                             fractions=[50, 50],
+        ...                             snr=None)
         >>> from dipy.reconst.forecast import ForecastModel
         >>> fm = ForecastModel(gtab, sh_order=6)
         >>> f_fit = fm.fit(data)
         >>> d_par = f_fit.dpar
         >>> d_perp = f_fit.dperp
-        >>> sphere = get_sphere('symmetric724')
-        >>> fodf = f_fit.odf(sphere)
+        >>> fodf = f_fit.odf(default_sphere)
         """
         OdfModel.__init__(self, gtab)
 
@@ -145,7 +146,7 @@ class ForecastModel(OdfModel, Cache):
             raise ValueError(msg)
 
         if sphere is None:
-            sphere = get_sphere('repulsion724')
+            sphere = default_sphere
             self.vertices = sphere.vertices[
                 0:int(sphere.vertices.shape[0]/2), :]
 
@@ -192,7 +193,7 @@ class ForecastModel(OdfModel, Cache):
 
         # calculates the mean signal at each b_values
         means = find_signal_means(self.b_unique,
-                                  data_single_b0, 
+                                  data_single_b0,
                                   self.one_0_bvals,
                                   self.srm,
                                   self.lb_matrix_signal)
@@ -243,20 +244,27 @@ class ForecastModel(OdfModel, Cache):
                 coef = np.r_[c0, coef]
 
             if self.csd:
-                coef, num_it = csdeconv(data_single_b0, M, self.fod, tau=0.1, convergence=50)
+                coef, _ = csdeconv(data_single_b0, M, self.fod, tau=0.1,
+                                   convergence=50)
                 coef = coef / coef[0] * c0
-                
+
             if self.pos:
                 c = cvxpy.Variable(M.shape[1])
-                design_matrix = cvxpy.Constant(M)
+                if LooseVersion(cvxpy.__version__) < LooseVersion('1.1'):
+                    design_matrix = cvxpy.Constant(M) * c
+                else:
+                    design_matrix = cvxpy.Constant(M) @ c
                 objective = cvxpy.Minimize(
-                    cvxpy.sum_squares(design_matrix * c - data_single_b0) +
+                    cvxpy.sum_squares(design_matrix - data_single_b0) +
                     self.lambda_lb * cvxpy.quad_form(c, self.lb_matrix))
 
-                constraints = [c[0] == c0, self.fod * c >= 0]
+                if LooseVersion(cvxpy.__version__) < LooseVersion('1.1'):
+                    constraints = [c[0] == c0, self.fod * c >= 0]
+                else:
+                    constraints = [c[0] == c0, self.fod @ c >= 0]
                 prob = cvxpy.Problem(objective, constraints)
                 try:
-                    prob.solve()
+                    prob.solve(solver=cvxpy.OSQP, eps_abs=1e-05, eps_rel=1e-05)
                     coef = np.asarray(c.value).squeeze()
                 except Exception:
                     warn('Optimization did not find a solution')
@@ -304,7 +312,6 @@ class ForecastFit(OdfFit):
         clip_negative : boolean, optional
             if True clip the negative odf values to 0, default True
         """
-
         if self.rho is None:
             self.rho = rho_matrix(self.sh_order, sphere.vertices)
 
@@ -334,15 +341,15 @@ class ForecastFit(OdfFit):
         Parameters
         ----------
         gtab : GradientTable, optional
-            gradient directions and bvalues container class. 
+            gradient directions and bvalues container class.
         S0 : float, optional
             the signal at b-value=0
-            
+
         """
         if gtab is None:
             gtab = self.gtab
-        
-        M_diff = forecast_matrix(self.sh_order,  
+
+        M_diff = forecast_matrix(self.sh_order,
                                  self.d_par,
                                  self.d_perp,
                                  gtab.bvals)
@@ -373,7 +380,7 @@ class ForecastFit(OdfFit):
 
 
 def find_signal_means(b_unique, data_norm, bvals, rho, lb_matrix, w=1e-03):
-    r"""Calculates the mean signal for each shell
+    r"""Calculate the mean signal for each shell.
 
     Parameters
     ----------
@@ -388,7 +395,7 @@ def find_signal_means(b_unique, data_norm, bvals, rho, lb_matrix, w=1e-03):
     lb_matrix : 2d ndarray,
         Laplace-Beltrami regularization matrix
     w : float,
-        weight for the Laplace-Beltrami regularization  
+        weight for the Laplace-Beltrami regularization
 
     Returns
     -------
@@ -416,7 +423,7 @@ def find_signal_means(b_unique, data_norm, bvals, rho, lb_matrix, w=1e-03):
 
 
 def forecast_error_func(x, b_unique, E):
-    r""" Calculates the difference between the mean signal calculated using 
+    r""" Calculates the difference between the mean signal calculated using
     the parameter vector x and the average signal E using FORECAST and SMT
     """
     d_par = np.cos(x[0])**2 * 3e-03
@@ -433,7 +440,7 @@ def forecast_error_func(x, b_unique, E):
     return v
 
 
-def psi_l(l,b):
+def psi_l(l, b):
     n = l//2
     v = (-b)**n
     v *= gamma(n + 1./2) / gamma(2*n + 3./2)
@@ -442,7 +449,7 @@ def psi_l(l,b):
 
 
 def forecast_matrix(sh_order,  d_par, d_perp, bvals):
-    r"""Compute the FORECAST radial matrix 
+    r"""Compute the FORECAST radial matrix
     """
     n_c = int((sh_order + 1) * (sh_order + 2) / 2)
     M = np.zeros((bvals.shape[0], n_c))
@@ -479,8 +486,8 @@ def lb_forecast(sh_order):
     diag_lb = np.zeros(n_c)
     counter = 0
     for l in range(0, sh_order + 1, 2):
-        for m in range(-l, l + 1):
-            diag_lb[counter] = (l * (l + 1)) ** 2
-            counter += 1
+        stop = 2 * l + 1 + counter
+        diag_lb[counter:stop] = (l * (l + 1)) ** 2
+        counter = stop
 
     return np.diag(diag_lb)

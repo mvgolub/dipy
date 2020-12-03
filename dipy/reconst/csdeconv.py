@@ -1,7 +1,7 @@
-from __future__ import division, print_function, absolute_import
 import warnings
 
 import numpy as np
+import numbers
 from scipy.integrate import quad
 from scipy.special import lpn, gamma
 import scipy.linalg as la
@@ -12,7 +12,6 @@ from dipy.data import small_sphere, get_sphere, default_sphere
 from dipy.core.geometry import cart2sphere
 from dipy.core.ndindex import ndindex
 from dipy.sims.voxel import single_tensor
-from dipy.utils.six.moves import range
 
 from dipy.reconst.multi_voxel import multi_voxel_fit
 from dipy.reconst.dti import TensorModel, fractional_anisotropy
@@ -20,16 +19,124 @@ from dipy.reconst.shm import (sph_harm_ind_list, real_sph_harm,
                               sph_harm_lookup, lazy_index, SphHarmFit,
                               real_sym_sh_basis, sh_to_rh, forward_sdeconv_mat,
                               SphHarmModel)
+from dipy.reconst.utils import _roi_in_volume, _mask_from_roi
 
 from dipy.direction.peaks import peaks_from_model
 from dipy.core.geometry import vec2vec_rotmat
+
+from dipy.utils.deprecator import deprecate_with_version
+
+
+@deprecate_with_version("dipy.reconst.csdeconv.auto_response is deprecated, "
+                        "Please use "
+                        "dipy.reconst.csdeconv.auto_response_ssst instead",
+                        since='1.2', until='1.4')
+def auto_response(gtab, data, roi_center=None, roi_radius=10, fa_thr=0.7,
+                  fa_callable=None, return_number_of_voxels=None):
+    """ Automatic estimation of ssst response function using FA.
+
+    Parameters
+    ----------
+    gtab : GradientTable
+    data : ndarray
+        diffusion data
+    roi_center : array-like, (3,)
+        Center of ROI in data. If center is None, it is assumed that it is
+        the center of the volume with shape `data.shape[:3]`.
+    roi_radius : int
+        radius of cubic ROI
+    fa_thr : float
+        FA threshold
+    fa_callable : callable
+        A callable that defines an operation that compares FA with the fa_thr.
+        The operator should have two positional arguments
+        (e.g., `fa_operator(FA, fa_thr)`) and it should return a bool array.
+    return_number_of_voxels : bool
+        If True, returns the number of voxels used for estimating the response
+        function
+
+    Returns
+    -------
+    response : tuple, (2,)
+        (`evals`, `S0`)
+    ratio : float
+        The ratio between smallest versus largest eigenvalue of the response.
+
+    Notes
+    -----
+    In CSD there is an important pre-processing step: the estimation of the
+    fiber response function. In order to do this, we look for voxels with very
+    anisotropic configurations. We get this information from
+    csdeconv.mask_for_response_ssst(), which returns a mask of selected voxels
+    (more details are available in the description of the function).
+
+    With the mask, we compute the response function by using
+    csdeconv.response_from_mask_ssst(), which returns the `response` and the
+    `ratio` (more details are available in the description of the function).
+    """
+    msg = """Parameter `roi_radius` is now called `roi_radii` and can be an
+    array-like (3,). Parameters `fa_callable` and `return_number_of_voxels`
+    are not used anymore."""
+    warnings.warn(msg, UserWarning)
+    return auto_response_ssst(gtab, data, roi_center, roi_radius, fa_thr)
+
+
+@deprecate_with_version("dipy.reconst.csdeconv.response_from_mask is "
+                        "deprecated, Please use "
+                        "dipy.reconst.csdeconv.response_from_mask_ssst instead",
+                        since='1.2', until='1.4')
+def response_from_mask(gtab, data, mask):
+    """ Computation of single-shell single-tissue (ssst) response
+        function from a given mask.
+
+    Parameters
+    ----------
+    gtab : GradientTable
+    data : ndarray
+        diffusion data
+    mask : ndarray
+        mask from where to compute the response function
+
+    Returns
+    -------
+    response : tuple, (2,)
+        (`evals`, `S0`)
+    ratio : float
+        The ratio between smallest versus largest eigenvalue of the response.
+
+    Notes
+    -----
+    In CSD there is an important pre-processing step: the estimation of the
+    fiber response function. In order to do this, we look for voxels with very
+    anisotropic configurations. This information can be obtained by using
+    csdeconv.mask_for_response_ssst() through a mask of selected voxels
+    (see[1]_). The present function uses such a mask to compute the ssst
+    response function.
+
+    For the response we also need to find the average S0 in the ROI. This is
+    possible using `gtab.b0s_mask()` we can find all the S0 volumes (which
+    correspond to b-values equal 0) in the dataset.
+
+    The `response` consists always of a prolate tensor created by averaging
+    the highest and second highest eigenvalues in the ROI with FA higher than
+    threshold. We also include the average S0s.
+
+    We also return the `ratio` which is used for the SDT models.
+
+    References
+    ----------
+    .. [1] Tournier, J.D., et al. NeuroImage 2004. Direct estimation of the
+    fiber orientation density function from diffusion-weighted MRI
+    data using spherical deconvolution
+    """
+    return response_from_mask_ssst(gtab, data, mask)
 
 
 class AxSymShResponse(object):
     """A simple wrapper for response functions represented using only axially
     symmetric, even spherical harmonic functions (ie, m == 0 and n even).
 
-    Parameters:
+    Parameters
     -----------
     S0 : float
         Signal with no diffusion weighting.
@@ -61,8 +168,8 @@ class AxSymShResponse(object):
 
 class ConstrainedSphericalDeconvModel(SphHarmModel):
 
-    def __init__(self, gtab, response, reg_sphere=None, sh_order=8, lambda_=1,
-                 tau=0.1):
+    def __init__(self, gtab, response, reg_sphere=None, sh_order=8,
+                 lambda_=1, tau=0.1, convergence=50):
         r""" Constrained Spherical Deconvolution (CSD) [1]_.
 
         Spherical deconvolution computes a fiber orientation distribution
@@ -83,9 +190,9 @@ class ConstrainedSphericalDeconvModel(SphHarmModel):
         response : tuple or AxSymShResponse object
             A tuple with two elements. The first is the eigen-values as an (3,)
             ndarray and the second is the signal value for the response
-            function without diffusion weighting.  This is to be able to
-            generate a single fiber synthetic signal. The response function
-            will be used as deconvolution kernel ([1]_)
+            function without diffusion weighting (i.e. S0).  This is to be able
+            to generate a single fiber synthetic signal. The response function
+            will be used as deconvolution kernel ([1]_).
         reg_sphere : Sphere (optional)
             sphere used to build the regularization B matrix.
             Default: 'symmetric362'.
@@ -100,6 +207,9 @@ class ConstrainedSphericalDeconvModel(SphHarmModel):
             zero. However, to improve the stability of the algorithm, tau is
             set to tau*100 % of the mean fODF amplitude (here, 10% by default)
             (see [1]_). Default: 0.1
+        convergence : int
+            Maximum number of iterations to allow the deconvolution to
+            converge.
 
         References
         ----------
@@ -110,7 +220,7 @@ class ConstrainedSphericalDeconvModel(SphHarmModel):
         .. [2] Descoteaux, M., et al. IEEE TMI 2009. Deterministic and
                Probabilistic Tractography Based on Complex Fibre Orientation
                Distributions
-        .. [3] C\^ot\'e, M-A., et al. Medical Image Analysis 2013. Tractometer:
+        .. [3] Côté, M-A., et al. Medical Image Analysis 2013. Tractometer:
                Towards validation of tractography pipelines
         .. [4] Tournier, J.D, et al. Imaging Systems and Technology
                2012. MRtrix: Diffusion Tractography in Crossing Fiber Regions
@@ -135,10 +245,7 @@ class ConstrainedSphericalDeconvModel(SphHarmModel):
         self.B_dwi = real_sph_harm(m, n, theta[:, None], phi[:, None])
 
         # for the sphere used in the regularization positivity constraint
-        if reg_sphere is None:
-            self.sphere = small_sphere
-        else:
-            self.sphere = reg_sphere
+        self.sphere = reg_sphere or small_sphere
 
         r, theta, phi = cart2sphere(
             self.sphere.x,
@@ -146,9 +253,6 @@ class ConstrainedSphericalDeconvModel(SphHarmModel):
             self.sphere.z
         )
         self.B_reg = real_sph_harm(m, n, theta[:, None], phi[:, None])
-
-        if response is None:
-            response = (np.array([0.0015, 0.0003, 0.0003]), 1)
 
         self.response = response
         if isinstance(response, AxSymShResponse):
@@ -175,6 +279,7 @@ class ConstrainedSphericalDeconvModel(SphHarmModel):
         self.B_reg *= lambda_
         self.sh_order = sh_order
         self.tau = tau
+        self.convergence = convergence
         self._X = X = self.R.diagonal() * self.B_dwi
         self._P = np.dot(X.T, X)
 
@@ -182,7 +287,7 @@ class ConstrainedSphericalDeconvModel(SphHarmModel):
     def fit(self, data):
         dwi_data = data[self._where_dwi]
         shm_coeff, _ = csdeconv(dwi_data, self._X, self.B_reg, self.tau,
-                                P=self._P)
+                                convergence=self.convergence, P=self._P)
         return SphHarmFit(self, shm_coeff, None)
 
     def predict(self, sh_coeff, gtab=None, S0=1.):
@@ -320,12 +425,15 @@ class ConstrainedSDTModel(SphHarmModel):
         odf_sh = np.dot(self.P, s_sh)
         qball_odf = np.dot(self.B_reg, odf_sh)
         Z = np.linalg.norm(qball_odf)
-        # normalize ODF
-        odf_sh /= Z
 
-        shm_coeff, num_it = odf_deconv(odf_sh, self.R, self.B_reg,
-                                       self.lambda_, self.tau)
-        # print 'SDT CSD converged after %d iterations' % num_it
+        shm_coeff, num_it = np.zeros_like(odf_sh), 0
+        if Z:
+            # normalize ODF
+            odf_sh /= Z
+            shm_coeff, num_it = odf_deconv(odf_sh, self.R, self.B_reg,
+                                           self.lambda_, self.tau)
+            # print 'SDT CSD converged after %d iterations' % num_it
+
         return SphHarmFit(self, shm_coeff, None)
 
 
@@ -352,7 +460,7 @@ def estimate_response(gtab, evals, S0):
 
 
 def forward_sdt_deconv_mat(ratio, n, r2_term=False):
-    """ Build forward sharpening deconvolution transform (SDT) matrix
+    r""" Build forward sharpening deconvolution transform (SDT) matrix
 
     Parameters
     ----------
@@ -599,9 +707,11 @@ def odf_deconv(odf_sh, R, B_reg, lambda_=1., tau=0.1, r2_term=False):
     odf_sh : ndarray (``(sh_order + 1)*(sh_order + 2)/2``,)
          ndarray of SH coefficients for the ODF spherical function to be
          deconvolved
-    R : ndarray (``(sh_order + 1)(sh_order + 2)/2``, ``(sh_order + 1)(sh_order + 2)/2``)
+    R : ndarray (``(sh_order + 1)(sh_order + 2)/2``,
+         ``(sh_order + 1)(sh_order + 2)/2``)
          SDT matrix in SH basis
-    B_reg : ndarray (``(sh_order + 1)(sh_order + 2)/2``, ``(sh_order + 1)(sh_order + 2)/2``)
+    B_reg : ndarray (``(sh_order + 1)(sh_order + 2)/2``,
+         ``(sh_order + 1)(sh_order + 2)/2``)
          SH basis matrix used for deconvolution
     lambda_ : float
          lambda parameter in minimization equation (default 1.0)
@@ -657,7 +767,7 @@ def odf_deconv(odf_sh, R, B_reg, lambda_=1., tau=0.1, r2_term=False):
 
     threshold = tau * np.max(np.dot(B_reg, fodf_sh))
 
-    k = []
+    k = np.empty([])
     convergence = 50
     for num_it in range(1, convergence + 1):
         A = np.dot(B_reg, fodf_sh)
@@ -702,8 +812,12 @@ def odf_sh_to_sharp(odfs_sh, sphere, basis=None, ratio=3 / 15., sh_order=8,
         array of odfs expressed as spherical harmonics coefficients
     sphere : Sphere
         sphere used to build the regularization matrix
-    basis : {None, 'mrtrix', 'fibernav'}
-        different spherical harmonic basis. None is the fibernav basis as well.
+    basis : {None, 'tournier07', 'descoteaux07'}
+        different spherical harmonic basis:
+        ``None`` for the default DIPY basis,
+        ``tournier07`` for the Tournier 2007 [4]_ basis, and
+        ``descoteaux07`` for the Descoteaux 2007 [3]_ basis
+        (``None`` defaults to ``descoteaux07``).
     ratio : float,
         ratio of the smallest vs the largest eigenvalue of the single prolate
         tensor response function (:math:`\frac{\lambda_2}{\lambda_1}`)
@@ -737,8 +851,14 @@ def odf_sh_to_sharp(odfs_sh, sphere, basis=None, ratio=3 / 15., sh_order=8,
     .. [2] Descoteaux, M., et al. IEEE TMI 2009. Deterministic and
            Probabilistic Tractography Based on Complex Fibre Orientation
            Distributions
-    .. [3] Descoteaux, M, et al. MRM 2007. Fast, Regularized and Analytical
-           Q-Ball Imaging
+    .. [3] Descoteaux, M., Angelino, E., Fitzgibbons, S. and Deriche, R.
+           Regularized, Fast, and Robust Analytical Q-ball Imaging.
+           Magn. Reson. Med. 2007;58:497-510.
+    .. [4] Tournier J.D., Calamante F. and Connelly A. Robust determination
+           of the fibre orientation distribution in diffusion MRI:
+           Non-negativity constrained super-resolved spherical deconvolution.
+           NeuroImage. 2007;35(4):1459-1472.
+
     """
     r, theta, phi = cart2sphere(sphere.x, sphere.y, sphere.z)
     real_sym_sh = sph_harm_lookup[basis]
@@ -760,63 +880,89 @@ def odf_sh_to_sharp(odfs_sh, sphere, basis=None, ratio=3 / 15., sh_order=8,
     return fodf_sh
 
 
-def fa_superior(FA, fa_thr):
-    """ Check that the FA is greater than the FA threshold
+def mask_for_response_ssst(gtab, data, roi_center=None, roi_radii=10,
+                           fa_thr=0.7):
+    """ Computation of mask for single-shell single-tissue (ssst) response
+        function using FA.
 
-        Parameters
-        ----------
-        FA : array
-            Fractional Anisotropy
-        fa_thr : int
-            FA threshold
+    Parameters
+    ----------
+    gtab : GradientTable
+    data : ndarray
+        diffusion data (4D)
+    roi_center : array-like, (3,)
+        Center of ROI in data. If center is None, it is assumed that it is
+        the center of the volume with shape `data.shape[:3]`.
+    roi_radii : int or array-like, (3,)
+        radii of cuboid ROI
+    fa_thr : float
+        FA threshold
 
-        Returns
-        -------
-        True when the FA value is greater than the FA threshold, otherwise False.
+    Returns
+    -------
+    mask : ndarray
+        Mask of voxels within the ROI and with FA above the FA threshold.
+
+    Notes
+    -----
+    In CSD there is an important pre-processing step: the estimation of the
+    fiber response function. In order to do this, we look for voxels with very
+    anisotropic configurations. This function aims to accomplish that by
+    returning a mask of voxels within a ROI, that have a FA value above a
+    given threshold. For example we can use a ROI (20x20x20) at
+    the center of the volume and store the signal values for the voxels with
+    FA values higher than 0.7 (see [1]_).
+
+    References
+    ----------
+    .. [1] Tournier, J.D., et al. NeuroImage 2004. Direct estimation of the
+    fiber orientation density function from diffusion-weighted MRI
+    data using spherical deconvolution
     """
-    return FA > fa_thr
+
+    if len(data.shape) < 4:
+        msg = """Data must be 4D (3D image + directions). To use a 2D image,
+        please reshape it into a (N, N, 1, ndirs) array."""
+        raise ValueError(msg)
+
+    if isinstance(roi_radii, numbers.Number):
+        roi_radii = (roi_radii, roi_radii, roi_radii)
+
+    if roi_center is None:
+        roi_center = np.array(data.shape[:3]) // 2
+
+    roi_radii = _roi_in_volume(data.shape, np.asarray(roi_center),
+                               np.asarray(roi_radii))
+
+    roi_mask = _mask_from_roi(data.shape[:3], roi_center, roi_radii)
+
+    ten = TensorModel(gtab)
+    tenfit = ten.fit(data, mask=roi_mask)
+    fa = fractional_anisotropy(tenfit.evals)
+    fa[np.isnan(fa)] = 0
+
+    mask = np.zeros(fa.shape, dtype=np.int64)
+    mask[fa > fa_thr] = 1
+
+    if np.sum(mask) == 0:
+        msg = """No voxel with a FA higher than {} were found.
+        Try a larger roi or a lower threshold.""".format(str(fa_thr))
+        warnings.warn(msg, UserWarning)
+
+    return mask
 
 
-def fa_inferior(FA, fa_thr):
-    """ Check that the FA is lower than the FA threshold
-
-        Parameters
-        ----------
-        FA : array
-            Fractional Anisotropy
-        fa_thr : int
-            FA threshold
-
-        Returns
-        -------
-        True when the FA value is lower than the FA threshold, otherwise False.
-    """
-    return FA < fa_thr
-
-
-def auto_response(gtab, data, roi_center=None, roi_radius=10, fa_thr=0.7,
-                  fa_callable=fa_superior, return_number_of_voxels=False):
-    """ Automatic estimation of response function using FA.
+def response_from_mask_ssst(gtab, data, mask):
+    """ Computation of single-shell single-tissue (ssst) response
+        function from a given mask.
 
     Parameters
     ----------
     gtab : GradientTable
     data : ndarray
         diffusion data
-    roi_center : tuple, (3,)
-        Center of ROI in data. If center is None, it is assumed that it is
-        the center of the volume with shape `data.shape[:3]`.
-    roi_radius : int
-        radius of cubic ROI
-    fa_thr : float
-        FA threshold
-    fa_callable : callable
-        A callable that defines an operation that compares FA with the fa_thr. The operator
-        should have two positional arguments (e.g., `fa_operator(FA, fa_thr)`) and it should
-        return a bool array.
-    return_number_of_voxels : bool
-        If True, returns the number of voxels used for estimating the response
-        function.
+    mask : ndarray
+        mask from where to compute the response function
 
     Returns
     -------
@@ -824,18 +970,15 @@ def auto_response(gtab, data, roi_center=None, roi_radius=10, fa_thr=0.7,
         (`evals`, `S0`)
     ratio : float
         The ratio between smallest versus largest eigenvalue of the response.
-    number of voxels : int (optional)
-        The number of voxels used for estimating the response function.
 
     Notes
     -----
     In CSD there is an important pre-processing step: the estimation of the
-    fiber response function. In order to do this we look for voxels with very
-    anisotropic configurations. For example we can use an ROI (20x20x20) at
-    the center of the volume and store the signal values for the voxels with
-    FA values higher than 0.7. Of course, if we haven't precalculated FA we
-    need to fit a Tensor model to the datasets. Which is what we do in this
-    function.
+    fiber response function. In order to do this, we look for voxels with very
+    anisotropic configurations. This information can be obtained by using
+    csdeconv.mask_for_response_ssst() through a mask of selected voxels
+    (see[1]_). The present function uses such a mask to compute the ssst
+    response function.
 
     For the response we also need to find the average S0 in the ROI. This is
     possible using `gtab.b0s_mask()` we can find all the S0 volumes (which
@@ -845,73 +988,7 @@ def auto_response(gtab, data, roi_center=None, roi_radius=10, fa_thr=0.7,
     the highest and second highest eigenvalues in the ROI with FA higher than
     threshold. We also include the average S0s.
 
-    We also return the `ratio` which is used for the SDT models. If requested,
-    the number of voxels used for estimating the response function is also
-    returned, which can be used to judge the fidelity of the response function.
-    As a rule of thumb, at least 300 voxels should be used to estimate a good
-    response function (see [1]_).
-
-    References
-    ----------
-    .. [1] Tournier, J.D., et al. NeuroImage 2004. Direct estimation of the
-    fiber orientation density function from diffusion-weighted MRI
-    data using spherical deconvolution
-    """
-
-    ten = TensorModel(gtab)
-    if roi_center is None:
-        ci, cj, ck = np.array(data.shape[:3]) // 2
-    else:
-        ci, cj, ck = roi_center
-    w = roi_radius
-    roi = data[int(ci - w): int(ci + w),
-               int(cj - w): int(cj + w),
-               int(ck - w): int(ck + w)]
-    tenfit = ten.fit(roi)
-    FA = fractional_anisotropy(tenfit.evals)
-    FA[np.isnan(FA)] = 0
-    indices = np.where(fa_callable(FA, fa_thr))
-
-    if indices[0].size == 0:
-        msg = "No voxel with a FA higher than " + str(fa_thr) + " were found."
-        msg += " Try a larger roi or a lower threshold."
-        warnings.warn(msg, UserWarning)
-
-    lambdas = tenfit.evals[indices][:, :2]
-    S0s = roi[indices][:, np.nonzero(gtab.b0s_mask)[0]]
-
-    response, ratio = _get_response(S0s, lambdas)
-
-    if return_number_of_voxels:
-        return response, ratio, indices[0].size
-
-    return response, ratio
-
-
-def response_from_mask(gtab, data, mask):
-    """ Estimate the response function from a given mask.
-
-    Parameters
-    ----------
-    gtab : GradientTable
-    data : ndarray
-        Diffusion data
-    mask : ndarray
-        Mask to use for the estimation of the response function. For example a
-        mask of the white matter voxels with FA values higher than 0.7
-        (see [1]_).
-
-    Returns
-    -------
-    response : tuple, (2,)
-        (`evals`, `S0`)
-    ratio : float
-        The ratio between smallest versus largest eigenvalue of the response.
-
-    Notes
-    -----
-    See csdeconv.auto_response() or csdeconv.recursive_response() if you don't
-    have a computed mask for the response function estimation.
+    We also return the `ratio` which is used for the SDT models.
 
     References
     ----------
@@ -935,9 +1012,57 @@ def response_from_mask(gtab, data, mask):
     return _get_response(S0s, lambdas)
 
 
+def auto_response_ssst(gtab, data, roi_center=None, roi_radii=10, fa_thr=0.7):
+    """ Automatic estimation of single-shell single-tissue (ssst) response
+        function using FA.
+
+    Parameters
+    ----------
+    gtab : GradientTable
+    data : ndarray
+        diffusion data
+    roi_center : array-like, (3,)
+        Center of ROI in data. If center is None, it is assumed that it is
+        the center of the volume with shape `data.shape[:3]`.
+    roi_radii : int or array-like, (3,)
+        radii of cuboid ROI
+    fa_thr : float
+        FA threshold
+
+    Returns
+    -------
+    response : tuple, (2,)
+        (`evals`, `S0`)
+    ratio : float
+        The ratio between smallest versus largest eigenvalue of the response.
+
+    Notes
+    -----
+    In CSD there is an important pre-processing step: the estimation of the
+    fiber response function. In order to do this, we look for voxels with very
+    anisotropic configurations. We get this information from
+    csdeconv.mask_for_response_ssst(), which returns a mask of selected voxels
+    (more details are available in the description of the function).
+
+    With the mask, we compute the response function by using
+    csdeconv.response_from_mask_ssst(), which returns the `response` and the
+    `ratio` (more details are available in the description of the function).
+    """
+
+    mask = mask_for_response_ssst(gtab, data, roi_center, roi_radii, fa_thr)
+    response, ratio = response_from_mask_ssst(gtab, data, mask)
+
+    return response, ratio
+
+
 def _get_response(S0s, lambdas):
-    S0 = np.mean(S0s)
-    l01 = np.mean(lambdas, axis=0)
+    S0 = np.mean(S0s) if S0s.size else 0
+    # Check if lambdas is empty
+    if not lambdas.size:
+        response = (np.zeros(3), S0)
+        ratio = 0
+        return response, ratio
+    l01 = np.mean(lambdas, axis=0) if S0s.size else 0
     evals = np.array([l01[0], l01[1], l01[1]])
     response = (evals, S0)
     ratio = evals[1] / evals[0]

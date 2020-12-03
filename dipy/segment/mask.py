@@ -1,4 +1,3 @@
-from __future__ import division, print_function, absolute_import
 
 from warnings import warn
 
@@ -35,9 +34,15 @@ def multi_median(input, median_radius, numpass):
     # Array representing the size of the median window in each dimension.
     medarr = np.ones_like(input.shape) * ((median_radius * 2) + 1)
 
+    if numpass > 1:
+        # ensure the input array is not modified
+        input = input.copy()
+
     # Multi pass
+    output = np.empty_like(input)
     for i in range(0, numpass):
-        median_filter(input, medarr, output=input)
+        median_filter(input, medarr, output=output)
+        input, output = output, input
     return input
 
 
@@ -119,8 +124,8 @@ def crop(vol, mins, maxs):
     return vol[tuple(slice(i, j) for i, j in zip(mins, maxs))]
 
 
-def median_otsu(input_volume, median_radius=4, numpass=4,
-                autocrop=False, vol_idx=None, dilate=None):
+def median_otsu(input_volume, vol_idx=None, median_radius=4, numpass=4,
+                autocrop=False, dilate=None):
     """Simple brain extraction tool method for images from DWI data.
 
     It uses a median filter smoothing of the input_volumes `vol_idx` and an
@@ -135,7 +140,10 @@ def median_otsu(input_volume, median_radius=4, numpass=4,
     Parameters
     ----------
     input_volume : ndarray
-        ndarray of the brain volume
+        3D or 4D array of the brain volume.
+    vol_idx : None or array, optional.
+        1D array representing indices of ``axis=3`` of a 4D `input_volume`.
+        None is only an acceptable input if ``input_volume`` is 3D.
     median_radius : int
         Radius (in voxels) of the applied median filter (default: 4).
     numpass: int
@@ -144,10 +152,6 @@ def median_otsu(input_volume, median_radius=4, numpass=4,
         if True, the masked input_volume will also be cropped using the
         bounding box defined by the masked data. Should be on if DWI is
         upsampled to 1x1x1 resolution. (default: False).
-    vol_idx : None or array, optional
-        1D array representing indices of ``axis=3`` of a 4D `input_volume` None
-        (the default) corresponds to ``(0,)`` (assumes first volume in
-        4D array).
 
     dilate : None or int, optional
         number of iterations for binary dilation
@@ -194,9 +198,9 @@ def median_otsu(input_volume, median_radius=4, numpass=4,
         if vol_idx is not None:
             b0vol = np.mean(input_volume[..., tuple(vol_idx)], axis=3)
         else:
-            b0vol = input_volume[..., 0].copy()
+            raise ValueError("For 4D images, must provide vol_idx input")
     else:
-        b0vol = input_volume.copy()
+        b0vol = input_volume
     # Make a mask using a multiple pass median filter and histogram
     # thresholding.
     mask = multi_median(b0vol, median_radius, numpass)

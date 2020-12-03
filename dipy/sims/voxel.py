@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import division
 
 import numpy as np
 from numpy import dot
 from dipy.core.geometry import sphere2cart
 from dipy.core.geometry import vec2vec_rotmat
+from dipy.core.gradients import GradientTable
+from dipy.data import default_sphere
 from dipy.reconst.utils import dki_design_matrix
+from dipy.reconst import shm
 from scipy.special import jn
 
 # Diffusion coefficients for white matter tracts, in mm^2/s
@@ -66,8 +68,7 @@ def _add_rician(sig, noise1, noise2):
 
 
 def _add_rayleigh(sig, noise1, noise2):
-    """
-    Helper function to add_noise
+    r"""Helper function to add_noise.
 
     The Rayleigh distribution is $\sqrt\{Gauss_1^2 + Gauss_2^2}$.
 
@@ -214,9 +215,10 @@ def callaghan_perpendicular(q, radius):
            117.1 (1995): 94-97.
     """
     # Eq. [6] in the paper
-    E = ((2 * jn(1, 2 * np.pi * q * radius)) ** 2 /
-         (2 * np.pi * q * radius) ** 2
-         )
+    numerator = (2 * jn(1, 2 * np.pi * q * radius)) ** 2
+    denom = (2 * np.pi * q * radius) ** 2
+
+    E = np.divide(numerator, denom, out=np.zeros_like(q), where=denom != 0)
     return E
 
 
@@ -312,12 +314,14 @@ def cylinders_and_ball_soderman(gtab, tau, radii=[5e-3, 5e-3], D=0.7e-3,
 
 
 def single_tensor(gtab, S0=1, evals=None, evecs=None, snr=None):
-    """ Simulated Q-space signal with a single tensor.
+    """ Simulate diffusion-weighted signals with a single tensor.
 
     Parameters
     -----------
     gtab : GradientTable
-        Measurement directions.
+        Table with information of b-values and gradient directions g.
+        Note that if gtab has a btens attribute, simulations will be performed
+        according to the given b-tensor B information.
     S0 : double,
         Strength of signal in the presence of no diffusion gradient (also
         called the ``b=0`` value).
@@ -334,7 +338,9 @@ def single_tensor(gtab, S0=1, evals=None, evecs=None, snr=None):
     Returns
     --------
     S : (N,) ndarray
-        Simulated signal: ``S(q, tau) = S_0 e^(-b g^T R D R.T g)``.
+        Simulated signal:
+            ``S(b, g) = S_0 e^(-b g^T R D R.T g)``, if gtab.tens=None
+            ``S(B) = S_0 e^(-B:D)``, if gtab.tens information is given
 
     References
     ----------
@@ -359,8 +365,12 @@ def single_tensor(gtab, S0=1, evals=None, evecs=None, snr=None):
     S = np.zeros(len(gradients))
     D = dot(dot(R, np.diag(evals)), R.T)
 
-    for (i, g) in enumerate(gradients):
-        S[i] = S0 * np.exp(-gtab.bvals[i] * dot(dot(g.T, D), g))
+    if gtab.btens is None:
+        for (i, g) in enumerate(gradients):
+            S[i] = S0 * np.exp(-gtab.bvals[i] * dot(dot(g.T, D), g))
+    else:
+        for (i, b) in enumerate(gtab.btens):
+            S[i] = S0 * np.exp(- np.sum(b * D))
 
     S = add_noise(S, snr, S0)
 
@@ -374,6 +384,9 @@ def multi_tensor(gtab, mevals, S0=1., angles=[(0, 0), (90, 0)],
     Parameters
     -----------
     gtab : GradientTable
+        Table with information of b-values and gradient directions.
+        Note that if gtab has a btens attribute, simulations will be performed
+        according to the given b-tensor information.
     mevals : array (K, 3)
         each tensor's eigenvalues in each row
     S0 : float
@@ -399,10 +412,10 @@ def multi_tensor(gtab, mevals, S0=1., angles=[(0, 0), (90, 0)],
     --------
     >>> import numpy as np
     >>> from dipy.sims.voxel import multi_tensor
-    >>> from dipy.data import get_data
+    >>> from dipy.data import get_fnames
     >>> from dipy.core.gradients import gradient_table
     >>> from dipy.io.gradients import read_bvals_bvecs
-    >>> fimg, fbvals, fbvecs = get_data('small_101D')
+    >>> fimg, fbvals, fbvecs = get_fnames('small_101D')
     >>> bvals, bvecs = read_bvals_bvecs(fbvals, fbvecs)
     >>> gtab = gradient_table(bvals, bvecs)
     >>> mevals=np.array(([0.0015, 0.0003, 0.0003],[0.0015, 0.0003, 0.0003]))
@@ -471,10 +484,10 @@ def multi_tensor_dki(gtab, mevals, S0=1., angles=[(90., 0.), (90., 0.)],
     --------
     >>> import numpy as np
     >>> from dipy.sims.voxel import multi_tensor_dki
-    >>> from dipy.data import get_data
+    >>> from dipy.data import get_fnames
     >>> from dipy.core.gradients import gradient_table
     >>> from dipy.io.gradients import read_bvals_bvecs
-    >>> fimg, fbvals, fbvecs = get_data('small_64D')
+    >>> fimg, fbvals, fbvecs = get_fnames('small_64D')
     >>> bvals, bvecs = read_bvals_bvecs(fbvals, fbvecs)
     >>> bvals_2s = np.concatenate((bvals, bvals * 2), axis=0)
     >>> bvecs_2s = np.concatenate((bvecs, bvecs), axis=0)
@@ -645,7 +658,7 @@ def dki_signal(gtab, dt, kt, S0=150, snr=None):
 
     # define vector of DKI parameters
     MD = (dt[0] + dt[2] + dt[5]) / 3
-    X = np.concatenate((dt, kt*MD*MD, np.array([np.log(S0)])), axis=0)
+    X = np.concatenate((dt, kt*MD*MD, np.array([-np.log(S0)])), axis=0)
 
     # Compute signals based on the DKI model
     S = np.exp(dot(A, X))
@@ -752,9 +765,8 @@ def multi_tensor_odf(odf_verts, mevals, angles, fractions):
 
     >>> import numpy as np
     >>> from dipy.sims.voxel import multi_tensor_odf, all_tensor_evecs
-    >>> from dipy.data import get_sphere
-    >>> sphere = get_sphere('symmetric724')
-    >>> vertices, faces = sphere.vertices, sphere.faces
+    >>> from dipy.data import default_sphere
+    >>> vertices, faces = default_sphere.vertices, default_sphere.faces
     >>> mevals = np.array(([0.0015, 0.0003, 0.0003],[0.0015, 0.0003, 0.0003]))
     >>> angles = [(0, 0), (90, 0)]
     >>> odf = multi_tensor_odf(vertices, mevals, angles, [50, 50])
@@ -777,7 +789,7 @@ def multi_tensor_odf(odf_verts, mevals, angles, fractions):
 
 
 def single_tensor_rtop(evals=None, tau=1.0 / (4 * np.pi ** 2)):
-    """Simulate a Multi-Tensor rtop.
+    """Simulate a Single-Tensor rtop.
 
     Parameters
     ----------
@@ -996,9 +1008,3 @@ def multi_tensor_msd(mf, mevals=None, tau=1 / (4 * np.pi ** 2)):
     for j, f in enumerate(mf):
         msd += f * single_tensor_msd(mevals[j], tau=tau)
     return msd
-
-# Use standard naming convention, but keep old names
-# for backward compatibility
-SticksAndBall = sticks_and_ball
-SingleTensor = single_tensor
-MultiTensor = multi_tensor

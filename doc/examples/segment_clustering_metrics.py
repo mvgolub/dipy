@@ -21,13 +21,13 @@ streamline bundle.
 
 
 def get_streamlines():
-    from nibabel import trackvis as tv
-    from dipy.data import get_data
+    from dipy.data import get_fnames
+    from dipy.io.streamline import load_tractogram
 
-    fname = get_data('fornix')
-    streams, hdr = tv.read(fname)
-    streamlines = [i[0] for i in streams]
-    return streamlines
+    fname = get_fnames('fornix')
+    fornix = load_tractogram(fname, 'same', bbox_valid_check=False)
+
+    return fornix.streamlines
 
 """
 .. _clustering-examples-AveragePointwiseEuclideanMetric:
@@ -154,13 +154,13 @@ for cluster, color in zip(clusters, colormap):
     colormap_full[cluster.indices] = color
 
 # Visualization
-ren = window.Renderer()
-window.clear(ren)
-ren.SetBackground(0, 0, 0)
-ren.add(actor.streamtube(streamlines, colormap_full))
-window.record(ren, out_path='cosine_metric.png', size=(600, 600))
+scene = window.Scene()
+scene.clear()
+scene.SetBackground(0, 0, 0)
+scene.add(actor.streamtube(streamlines, colormap_full))
+window.record(scene, out_path='cosine_metric.png', size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: cosine_metric.png

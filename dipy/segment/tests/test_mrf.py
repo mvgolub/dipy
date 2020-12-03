@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from dipy.data import get_data
+from dipy.data import get_fnames
 from dipy.sims.voxel import add_noise
 from dipy.segment.mrf import (ConstantObservationModel,
                               IteratedConditionalModes)
@@ -8,7 +8,7 @@ from dipy.segment.tissue import (TissueClassifierHMRF)
 
 
 # Load a coronal slice from a T1-weighted MRI
-fname = get_data('t1_coronal_slice')
+fname = get_fnames('t1_coronal_slice')
 single_slice = np.load(fname)
 
 # Stack a few copies to form a 3D volume
@@ -45,13 +45,13 @@ square_gauss[99:157, 99:157, :] = square_gauss[99:157, 99:157, :] + noise_3
 
 square_1 = np.zeros((256, 256, 3)) + 0.001
 square_1 = add_noise(square_1, 10000, 1, noise_type='gaussian')
-temp_1 = np.random.random_integers(20, size=(171, 171, 3))
+temp_1 = np.random.randint(1, 21, size=(171, 171, 3))
 temp_1 = np.where(temp_1 < 20, 1, 3)
 square_1[42:213, 42:213, :] = temp_1
-temp_2 = np.random.random_integers(20, size=(114, 114, 3))
+temp_2 = np.random.randint(1, 21, size=(114, 114, 3))
 temp_2 = np.where(temp_2 < 19, 2, 1)
 square_1[71:185, 71:185, :] = temp_2
-temp_3 = np.random.random_integers(20, size=(58, 58, 3))
+temp_3 = np.random.randint(1, 21, size=(58, 58, 3))
 temp_3 = np.where(temp_3 < 20, 3, 1)
 square_1[99:157, 99:157, :] = temp_3
 
@@ -61,10 +61,8 @@ def test_grayscale_image():
     com = ConstantObservationModel()
     icm = IteratedConditionalModes()
 
-    mu, sigma = com.initialize_param_uniform(image, nclasses)
-    sigmasq = sigma ** 2
+    mu, sigmasq = com.initialize_param_uniform(image, nclasses)
     npt.assert_array_almost_equal(mu, np.array([0., 0.25, 0.5, 0.75]))
-    npt.assert_array_almost_equal(sigma, np.array([1.0, 1.0, 1.0, 1.0]))
     npt.assert_array_almost_equal(sigmasq, np.array([1.0, 1.0, 1.0, 1.0]))
 
     neglogl = com.negloglikelihood(image, mu, sigmasq, nclasses)
@@ -132,15 +130,13 @@ def test_grayscale_iter():
     com = ConstantObservationModel()
     icm = IteratedConditionalModes()
 
-    mu, sigma = com.initialize_param_uniform(image, nclasses)
-    sigmasq = sigma ** 2
+    mu, sigmasq = com.initialize_param_uniform(image, nclasses)
     neglogl = com.negloglikelihood(image, mu, sigmasq, nclasses)
     initial_segmentation = icm.initialize_maximum_likelihood(neglogl)
     npt.assert_(initial_segmentation.max() == nclasses - 1)
     npt.assert_(initial_segmentation.min() == 0)
 
-    mu, sigma = com.seg_stats(image, initial_segmentation, nclasses)
-    sigmasq = sigma ** 2
+    mu, sigmasq = com.seg_stats(image, initial_segmentation, nclasses)
     npt.assert_(mu[0] >= 0.0)
     npt.assert_(mu[1] >= 0.0)
     npt.assert_(mu[2] >= 0.0)
@@ -158,7 +154,7 @@ def test_grayscale_iter():
         image_gauss = image
 
     final_segmentation = np.empty_like(image)
-    seg_init = initial_segmentation.copy()
+    seg_init = initial_segmentation
     energies = []
 
     for i in range(max_iter):
@@ -219,9 +215,9 @@ def test_grayscale_iter():
         print(energy[energy > -np.inf].sum())
         energies.append(energy[energy > -np.inf].sum())
 
-        initial_segmentation = final_segmentation.copy()
-        mu = mu_upd.copy()
-        sigmasq = sigmasq_upd.copy()
+        initial_segmentation = final_segmentation
+        mu = mu_upd
+        sigmasq = sigmasq_upd
 
     npt.assert_(energies[-1] < energies[0])
 
@@ -236,9 +232,8 @@ def test_square_iter():
 
     initial_segmentation = square
 
-    mu, sigma = com.seg_stats(square_gauss, initial_segmentation,
-                              nclasses)
-    sigmasq = sigma ** 2
+    mu, sigmasq = com.seg_stats(square_gauss, initial_segmentation,
+                                nclasses)
     npt.assert_(mu[0] >= 0.0)
     npt.assert_(mu[1] >= 0.0)
     npt.assert_(mu[2] >= 0.0)
@@ -249,7 +244,7 @@ def test_square_iter():
     npt.assert_(sigmasq[3] >= 0.0)
 
     final_segmentation = np.empty_like(square_gauss)
-    seg_init = initial_segmentation.copy()
+    seg_init = initial_segmentation
     energies = []
 
     for i in range(max_iter):
@@ -314,9 +309,9 @@ def test_square_iter():
 
         energies.append(energy[energy > -np.inf].sum())
 
-        initial_segmentation = final_segmentation.copy()
-        mu = mu_upd.copy()
-        sigmasq = sigmasq_upd.copy()
+        initial_segmentation = final_segmentation
+        mu = mu_upd
+        sigmasq = sigmasq_upd
 
     difference_map = np.abs(seg_init - final_segmentation)
     npt.assert_(np.abs(np.sum(difference_map)) == 0.0)
@@ -327,7 +322,7 @@ def test_icm_square():
     com = ConstantObservationModel()
     icm = IteratedConditionalModes()
 
-    initial_segmentation = square.copy()
+    initial_segmentation = square
 
     mu, sigma = com.seg_stats(square_1, initial_segmentation,
                               nclasses)
@@ -356,10 +351,10 @@ def test_icm_square():
 
         final_segmentation_1, energy_1 = icm.icm_ising(negll, beta,
                                                        initial_segmentation)
-        initial_segmentation = final_segmentation_1.copy()
+        initial_segmentation = final_segmentation_1
 
     beta = 2
-    initial_segmentation = square.copy()
+    initial_segmentation = square
 
     for j in range(max_iter):
 
@@ -369,7 +364,7 @@ def test_icm_square():
 
         final_segmentation_2, energy_2 = icm.icm_ising(negll, beta,
                                                        initial_segmentation)
-        initial_segmentation = final_segmentation_2.copy()
+        initial_segmentation = final_segmentation_2
 
     difference_map = np.abs(final_segmentation_1 - final_segmentation_2)
     npt.assert_(np.abs(np.sum(difference_map)) != 0)

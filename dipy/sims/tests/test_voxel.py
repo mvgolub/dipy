@@ -1,30 +1,32 @@
 import numpy as np
 
-from nose.tools import assert_almost_equal
 from numpy.testing import (assert_array_equal, assert_array_almost_equal,
-                           assert_)
+                           assert_, assert_almost_equal)
 
-from dipy.sims.voxel import (_check_directions, SingleTensor, MultiTensor,
-                             all_tensor_evecs, add_noise, single_tensor,
-                             sticks_and_ball, multi_tensor_dki,
-                             kurtosis_element, dki_signal)
+from dipy.sims.voxel import (_check_directions, all_tensor_evecs, add_noise,
+                             single_tensor, sticks_and_ball, multi_tensor_dki,
+                             kurtosis_element, dki_signal, multi_tensor)
 # from dipy.core.geometry import vec2vec_rotmat
-from dipy.data import get_data, get_sphere
+from dipy.data import get_fnames
 from dipy.core.gradients import gradient_table
 from dipy.io.gradients import read_bvals_bvecs
 
 
-fimg, fbvals, fbvecs = get_data('small_64D')
-bvals, bvecs = read_bvals_bvecs(fbvals, fbvecs)
-gtab = gradient_table(bvals, bvecs)
+def setup_module():
+    """Module-level setup"""
+    global gtab, gtab_2s
 
-# 2 shells for techniques that requires multishell data
-bvals_2s = np.concatenate((bvals, bvals * 2), axis=0)
-bvecs_2s = np.concatenate((bvecs, bvecs), axis=0)
-gtab_2s = gradient_table(bvals_2s, bvecs_2s)
+    _, fbvals, fbvecs = get_fnames('small_64D')
+    bvals, bvecs = read_bvals_bvecs(fbvals, fbvecs)
+    gtab = gradient_table(bvals, bvecs)
+
+    # 2 shells for techniques that requires multishell data
+    bvals_2s = np.concatenate((bvals, bvals * 2), axis=0)
+    bvecs_2s = np.concatenate((bvecs, bvecs), axis=0)
+    gtab_2s = gradient_table(bvals_2s, bvecs_2s)
 
 
-# Unused with missing refernces to basis
+# Unused with missing references to basis
 # def diff2eigenvectors(dx, dy, dz):
 #     """ numerical derivatives 2 eigenvectors
 #     """
@@ -82,16 +84,16 @@ def test_sticks_and_ball():
     S, sticks = sticks_and_ball(gtab, d=d, S0=1, angles=[(0, 0), ],
                                 fractions=[100], snr=None)
     assert_array_equal(sticks, [[0, 0, 1]])
-    S_st = SingleTensor(gtab, 1, evals=[d, 0, 0], evecs=[[0, 0, 0],
-                                                         [0, 0, 0],
-                                                         [1, 0, 0]])
+    S_st = single_tensor(gtab, 1, evals=[d, 0, 0], evecs=[[0, 0, 0],
+                                                          [0, 0, 0],
+                                                          [1, 0, 0]])
     assert_array_almost_equal(S, S_st)
 
 
 def test_single_tensor():
     evals = np.array([1.4, .35, .35]) * 10 ** (-3)
     evecs = np.eye(3)
-    S = SingleTensor(gtab, 100, evals, evecs, snr=None)
+    S = single_tensor(gtab, 100, evals, evecs, snr=None)
     assert_array_almost_equal(S[gtab.b0s_mask], 100)
     assert_(np.mean(S[~gtab.b0s_mask]) < 100)
 
@@ -103,8 +105,6 @@ def test_single_tensor():
 
 
 def test_multi_tensor():
-    sphere = get_sphere('symmetric724')
-    # vertices = sphere.vertices
     mevals = np.array(([0.0015, 0.0003, 0.0003],
                        [0.0015, 0.0003, 0.0003]))
     e0 = np.array([np.sqrt(2) / 2., np.sqrt(2) / 2., 0])
@@ -114,7 +114,7 @@ def test_multi_tensor():
     # assert_(odf.shape == (len(vertices),))
     # assert_(np.all(odf <= 1) & np.all(odf >= 0))
 
-    fimg, fbvals, fbvecs = get_data('small_101D')
+    fimg, fbvals, fbvecs = get_fnames('small_101D')
     bvals, bvecs = read_bvals_bvecs(fbvals, fbvecs)
     gtab = gradient_table(bvals, bvecs)
 
@@ -123,8 +123,9 @@ def test_multi_tensor():
 
     Ssingle = 0.5*s1 + 0.5*s2
 
-    S, sticks = MultiTensor(gtab, mevals, S0=100, angles=[(90, 45), (45, 90)],
-                            fractions=[50, 50], snr=None)
+    S, _ = multi_tensor(gtab, mevals, S0=100,
+                        angles=[(90, 45), (45, 90)],
+                        fractions=[50, 50], snr=None)
 
     assert_array_almost_equal(S, Ssingle)
 
@@ -211,7 +212,7 @@ def test_kurtosis_elements():
                     key = (i+1) * (j+1) * (k+1) * (l+1)
                     assert_almost_equal(kurtosis_element(mD, frac, i, k, j, l),
                                         kt_ref[key])
-                    # Testing optional funtion inputs
+                    # Testing optional function inputs
                     assert_almost_equal(kurtosis_element(mD, frac, i, k, j, l),
                                         kurtosis_element(mD, frac, i, k, j, l,
                                                          D, MD))
@@ -310,6 +311,51 @@ def test_DKI_crossing_fibers_simulations():
                               dki_signal(gtab_2s, dt_ref, kt_ref, S0=1.,
                                          snr=None),
                               decimal=5)
+
+
+def test_single_tensor_btens():
+    """ Testing single tensor simulations when a btensor is given
+    """
+    gtab_lte = gradient_table(gtab.bvals, gtab.bvecs, btens='LTE')
+    gtab_ste = gradient_table(gtab.bvals, gtab.bvecs, btens='STE')
+
+    # Check if Signals producted with LTE btensor gives same results as
+    # previous simulations not specifying b-tensor
+    evecs = np.eye(3)
+    evals = np.array([1.4, .35, .35]) * 10 ** (-3)
+    S_ref = single_tensor(gtab, 100, evals, evecs, snr=None)
+    S_btens = single_tensor(gtab_lte, 100, evals, evecs, snr=None)
+    assert_array_almost_equal(S_ref, S_btens)
+
+    # Check if Signals producted with STE btensor gives signals that matches
+    # the signal decay for mean diffusivity
+    md = np.sum(evals)/3
+    S_ref = 100 * np.exp(-gtab.bvals * md)
+    S_btens = single_tensor(gtab_ste, 100, evals, evecs, snr=None)
+    assert_array_almost_equal(S_ref, S_btens)
+
+
+def test_multi_tensor_btens():
+    """ Testing multi tensor simulations when a btensor is given
+    """
+    mevals = np.array(([0.003, 0.0002, 0.0002],
+                       [0.0015, 0.0003, 0.0003]))
+    e0 = np.array([np.sqrt(2) / 2., np.sqrt(2) / 2., 0])
+    e1 = np.array([0, np.sqrt(2) / 2., np.sqrt(2) / 2.])
+    mevecs = [all_tensor_evecs(e0), all_tensor_evecs(e1)]
+
+    gtab_ste = gradient_table(gtab.bvals, gtab.bvecs, btens='STE')
+
+    s1 = single_tensor(gtab_ste, 100, mevals[0], mevecs[0], snr=None)
+    s2 = single_tensor(gtab_ste, 100, mevals[1], mevecs[1], snr=None)
+
+    Ssingle = 0.5*s1 + 0.5*s2
+
+    S, _ = multi_tensor(gtab_ste, mevals, S0=100,
+                        angles=[(90, 45), (45, 90)],
+                        fractions=[50, 50], snr=None)
+
+    assert_array_almost_equal(S, Ssingle)
 
 
 if __name__ == "__main__":

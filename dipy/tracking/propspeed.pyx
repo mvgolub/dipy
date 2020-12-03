@@ -10,6 +10,8 @@ cimport cython
 import numpy as np
 cimport numpy as cnp
 
+from dipy.core.interpolation cimport _trilinear_interpolation_iso, offset
+
 cdef extern from "dpy_math.h" nogil:
     double floor(double x)
     float fabs(float x)
@@ -25,40 +27,12 @@ DEF PEAK_NO=5
 # initialize numpy runtime
 cnp.import_array()
 
-@cython.cdivision(True)
-cdef cnp.npy_intp offset(cnp.npy_intp *indices,
-                         cnp.npy_intp *strides,
-                         int lenind,
-                         int typesize) nogil:
-    ''' Access any element of any ndimensional numpy array using cython.
-
-    Parameters
-    ------------
-    indices : cnp.npy_intp * (int64 *)
-        Indices of the array for which we want to find the offset.
-    strides : cnp.npy_intp * strides
-    lenind : int, len(indices)
-    typesize : int
-        Number of bytes for data type e.g. if 8 for double, 4 for int32
-
-    Returns
-    ----------
-    offset : integer
-        Element position in array
-    '''
-    cdef int i
-    cdef cnp.npy_intp summ = 0
-    for i from 0 <= i < lenind:
-        summ += strides[i] * indices[i]
-    summ /= <cnp.npy_intp>typesize
-    return summ
-
 
 def ndarray_offset(cnp.ndarray[cnp.npy_intp, ndim=1] indices,
                    cnp.ndarray[cnp.npy_intp, ndim=1] strides,
                    int lenind,
                    int typesize):
-    ''' Find offset in an N-dimensional ndarray using strides
+    """ Find offset in an N-dimensional ndarray using strides
 
     Parameters
     ----------
@@ -87,7 +61,7 @@ def ndarray_offset(cnp.ndarray[cnp.npy_intp, ndim=1] indices,
     4
     >>> A.ravel()[4]==A[1,1]
     True
-    '''
+    """
     if not cnp.PyArray_CHKFLAGS(indices, cnp.NPY_C_CONTIGUOUS):
         raise ValueError(u"indices is not C contiguous")
     if not cnp.PyArray_CHKFLAGS(strides, cnp.NPY_C_CONTIGUOUS):
@@ -98,113 +72,6 @@ def ndarray_offset(cnp.ndarray[cnp.npy_intp, ndim=1] indices,
                   typesize)
 
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-def map_coordinates_trilinear_iso(cnp.ndarray[double, ndim=3] data,
-                                  cnp.ndarray[double, ndim=2] points,
-                                  cnp.ndarray[cnp.npy_intp, ndim=1] data_strides,
-                                  cnp.npy_intp len_points,
-                                  cnp.ndarray[double, ndim=1] result):
-    ''' Trilinear interpolation (isotropic voxel size)
-
-    Has similar behavior to ``map_coordinates`` from ``scipy.ndimage``
-
-    Parameters
-    ----------
-    data : array, float64 shape (X, Y, Z)
-    points : array, float64 shape(N, 3)
-    data_strides : array npy_intp shape (3,)
-        Strides sequence for `data` array
-    len_points : cnp.npy_intp
-        Number of points to interpolate
-    result : array, float64 shape(N)
-        The output array. This array should be initialized before you call
-        this function.  On exit it will contain the interpolated values from
-        `data` at points given by `points`.
-
-    Returns
-    -------
-    None
-
-    Notes
-    -----
-    The output array `result` is filled in-place.
-    '''
-    cdef:
-        double w[8], values[24]
-        cnp.npy_intp index[24], off, i, j
-        double *ds=<double *> cnp.PyArray_DATA(data)
-        double *ps=<double *> cnp.PyArray_DATA(points)
-        cnp.npy_intp *strides = <cnp.npy_intp *> cnp.PyArray_DATA(data_strides)
-        double *rs=<double *> cnp.PyArray_DATA(result)
-
-    if not cnp.PyArray_CHKFLAGS(data, cnp.NPY_C_CONTIGUOUS):
-        raise ValueError(u"data is not C contiguous")
-    if not cnp.PyArray_CHKFLAGS(points, cnp.NPY_C_CONTIGUOUS):
-        raise ValueError(u"points is not C contiguous")
-    if not cnp.PyArray_CHKFLAGS(data_strides, cnp.NPY_C_CONTIGUOUS):
-        raise ValueError(u"data_strides is not C contiguous")
-    if not cnp.PyArray_CHKFLAGS(result, cnp.NPY_C_CONTIGUOUS):
-        raise ValueError(u"result is not C contiguous")
-    with nogil:
-        for i in range(len_points):
-            _trilinear_interpolation_iso(&ps[i * 3],
-                                         <double *> w,
-                                         <cnp.npy_intp *> index)
-            rs[i] = 0
-            for j in range(8):
-                weight = w[j]
-                off = offset(&index[j * 3], <cnp.npy_intp *> strides, 3, 8)
-                value = ds[off]
-                rs[i] += weight * value
-    return
-
-
-cdef void _trilinear_interpolation_iso(double *X,
-                                       double *W,
-                                       cnp.npy_intp *IN) nogil:
-    ''' Interpolate in 3d volumes given point X
-
-    Returns
-    -------
-    W : weights
-    IN : indices of the volume
-    '''
-    cdef double Xf[3], d[3], nd[3]
-    cdef cnp.npy_intp i
-    # define the rectangular box where every corner is a neighboring voxel
-    # (assuming center) !!! this needs to change for the affine case
-    for i from 0 <= i < 3:
-        Xf[i] = floor(X[i])
-        d[i] = X[i] - Xf[i]
-        nd[i] = 1 - d[i]
-    # weights
-    # the weights are actualy the volumes of the 8 smaller boxes that define
-    # the initial rectangular box for more on trilinear have a look here
-    # http://en.wikipedia.org/wiki/Trilinear_interpolation
-    # http://local.wasp.uwa.edu.au/~pbourke/miscellaneous/interpolation/index.html
-    W[0]=nd[0] * nd[1] * nd[2]
-    W[1]= d[0] * nd[1] * nd[2]
-    W[2]=nd[0] *  d[1] * nd[2]
-    W[3]=nd[0] * nd[1] *  d[2]
-    W[4]= d[0] *  d[1] * nd[2]
-    W[5]=nd[0] *  d[1] *  d[2]
-    W[6]= d[0] * nd[1] *  d[2]
-    W[7]= d[0] *  d[1] *  d[2]
-    # indices
-    # the indices give you the indices of the neighboring voxels (the corners
-    # of the box) e.g. the qa coordinates
-    IN[0] =<cnp.npy_intp>Xf[0];   IN[1] =<cnp.npy_intp>Xf[1];    IN[2] =<cnp.npy_intp>Xf[2]
-    IN[3] =<cnp.npy_intp>Xf[0]+1; IN[4] =<cnp.npy_intp>Xf[1];    IN[5] =<cnp.npy_intp>Xf[2]
-    IN[6] =<cnp.npy_intp>Xf[0];   IN[7] =<cnp.npy_intp>Xf[1]+1;  IN[8] =<cnp.npy_intp>Xf[2]
-    IN[9] =<cnp.npy_intp>Xf[0];   IN[10]=<cnp.npy_intp>Xf[1];    IN[11]=<cnp.npy_intp>Xf[2]+1
-    IN[12]=<cnp.npy_intp>Xf[0]+1; IN[13]=<cnp.npy_intp>Xf[1]+1;  IN[14]=<cnp.npy_intp>Xf[2]
-    IN[15]=<cnp.npy_intp>Xf[0];   IN[16]=<cnp.npy_intp>Xf[1]+1;  IN[17]=<cnp.npy_intp>Xf[2]+1
-    IN[18]=<cnp.npy_intp>Xf[0]+1; IN[19]=<cnp.npy_intp>Xf[1];    IN[20]=<cnp.npy_intp>Xf[2]+1
-    IN[21]=<cnp.npy_intp>Xf[0]+1; IN[22]=<cnp.npy_intp>Xf[1]+1;  IN[23]=<cnp.npy_intp>Xf[2]+1
-    return
-
-
 cdef cnp.npy_intp _nearest_direction(double* dx,
                                      double* qa,
                                      double *ind,
@@ -212,7 +79,7 @@ cdef cnp.npy_intp _nearest_direction(double* dx,
                                      double *odf_vertices,
                                      double qa_thr, double ang_thr,
                                      double *direction) nogil:
-    ''' Give the nearest direction to a point, checking threshold and angle
+    """ Give the nearest direction to a point, checking threshold and angle
 
     Parameters
     ------------
@@ -238,7 +105,7 @@ cdef cnp.npy_intp _nearest_direction(double* dx,
     delta : bool
         Delta funtion: if 1 we give it weighting, if it is 0 we don't give any
         weighting.
-    '''
+    """
     cdef:
         double max_dot = 0
         double angl,curr_dot
@@ -303,8 +170,11 @@ cdef cnp.npy_intp _propagation_direction(double *point,
         double total_w = 0 # total weighting useful for interpolation
         double delta = 0 # store delta function (stopping function) result
         double new_direction[3] # new propagation direction
-        double w[8], qa_tmp[PEAK_NO], ind_tmp[PEAK_NO]
-        cnp.npy_intp index[24], xyz[4]
+        double w[8]
+        double qa_tmp[PEAK_NO]
+        double ind_tmp[PEAK_NO]
+        cnp.npy_intp index[24]
+        cnp.npy_intp xyz[4]
         cnp.npy_intp i, j, m
         double normd
         # number of allowed peaks e.g. for fa is 1 for gqi.qa is 5
@@ -364,10 +234,11 @@ cdef cnp.npy_intp _initial_direction(double* seed,double *qa,
                                      cnp.npy_intp* strides,
                                      cnp.npy_intp ref,
                                      double* direction) nogil:
-    ''' First direction that we get from a seeding point
-    '''
+    """ First direction that we get from a seeding point
+    """
     cdef:
-        cnp.npy_intp point[4],off
+        cnp.npy_intp point[4]
+        cnp.npy_intp off
         cnp.npy_intp i
         double qa_tmp,ind_tmp
     # Very tricky/cool addition/flooring that helps create a valid neighborhood
@@ -376,7 +247,7 @@ cdef cnp.npy_intp _initial_direction(double* seed,double *qa,
     for i from 0 <= i < 3:
         point[i] = <cnp.npy_intp>floor(seed[i] + .5)
     point[3] = ref
-    # Find the offcet in memory to access the qa value
+    # Find the offset in memory to access the qa value
     off = offset(<cnp.npy_intp*>point,strides, 4, 8)
     qa_tmp = qa[off]
     # Check for scalar threshold
@@ -400,7 +271,7 @@ def eudx_both_directions(cnp.ndarray[double, ndim=1] seed,
                          double step_sz,
                          double total_weight,
                          cnp.npy_intp max_points):
-    '''
+    """
     Parameters
     ------------
     seed : array, float64 shape (3,)
@@ -424,7 +295,7 @@ def eudx_both_directions(cnp.ndarray[double, ndim=1] seed,
     Returns
     -------
     track : array, shape (N,3)
-    '''
+    """
     cdef:
         double *ps = <double *> cnp.PyArray_DATA(seed)
         double *pqa = <double*> cnp.PyArray_DATA(qa)
@@ -434,7 +305,10 @@ def eudx_both_directions(cnp.ndarray[double, ndim=1] seed,
         cnp.npy_intp *qa_shape = <cnp.npy_intp *> qa.shape
         cnp.npy_intp *pvstr = <cnp.npy_intp *> odf_vertices.strides
         cnp.npy_intp d, i, j, cnt
-        double direction[3], dx[3], idirection[3], ps2[3]
+        double direction[3]
+        double dx[3]
+        double idirection[3]
+        double ps2[3]
         double tmp, ftmp
     if not cnp.PyArray_CHKFLAGS(seed, cnp.NPY_C_CONTIGUOUS):
         raise ValueError(u"seed is not C contiguous")

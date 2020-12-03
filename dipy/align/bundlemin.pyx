@@ -35,10 +35,10 @@ cdef double min_direct_flip_dist(double *a,double *b,
     Returns
     -------
     out : double
-        mininum of direct and flipped average distances
+        minimum of direct and flipped average distances
 
-    Reference
-    ---------
+    References
+    -----------
     .. [Garyfallidis12] Garyfallidis E. et al., QuickBundles a method for
                         tractography simplification, Frontiers in Neuroscience,
                         vol 6, no 175, 2012.
@@ -273,7 +273,7 @@ def _bundle_minimum_distance_asymmetric(double [:, ::1] static,
     Notes
     -----
     The difference with ``_bundle_minimum_distance`` is that we sum the
-    minimum values only for the static. Therefore, this is an asymetric
+    minimum values only for the static. Therefore, this is an asymmetric
     distance metric. This means that we are weighting only one direction of the
     registration. Not both directions. This can be very useful when we want
     to register a big set of bundles to a small set of bundles.
@@ -303,8 +303,8 @@ def _bundle_minimum_distance_asymmetric(double [:, ::1] static,
 
         min_j = <double *> malloc(static_size * sizeof(double))
 
-        for i in range(static_size):
-            min_j[i] = inf
+        for sz_i in range(static_size):
+            min_j[sz_i] = inf
 
         for i in prange(static_size):
 
@@ -377,7 +377,9 @@ def distance_matrix_mdf(streamlines_a, streamlines_b):
         tracksB64[i] = np.ascontiguousarray(streamlines_b[i], dtype=f64_dt)
     # preallocate buffer array for track distance calculations
     cdef:
-        cnp.float64_t *t1_ptr, *t2_ptr, *min_buffer
+        cnp.float64_t *t1_ptr
+        cnp.float64_t *t2_ptr
+        cnp.float64_t *min_buffer
     # cycle over tracks
     cdef:
         cnp.ndarray [cnp.float64_t, ndim=2] t1, t2

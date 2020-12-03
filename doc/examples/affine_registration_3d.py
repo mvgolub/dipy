@@ -1,16 +1,24 @@
 """
-==========================================
+=========================
 Affine Registration in 3D
-==========================================
+=========================
+
 This example explains how to compute an affine transformation to register two
 3D volumes by maximization of their Mutual Information [Mattes03]_. The
 optimization strategy is similar to that implemented in ANTS [Avants11]_.
+
+We will do this twice. The first part of this tutorial will walk through the
+details of the process with the object-oriented interface implemented in
+the ``dipy.align`` module. The second part will use a simplified functional
+interface.
 """
 
+from os.path import join as pjoin
 import numpy as np
 from dipy.viz import regtools
-from dipy.data import fetch_stanford_hardi, read_stanford_hardi
-from dipy.data.fetcher import fetch_syn_data, read_syn_data
+from dipy.data import fetch_stanford_hardi
+from dipy.data.fetcher import fetch_syn_data
+from dipy.io.image import load_nifti
 from dipy.align.imaffine import (transform_centers_of_mass,
                                  AffineMap,
                                  MutualInformationMetric,
@@ -24,19 +32,23 @@ Let's fetch two b0 volumes, the static image will be the b0 from the Stanford
 HARDI dataset
 """
 
-fetch_stanford_hardi()
-nib_stanford, gtab_stanford = read_stanford_hardi()
-static = np.squeeze(nib_stanford.get_data())[..., 0]
-static_grid2world = nib_stanford.affine
+files, folder = fetch_stanford_hardi()
+static_data, static_affine, static_img = load_nifti(
+                                            pjoin(folder, 'HARDI150.nii.gz'),
+                                            return_img=True)
+static = np.squeeze(static_data)[..., 0]
+static_grid2world = static_affine
 
 """
 Now the moving image
 """
 
-fetch_syn_data()
-nib_syn_t1, nib_syn_b0 = read_syn_data()
-moving = np.array(nib_syn_b0.get_data())
-moving_grid2world = nib_syn_b0.affine
+files, folder2 = fetch_syn_data()
+moving_data, moving_affine, moving_img = load_nifti(
+                                            pjoin(folder2, 'b0.nii.gz'),
+                                            return_img=True)
+moving = moving_data
+moving_grid2world = moving_affine
 
 """
 We can see that the images are far from aligned by drawing one on top of
@@ -167,7 +179,7 @@ want, providing previous results as initialization for the next (the same logic
 as in ANTS). The reason why it is useful is that registration is a non-convex
 optimization problem (it may have more than one local optima), which means that
 it is very important to initialize as close to the solution as possible. For
-example, lets start with our (previously computed) rough transformation
+example, let's start with our (previously computed) rough transformation
 aligning the centers of mass of our images, and then refine it in three stages.
 First look for an optimal translation. The dictionary regtransforms contains
 all available transforms, we obtain one of them by providing its name and the
@@ -203,11 +215,12 @@ regtools.overlay_slices(static, transformed, None, 2,
 .. figure:: transformed_trans_2.png
    :align: center
 
-   Registration result by translating the moving image, using Mutual Information.
+   Registration result by translating the moving image, using
+   Mutual Information.
 """
 
 """
-Now lets refine with a rigid transform (this may even modify our previously
+Now let's refine with a rigid transform (this may even modify our previously
 found optimal translation)
 """
 
@@ -242,8 +255,8 @@ regtools.overlay_slices(static, transformed, None, 2,
 """
 
 """
-Finally, lets refine with a full affine transform (translation, rotation, scale
-and shear), it is safer to fit more degrees of freedom now, since we must be
+Finally, let's refine with a full affine transform (translation, rotation, scale
+and shear), it is safer to fit more degrees of freedom now since we must be
 very close to the optimal transform
 """
 
@@ -276,12 +289,110 @@ regtools.overlay_slices(static, transformed, None, 2,
 
    Registration result with an affine transform, using Mutual Information.
 
+"""
+
+"""
+Now, let's repeat this process with a simplified functional interface:
+"""
+
+from dipy.align import (affine_registration, center_of_mass, translation,
+                        rigid, affine, register_dwi_to_template)
+
+"""
+This interface constructs a pipeline of operations as a sequence of functions
+that each implement one of the transforms.
+"""
+
+pipeline = [center_of_mass, translation, rigid, affine]
+
+"""
+And then applies the functions in the pipeline on the input (from left to
+right) with a call to an `affine_registration` function, which takes optional
+settings for things like the iterations, sigmas and factors.
+"""
+
+xformed_img, reg_affine = affine_registration(
+    moving,
+    static,
+    moving_affine=moving_affine,
+    static_affine=static_affine,
+    nbins=32,
+    metric='MI',
+    pipeline=pipeline,
+    level_iters=level_iters,
+    sigmas=sigmas,
+    factors=factors)
+
+regtools.overlay_slices(static, xformed_img, None, 0,
+                        "Static", "Transformed", "xformed_affine_0.png")
+regtools.overlay_slices(static, xformed_img, None, 1,
+                        "Static", "Transformed", "xformed_affine_1.png")
+regtools.overlay_slices(static, xformed_img, None, 2,
+                        "Static", "Transformed", "xformed_affine_2.png")
+
+
+"""
+
+.. figure:: xformed_affine_0.png
+   :align: center
+.. figure:: xformed_affine_1.png
+   :align: center
+.. figure:: xformed_affine_2.png
+   :align: center
+
+   Registration result with an affine transform, using functional interface.
+
+"""
+
+"""
+Alternatively, you can also use the `register_dwi_to_template` function that
+needs to also know about the gradient table of the DWI data, provided as a
+tuple of (bvals_file, bvecs_file). In this case, we are going to move the
+diffusion data to the B0 image (the opposite of the previous examples), which
+reverses what is the "moving" image and what is "static".
+
+"""
+
+xformed_dwi, reg_affine = register_dwi_to_template(
+    dwi=static_img,
+    gtab=(pjoin(folder, 'HARDI150.bval'),
+          pjoin(folder, 'HARDI150.bvec')),
+    template=moving_img,
+    reg_method="aff",
+    nbins=32,
+    metric='MI',
+    pipeline=pipeline,
+    level_iters=level_iters,
+    sigmas=sigmas,
+    factors=factors)
+
+regtools.overlay_slices(moving, xformed_dwi, None, 0,
+                        "Static", "Transformed", "xformed_dwi_0.png")
+regtools.overlay_slices(moving, xformed_dwi, None, 1,
+                        "Static", "Transformed", "xformed_dwi_1.png")
+regtools.overlay_slices(moving, xformed_dwi, None, 2,
+                        "Static", "Transformed", "xformed_dwi_2.png")
+
+
+
+"""
+
+.. figure:: xformed_dwi_0.png
+   :align: center
+.. figure:: xformed_dwi_1.png
+   :align: center
+.. figure:: xformed_dwi_2.png
+   :align: center
+
+   Same again, using the `dwi_to_template` functional interface.
+
+
 .. [Mattes03] Mattes, D., Haynor, D. R., Vesselle, H., Lewellen, T. K.,
               Eubank, W. (2003). PET-CT image registration in the chest using
               free-form deformations. IEEE Transactions on Medical Imaging,
               22(1), 120-8.
 .. [Avants11] Avants, B. B., Tustison, N., & Song, G. (2011). Advanced
-              Normalization Tools ( ANTS ), 1-35.
+              Normalization Tools (ANTS), 1-35.
 
 .. include:: ../links_names.inc
 

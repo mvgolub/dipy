@@ -4,27 +4,32 @@
 Diffusion Imaging In Python
 ###########################
 
-DIPY_ is a **free** and **open source** software project for computational neuroanatomy,
-focusing mainly on **diffusion** *magnetic resonance imaging* (dMRI) analysis. It implements a
-broad range of algorithms for denoising, registration, reconstruction, tracking, clustering,
-visualization, and statistical analysis of MRI data.
+DIPY_ is the paragon 3D/4D+ imaging library in Python. Contains generic methods for
+spatial normalization, signal processing, machine learning, statistical analysis
+and visualization of medical images. Additionally, it contains
+specialized methods for computational anatomy including diffusion,
+perfusion and structural imaging.
+
+
 
 **********
 Highlights
 **********
 
-**DIPY 0.14.0** is now available. New features include:
+**DIPY 1.3.0** is now available. New features include:
 
-- RecoBundles: anatomically relevant segmentation of bundles
-- New super fast clustering algorithm: QuickBundlesX
-- New tracking algorithm: Particle Filtering Tracking.
-- New tracking algorithm: Probabilistic Residual Bootstrap Tracking.
-- Integration of the Streamlines API for reading, saving and processing tractograms.
-- Fiber ORientation Estimated using Continuous Axially Symmetric Tensors (Forecast).
-- New command line interfaces.
-- Deprecated fvtk (old visualization framework).
-- A range of new visualization improvements.
+- Gibbs Ringing correction 10X faster.
+- Spherical harmonics basis definitions updated.
+- Added SMT2 metrics from mean signal diffusion kurtosis.
+- New interface functions added to the registration module.
+- New linear transform added to the registration module.
+- New tutorials for DIPY command line interfaces.
+- Fixed compatibility issues with different dependencies.
+- Tqdm (multiplatform progress bar for data downloading) dependency added.
 - Large documentation update.
+- Bundle section highlight from BUAN added in Horizon.
+- Closed 134 issues and merged 49 pull requests.
+
 
 See :ref:`Older Highlights <old_highlights>`.
 
@@ -32,10 +37,10 @@ See :ref:`Older Highlights <old_highlights>`.
 *************
 Announcements
 *************
+- :doc:`DIPY 1.3.0 <release_notes/release1.3>` released November 3, 2020.
+- :doc:`DIPY 1.2.0 <release_notes/release1.2>` released September 9, 2020.
+- :doc:`DIPY 1.1.1 <release_notes/release1.1>` released January 10, 2020.
 
-- :ref:`DIPY 0.14 <release0.14>` released May 1, 2018.
-- :ref:`DIPY 0.13 <release0.13>` released October 24, 2017.
-- :ref:`DIPY 0.12 <release0.12>` released June 26, 2017.
 
 See some of our :ref:`Past Announcements <old_news>`
 
@@ -68,7 +73,7 @@ text files. Finally, we save our result as a Nifti file ::
     save_nifti('colorfa.nii.gz', tenfit.color_fa, affine)
 
 As an exercise, you can try to calculate `color FA` with your datasets. You will need
-to replace the filepaths `fimg`, `fbval` and `fbvec`. Here is what
+to replace the filepaths `fdwi`, `fbval` and `fbvec`. Here is what
 a slice should look like.
 
 .. image:: _static/colorfa.png
@@ -96,11 +101,15 @@ We acknowledge support from the following organizations:
 
 - The department of Intelligent Systems Engineering of Indiana University.
 
+- The National Institute of Biomedical Imaging and Bioengineering, NIH.
+
 - The Gordon and Betty Moore Foundation and the Alfred P. Sloan Foundation, through the
   University of Washington eScience Institute Data Science Environment.
 
 - Google supported DIPY through the Google Summer of Code Program during
-  Summer 2015 and 2016.
+  Summer 2015, 2016 and 2018.
+
+- The International Neuroinformatics Coordination Facility.
 
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-''' Checkout gitwash repo into directory and do search replace on name '''
+""" Checkout gitwash repo into directory and do search replace on name """
 
 import os
 from os.path import join as pjoin
@@ -51,9 +51,9 @@ def cp_files(in_path, globs, out_path):
 
 
 def filename_search_replace(sr_pairs, filename, backup=False):
-    ''' Search and replace for expressions in files
+    """ Search and replace for expressions in files
 
-    '''
+    """
     in_txt = open(filename, 'rt').read(-1)
     out_txt = in_txt[:]
     for in_exp, out_exp in sr_pairs:
@@ -72,14 +72,14 @@ def copy_replace(replace_pairs,
                  out_path,
                  cp_globs=('*',),
                  rep_globs=('*',),
-                 renames = ()):
+                 renames=()):
     out_fnames = cp_files(repo_path, cp_globs, out_path)
     renames = [(re.compile(in_exp), out_exp) for in_exp, out_exp in renames]
     fnames = []
     for rep_glob in rep_globs:
         fnames += fnmatch.filter(out_fnames, rep_glob)
     if verbose:
-        print '\n'.join(fnames)
+        print('\n'.join(fnames))
     for fname in fnames:
         filename_search_replace(replace_pairs, fname, False)
         for in_exp, out_exp in renames:
@@ -115,8 +115,8 @@ def make_link_targets(proj_name,
     .. _`proj_name` mailing list: url
     """
     link_contents = open(known_link_fname, 'rt').readlines()
-    have_url = not url is None
-    have_ml_url = not ml_url is None
+    have_url = url is not None
+    have_ml_url = ml_url is not None
     have_gh_url = None
     for line in link_contents:
         if not have_url:
@@ -135,12 +135,12 @@ def make_link_targets(proj_name,
         raise RuntimeError('Need command line or known project '
                            'and / or mailing list URLs')
     lines = []
-    if not url is None:
+    if url is not None:
         lines.append('.. _`%s`: %s\n' % (proj_name, url))
     if not have_gh_url:
         gh_url = 'http://github.com/%s/%s\n' % (user_name, repo_name)
         lines.append('.. _`%s github`: %s\n' % (proj_name, gh_url))
-    if not ml_url is None:
+    if ml_url is not None:
         lines.append('.. _`%s mailing list`: %s\n' % (proj_name, ml_url))
     if len(lines) == 0:
         # Nothing to do
@@ -152,13 +152,13 @@ def make_link_targets(proj_name,
     out_links.close()
 
 
-USAGE = ''' <output_directory> <project_name>
+USAGE = """ <output_directory> <project_name>
 
 If not set with options, the repository name is the same as the <project
 name>
 
 If not set with options, the main github user is the same as the
-repository name.'''
+repository name."""
 
 
 GITWASH_CENTRAL = 'git://github.com/matthew-brett/gitwash.git'
@@ -176,7 +176,7 @@ def main():
                       metavar="MAIN_GH_USER")
     parser.add_option("--gitwash-url", dest="gitwash_url",
                       help="URL to gitwash repository - default %s"
-                      % GITWASH_CENTRAL, 
+                      % GITWASH_CENTRAL,
                       default=GITWASH_CENTRAL,
                       metavar="GITWASH_URL")
     parser.add_option("--gitwash-branch", dest="gitwash_branch",

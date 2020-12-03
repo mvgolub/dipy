@@ -5,7 +5,7 @@ Using the RESTORE algorithm for robust tensor fitting
 
 The diffusion tensor model takes into account certain kinds of noise (thermal),
 but not other kinds, such as "physiological" noise. For example, if a subject
-moves during the acquisition of one of the diffusion-weighted samples, this
+moves during acquisition of one of the diffusion-weighted samples, this
 might have a substantial effect on the parameters of the tensor fit calculated
 in all voxels in the brain for that subject. One of the pernicious consequences
 of this is that it can lead to wrong interpretation of group differences. For
@@ -28,7 +28,6 @@ We start by importing a few of the libraries we will use.
 """
 
 import numpy as np
-import nibabel as nib
 
 """
 The module ``dipy.reconst.dti`` contains the implementation of tensor fitting,
@@ -44,12 +43,23 @@ import dipy.reconst.dti as dti
 import dipy.data as dpd
 
 """
+``dipy.io.image`` is for loading / saving imaging datasets
+``dipy.io.gradients`` is for loading / saving our bvals and bvecs
+"""
+
+from dipy.io.image import load_nifti, save_nifti
+from dipy.io.gradients import read_bvals_bvecs
+from dipy.core.gradients import gradient_table
+
+"""
 ``dipy.viz`` package is used for 3D visualization and matplotlib for 2D
 visualizations:
 """
 
 from dipy.viz import window, actor
 import matplotlib.pyplot as plt
+
+import dipy.denoise.noise_estimate as ne
 
 # Enables/disables interactive visualization
 interactive = False
@@ -60,8 +70,11 @@ dataset of a single subject. The size of this dataset is 87 MBytes. You only
 need to fetch once.
 """
 
-dpd.fetch_stanford_hardi()
-img, gtab = dpd.read_stanford_hardi()
+hardi_fname, hardi_bval_fname, hardi_bvec_fname = dpd.get_fnames('stanford_hardi')
+data, affine = load_nifti(hardi_fname)
+
+bvals, bvecs = read_bvals_bvecs(hardi_bval_fname, hardi_bvec_fname)
+gtab = gradient_table(bvals, bvecs)
 
 """
 We initialize a DTI model class instance using the gradient table used in the
@@ -84,7 +97,7 @@ roi_idx = (slice(20, 50), slice(55, 85), slice(38, 39))
 And use them to index into the data:
 """
 
-data = img.get_data()[roi_idx]
+data = data[roi_idx]
 
 """
 This dataset is not very noisy, so we will artificially corrupt it to simulate
@@ -98,18 +111,19 @@ fa1 = fit_wls.fa
 evals1 = fit_wls.evals
 evecs1 = fit_wls.evecs
 cfa1 = dti.color_fa(fa1, evecs1)
-sphere = dpd.get_sphere('symmetric724')
+sphere = dpd.default_sphere
 
 """
 We visualize the ODFs in the ROI using ``dipy.viz`` module:
 """
 
-ren = window.Renderer()
-ren.add(actor.tensor_slicer(evals1, evecs1, scalar_colors=cfa1, sphere=sphere, scale=0.3))
+scene = window.Scene()
+scene.add(actor.tensor_slicer(evals1, evecs1, scalar_colors=cfa1,
+                              sphere=sphere, scale=0.3))
 print('Saving illustration as tensor_ellipsoids_wls.png')
-window.record(ren, out_path='tensor_ellipsoids_wls.png', size=(600, 600))
+window.record(scene, out_path='tensor_ellipsoids_wls.png', size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: tensor_ellipsoids_wls.png
@@ -118,7 +132,7 @@ if interactive:
    Tensor Ellipsoids.
 """
 
-window.clear(ren)
+scene.clear()
 
 """
 Next, we corrupt the data with some noise. To simulate a subject that moves
@@ -139,12 +153,14 @@ evals2 = fit_wls_noisy.evals
 evecs2 = fit_wls_noisy.evecs
 cfa2 = dti.color_fa(fa2, evecs2)
 
-ren = window.Renderer()
-ren.add(actor.tensor_slicer(evals2, evecs2, scalar_colors=cfa2, sphere=sphere, scale=0.3))
+scene = window.Scene()
+scene.add(actor.tensor_slicer(evals2, evecs2, scalar_colors=cfa2,
+                              sphere=sphere, scale=0.3))
 print('Saving illustration as tensor_ellipsoids_wls_noisy.png')
-window.record(ren, out_path='tensor_ellipsoids_wls_noisy.png', size=(600, 600))
+window.record(scene, out_path='tensor_ellipsoids_wls_noisy.png',
+              size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 In places where the tensor model is particularly sensitive to noise, the
@@ -160,8 +176,6 @@ estimate what would be a reasonable amount of noise to expect in the
 measurement. To do that, we use the ``dipy.denoise.noise_estimate`` module:
 
 """
-
-import dipy.denoise.noise_estimate as ne
 sigma = ne.estimate_sigma(data)
 
 """
@@ -177,12 +191,14 @@ evals3 = fit_restore_noisy.evals
 evecs3 = fit_restore_noisy.evecs
 cfa3 = dti.color_fa(fa3, evecs3)
 
-ren = window.Renderer()
-ren.add(actor.tensor_slicer(evals3, evecs3, scalar_colors=cfa3, sphere=sphere, scale=0.3))
+scene = window.Scene()
+scene.add(actor.tensor_slicer(evals3, evecs3, scalar_colors=cfa3,
+                              sphere=sphere, scale=0.3))
 print('Saving illustration as tensor_ellipsoids_restore_noisy.png')
-window.record(ren, out_path='tensor_ellipsoids_restore_noisy.png', size=(600, 600))
+window.record(scene, out_path='tensor_ellipsoids_restore_noisy.png',
+              size=(600, 600))
 if interactive:
-    window.show(ren)
+    window.show(scene)
 
 """
 .. figure:: tensor_ellipsoids_restore_noisy.png

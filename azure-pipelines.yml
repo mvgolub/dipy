@@ -1,0 +1,78 @@
+trigger:
+- master
+- maint/*
+
+pr:
+- master
+- maint/*
+
+jobs:
+- template: ci/azure/osx.yml
+  parameters:
+    name: OSX
+    vmImage: macOS-latest
+    matrix:
+      Python37-64bit + OPTIONAL_DEPS:
+        python.version: '3.7'
+        EXTRA_DEPENDS: "scikit_learn pandas statsmodels tables scipy"
+      Python37-64bit:
+        python.version: '3.7'
+      Python38-64bit:
+        python.version: '3.8'
+      CONDA Python37-64bit + OPTIONAL_DEPS:
+        python.version: '3.7'
+        EXTRA_DEPENDS: "scikit-learn pandas statsmodels pytables scipy==1.2"
+        INSTALL_TYPE: "conda"
+      CONDA Python37-64bit:
+        python.version: '3.7'
+        INSTALL_TYPE: "conda"
+      CONDA Python36-64bit:
+        python.version: '3.6'
+        INSTALL_TYPE: "conda"
+      Python37-64bit + VIZ:
+        TEST_WITH_XVFB: "1"
+        python.version: '3.7'
+        MESA_GL_VERSION_OVERRIDE: '3.3'
+        LIBGL_ALWAYS_INDIRECT: 'y'
+        EXTRA_DEPENDS: "scikit_learn vtk fury scipy xvfbwrapper"
+      # TODO: Need to figure out how to allow failure before any activation
+      # Python37-64bit - PRE:
+      #   USE_PRE: 1
+      #   python.version: '3.7'
+      #   EXTRA_DEPENDS: "scikit_learn scipy statsmodels pandas "
+
+- template: ci/azure/windows.yml
+  parameters:
+    name: Windows
+    vmImage: vs2017-win2016
+    matrix:
+      Python37-64bit + OPTIONAL_DEPS:
+        python.version: '3.7'
+        EXTRA_DEPENDS: "scikit_learn pandas statsmodels tables scipy"
+      # Python38-64bit:
+      #   python.version: '3.8'
+      Python37-64bit:
+        python.version: '3.7'
+      Python36-64bit:
+        python.version: '3.6'
+      CONDA Python37-64bit + OPTIONAL_DEPS:
+        python.version: '3.7'
+        EXTRA_DEPENDS: "scikit-learn pandas statsmodels pytables scipy"
+        INSTALL_TYPE: "conda"
+      CONDA Python37-64bit:
+        python.version: '3.7'
+        INSTALL_TYPE: "conda"
+      CONDA Python36-64bit:
+        python.version: '3.6'
+        INSTALL_TYPE: "conda"
+      Python37-64bit + VIZ:
+        TEST_WITH_XVFB: "1"
+        python.version: '3.7'
+        MESA_GL_VERSION_OVERRIDE: '3.3'
+        LIBGL_ALWAYS_INDIRECT: 'y'
+        EXTRA_DEPENDS: "scikit_learn vtk fury scipy"
+      # TODO: Need to figure out how to allow failure before any activation
+      # Python37-64bit - PRE:
+      #   USE_PRE: 1
+      #   python.version: '3.7'
+      #   EXTRA_DEPENDS: "scikit_learn scipy statsmodels pandas "
